@@ -1,8 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
 import { ReactNode, createContext } from "react";
-import { Database } from "../types/database.types";
+import { Database } from "../types/__database.types__";
 import React from "react";
-import { CreateProperty } from "../types/types";
+import { Property } from "../types/types";
 
 // Create a single supabase client for interacting with your database
 const supabase = createClient<Database>(
@@ -23,11 +23,39 @@ export const SupabaseProvider = ({ children }: SupabaseProviderProps) => (
 );
 
 /// Supabase DB calls
-export const createProperty = async (createData: CreateProperty) => {
-  const { data, error } = await supabase
-    .from("houses")
-    .insert(createData)
-    .select();
+export const getSessionUserId = async (): Promise<string | undefined> => {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  return session?.user.id;
+};
 
-  return { data, error };
+export const getProperties = async () => {
+  const userId = await getSessionUserId();
+
+  return await supabase.from("properties").select().eq("user_id", userId);
+};
+
+export const createProperty = async (data: Property) => {
+  const userId = await getSessionUserId();
+
+  return await supabase
+    .from("properties")
+    .insert({
+      ...data,
+      user_id: userId,
+    })
+    .select();
+};
+
+export const updateProperty = async (data: Property) => {
+  return await supabase
+    .from("properties")
+    .update(data)
+    .eq("id", data.id)
+    .select();
+};
+
+export const deleteProperty = async (data: Property) => {
+  return await supabase.from("properties").delete().eq("id", data.id);
 };

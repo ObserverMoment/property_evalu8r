@@ -1,0 +1,72 @@
+import React from "react";
+import { Property } from "../types/types";
+import { useFormState } from "./useFormState";
+import { updateProperty } from "../common/supabase";
+import { propertyFieldDefs } from "../common/propertyUtils";
+import PropertyFieldsForm from "./PropertyFieldsForm";
+import { convertToTitleCase } from "../common/utils";
+import { MessageInstance } from "antd/es/message/interface";
+
+function UpdateProperty({
+  property,
+  closeDrawer,
+  messageApi,
+}: {
+  property: Property;
+  closeDrawer: (created?: Property) => void;
+  messageApi: MessageInstance;
+}) {
+  const { formState, checkErrors, getObjectData } = useFormState<Property>([
+    ...propertyFieldDefs.stringFields.map((k) => ({
+      key: k,
+      value: property[k],
+      label: convertToTitleCase(k),
+    })),
+    ...propertyFieldDefs.qualityEnumFields.map((k) => ({
+      key: k,
+      value: property[k],
+      label: convertToTitleCase(k),
+    })),
+    ...propertyFieldDefs.numberFields.map((k) => ({
+      key: k,
+      value: property[k],
+      label: convertToTitleCase(k),
+    })),
+    ...propertyFieldDefs.boolFields.map((k) => ({
+      key: k,
+      value: property[k],
+      label: convertToTitleCase(k),
+    })),
+  ]);
+
+  const handleCancel = () => {
+    closeDrawer();
+  };
+
+  const handleSave = async () => {
+    console.log("handleSave");
+    const { data, error } = await updateProperty({
+      ...property,
+      ...getObjectData(),
+    });
+    if (data !== null && data.length && !error) {
+      messageApi.success("Property updated");
+      closeDrawer(data.at(0));
+    } else {
+      messageApi.error("Something went wrong...");
+      console.log(error);
+    }
+  };
+
+  return (
+    <PropertyFieldsForm
+      title="Update Property"
+      formState={formState}
+      handleCancel={handleCancel}
+      handleSave={handleSave}
+      saveBtnDisabled={!Object.values(checkErrors()).every((e) => e === true)}
+    />
+  );
+}
+
+export default UpdateProperty;

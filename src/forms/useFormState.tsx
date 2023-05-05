@@ -13,7 +13,7 @@ export interface FormField<Property> {
 /// Form state is an object
 /// Keys must exist in [StateObjectType]
 /// Values are [FormField] objects of type [Property]
-type FormState<StateObjectType> = {
+export type FormState<StateObjectType> = {
   [Property in keyof StateObjectType]: FormField<StateObjectType[Property]>;
 };
 
