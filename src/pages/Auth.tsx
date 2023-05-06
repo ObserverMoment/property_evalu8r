@@ -19,7 +19,16 @@ function Auth() {
     console.log("login");
 
     setLoading(true);
-    const { error } = await supabase.auth.signInWithOtp({ email });
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: `${
+          process.env.NEXT_PUBLIC_VERCEL_URL
+            ? "https://" + process.env.NEXT_PUBLIC_VERCEL_URL
+            : "http://localhost:3000"
+        }`,
+      },
+    });
 
     if (error) {
       setModalTitle("Oops, it didn't work");
