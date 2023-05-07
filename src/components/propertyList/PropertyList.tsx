@@ -42,7 +42,7 @@ export function PropertyList({
     } else {
       const da = moment(a.created_at.toString());
       const db = moment(b.created_at.toString());
-      return da.diff(db);
+      return db.diff(da);
     }
   });
 
