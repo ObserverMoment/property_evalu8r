@@ -58,7 +58,7 @@ export const propertyNumberInputConfig: PropertyNumberInputConfigObject = {
   energy_effeciency: {
     min: 0,
     max: 100,
-    prefix: "0 - 100",
+    suffix: "0 - 100",
     validator: (v: number) => v >= 0 && v <= 100,
     validatorMessage: "Range is 0 to 100",
     algorithm: (x) => (x - 70) * 1000,
