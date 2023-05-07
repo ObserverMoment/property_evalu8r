@@ -45,7 +45,7 @@ function App() {
           <Auth />
         ) : (
           <Home
-            signOut={supabase.auth.signOut}
+            signOut={() => supabase.auth.signOut()}
             authedUserId={session.user.id}
           />
         )}
