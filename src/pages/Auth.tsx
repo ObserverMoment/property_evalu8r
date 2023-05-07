@@ -23,13 +23,23 @@ function Auth() {
   const handleLogin = async () => {
     setLoading(true);
 
+    console.log(
+      `${
+        process.env.VERCEL_URL
+          ? "https://" + process.env.VERCEL_URL
+          : "http://localhost:3000"
+      }`
+    );
+
+    console.log(process.env);
+
     // https://github.com/orgs/supabase/discussions/2760
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
         emailRedirectTo: `${
-          process.env.NEXT_PUBLIC_VERCEL_URL
-            ? "https://" + process.env.NEXT_PUBLIC_VERCEL_URL
+          process.env.VERCEL_URL
+            ? "https://" + process.env.VERCEL_URL
             : "http://localhost:3000"
         }`,
       },
