@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Property } from "../types/types";
 import { deleteProperty, getProperties } from "../common/supabase";
-import { PropertyList } from "../components/propertyList";
+import { PropertyList, SortByEnum } from "../components/propertyList";
 import AddNewProperty from "../forms/AddNewProperty";
 import { mapReplaceArray } from "../common/utils";
 import UpdateProperty from "../forms/UpdateProperty";
@@ -19,7 +19,7 @@ import {
   Tabs,
   useDisclosure,
 } from "@chakra-ui/react";
-import { Drawer, Empty, message } from "antd";
+import { Drawer, Empty, Select, message } from "antd";
 import { MyTheme } from "../components/styled/theme";
 import { MyModal } from "../components/styled/modal";
 import { WarningTwoIcon } from "@chakra-ui/icons";
@@ -36,6 +36,8 @@ function Home({
 
   // Ant Design message hook.
   const [messageApi, contextHolder] = message.useMessage();
+
+  const [sortBy, setSortBy] = useState<SortByEnum>("highestScore");
 
   /// Panels
   const [openAddPanel, setOpenAddPanel] = useState(false);
@@ -140,8 +142,7 @@ function Home({
         <TabList>
           <Tab
             _selected={{
-              color: MyTheme.colors.secondary,
-              border: `1px solid ${MyTheme.colors.secondary}`,
+              background: MyTheme.colors.secondary,
             }}
           >
             Completed
@@ -151,8 +152,7 @@ function Home({
           </Tab>
           <Tab
             _selected={{
-              color: MyTheme.colors.secondary,
-              border: `1px solid ${MyTheme.colors.secondary}`,
+              background: MyTheme.colors.secondary,
             }}
           >
             Awaiting Info
@@ -160,6 +160,17 @@ function Home({
               {awaitingInfo.length}
             </Badge>
           </Tab>
+
+          <Select
+            defaultValue="dateAdded"
+            style={{ width: 180, position: "absolute", right: 100 }}
+            onChange={setSortBy}
+            options={[
+              { value: "highestScore", label: "Highest Score" },
+              { value: "lowestCost", label: "Lowest Cost" },
+              { value: "dateAdded", label: "Latest Added" },
+            ]}
+          />
         </TabList>
 
         <TabPanels>
@@ -167,6 +178,7 @@ function Home({
             {completed.length ? (
               <PropertyList
                 key="completed"
+                sortBy={sortBy}
                 properties={completed}
                 openUpdateProperty={handleOpenUpdateProperty}
                 handleRequestDeleteProperty={handleRequestDeleteProperty}
@@ -180,6 +192,7 @@ function Home({
             {awaitingInfo.length ? (
               <PropertyList
                 key="awaitingInfo"
+                sortBy={sortBy}
                 properties={awaitingInfo}
                 openUpdateProperty={handleOpenUpdateProperty}
                 handleRequestDeleteProperty={handleRequestDeleteProperty}

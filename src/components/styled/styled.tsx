@@ -62,9 +62,7 @@ export const SecondaryButton = styled.button<ButtonProps>`
   align-items: center;
   border-radius: 62rem;
   border: 1px solid ${MyTheme.colors.primary};
-  background-color: ${MyTheme.colors.primary};
   color: ${MyTheme.colors.primary};
-  background: #1b1f1e;
   font-size: ${(p) => getButtonFontSize(p.size)};
   font-weight: 600;
   text-align: center;

@@ -5,7 +5,8 @@ import { EditTwoTone, DeleteTwoTone } from "@ant-design/icons";
 import { Property } from "../types/types";
 import { convertToTitleCase } from "../common/utils";
 import {
-  calculatePropertyScore,
+  PropertyScore,
+  calculateAllPropertyScores,
   propertyFieldDefs,
   propertyNumberInputConfig,
 } from "../common/propertyUtils";
@@ -17,6 +18,8 @@ import {
 import Moment from "react-moment";
 import { FlexRow } from "./styled/layout";
 import { MyTheme } from "./styled/theme";
+import moment from "moment";
+import { Badge } from "@chakra-ui/react";
 
 const { Text, Link } = Typography;
 
@@ -24,11 +27,18 @@ const PropertyListContainer = styled.div`
   padding: 8px 20px;
 `;
 
+export type SortByEnum =
+  | "dateAdded"
+  | "highestScore"
+  | "lowestCost"
+  | "highestPoints ";
+
 interface PropertyListProps {
   properties: Property[];
   openUpdateProperty: (p: Property) => void;
   handleRequestDeleteProperty: (p: Property) => void;
   authedUserId: string;
+  sortBy: SortByEnum;
 }
 
 export function PropertyList({
@@ -36,14 +46,30 @@ export function PropertyList({
   openUpdateProperty,
   handleRequestDeleteProperty,
   authedUserId,
+  sortBy,
 }: PropertyListProps) {
+  const propertyScores = calculateAllPropertyScores(properties);
+
+  const sortedProperties = [...properties].sort((a, b) => {
+    if (sortBy === "highestScore") {
+      return propertyScores[b.id].score - propertyScores[a.id].score;
+    } else if (sortBy === "lowestCost") {
+      return propertyScores[b.id].cost - propertyScores[a.id].cost;
+    } else {
+      const da = moment(a.created_at.toString());
+      const db = moment(b.created_at.toString());
+      return da.diff(db);
+    }
+  });
+
   return (
     <PropertyListContainer>
-      {properties.map((p) => (
+      {sortedProperties.map((p) => (
         <div key={p.id} style={{ marginBottom: "8px" }}>
           <PropertyCard
             key={p.id}
             property={p}
+            propertyScore={propertyScores[p.id]}
             openUpdateProperty={openUpdateProperty}
             handleRequestDeleteProperty={handleRequestDeleteProperty}
             authedUserId={authedUserId}
@@ -56,6 +82,7 @@ export function PropertyList({
 
 interface PropertyCardProps {
   property: Property;
+  propertyScore: PropertyScore;
   openUpdateProperty: (p: Property) => void;
   handleRequestDeleteProperty: (p: Property) => void;
   authedUserId: string;
@@ -63,11 +90,15 @@ interface PropertyCardProps {
 
 export function PropertyCard({
   property,
+  propertyScore,
   openUpdateProperty,
   handleRequestDeleteProperty,
   authedUserId,
 }: PropertyCardProps) {
-  const propertCardStyle = { border: "1px solid grey", borderRadius: "6px" };
+  const propertCardStyle = {
+    borderRadius: "6px",
+    boxShadow: "rgba(0, 0, 0, 0.24) 0px 1px 3px",
+  };
   return (
     <Card
       bordered={false}
@@ -78,6 +109,7 @@ export function PropertyCard({
       extra={
         <PropertyCardExtra
           property={property}
+          propertyScore={propertyScore}
           handleRequestUpdate={() => openUpdateProperty(property)}
           handleRequestDelete={() => handleRequestDeleteProperty(property)}
           authedUserId={authedUserId}
@@ -204,6 +236,7 @@ const PropertyCardHeader = ({
 
 interface PropertyCardExtraProps {
   property: Property;
+  propertyScore: PropertyScore;
   handleRequestUpdate: () => void;
   handleRequestDelete: () => void;
   authedUserId: string;
@@ -212,14 +245,13 @@ interface PropertyCardExtraProps {
 /// Includes the score calculation and display.
 const PropertyCardExtra = ({
   property,
+  propertyScore,
   handleRequestUpdate,
   handleRequestDelete,
   authedUserId,
 }: PropertyCardExtraProps) => (
   <Space size={30}>
-    <PropertyCardScoreDispplay
-      costAndScore={calculatePropertyScore(property)}
-    />
+    <PropertyCardScoreDispplay propertyScore={propertyScore} />
     {authedUserId === property.user_id && (
       <EditTwoTone
         key="edit"
@@ -241,21 +273,28 @@ const PropertyCardExtra = ({
 );
 
 const PropertyCardScoreDispplay = ({
-  costAndScore: { cost, score },
+  propertyScore: { cost, points, score },
 }: {
-  costAndScore: { cost: number; score: number };
+  propertyScore: PropertyScore;
 }) => (
-  <Space size={30}>
-    <div>30 Yr Cost: £{Math.abs(cost)}</div>
-    <div>Score: {score}</div>
+  <Space size={20}>
+    <div style={{ fontWeight: "bold" }}>30 Yr Cost: £{Math.abs(cost)}</div>
+    <div style={{ fontWeight: "bold" }}>Points: {points}</div>
     <div
       style={{
         color: MyTheme.colors.primary,
-        fontSize: "1.7em",
+        fontSize: "1.2em",
         fontWeight: "bold",
+        background: MyTheme.colors.secondary,
+        borderRadius: "20px",
+        paddingLeft: "6px",
+        paddingRight: "10px",
       }}
     >
-      {score + cost}
+      {score}
+      <Badge position="relative" bottom={0.5} right={-0.5} fontSize="0.3em">
+        Points - cost
+      </Badge>
     </div>
   </Space>
 );

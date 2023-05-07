@@ -181,12 +181,21 @@ export const scoreAlgorithmCalculationWeights: ScoreAlgorithmCalculationWeights 
     garden_balcony: 10000,
   };
 
-export const calculatePropertyScore = (
-  property: Property
-): { cost: number; score: number } => {
+export interface PropertyScore {
+  propertyId: number;
+  cost: number;
+  points: number;
+  score: number; // points - cost
+}
+
+export interface PropertScoresResult {
+  [key: number]: PropertyScore;
+}
+
+export const calculatePropertyScore = (property: Property): PropertyScore => {
   const inputKeys = Object.keys(scoreAlgorithmCalculationConfig);
   const costKeys = ["house_price", "sc_gr_annual"];
-  const scoreKeys = inputKeys.filter((k) => !costKeys.includes(k));
+  const pointsKeys = inputKeys.filter((k) => !costKeys.includes(k));
 
   const cost = costKeys.reduce((acum, nextKey) => {
     const config = scoreAlgorithmCalculationConfig[nextKey];
@@ -195,15 +204,23 @@ export const calculatePropertyScore = (
     return acum + config.formula(numericScore, weight);
   }, 0);
 
-  const score = scoreKeys.reduce((acum, nextKey) => {
+  const points = pointsKeys.reduce((acum, nextKey) => {
     const config = scoreAlgorithmCalculationConfig[nextKey];
     const numericScore = config.inputToNumberConverter(property[nextKey]);
     const weight = scoreAlgorithmCalculationWeights[nextKey];
     return acum + config.formula(numericScore, weight);
   }, 0);
 
-  return { cost, score };
+  return { propertyId: property.id, cost, points, score: points + cost };
 };
+
+export const calculateAllPropertyScores = (
+  properties: Property[]
+): PropertScoresResult =>
+  properties.reduce<PropertScoresResult>((acum, next) => {
+    acum[next.id] = calculatePropertyScore(next);
+    return acum;
+  }, {});
 
 /// All fields except agent details must be not null / undefined / empty string
 export const checkPropertyCompleteInfo = (properties: Property[]) =>
