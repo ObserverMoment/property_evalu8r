@@ -23,16 +23,6 @@ function Auth() {
   const handleLogin = async () => {
     setLoading(true);
 
-    console.log(
-      `${
-        process.env.PUBLIC_URL
-          ? "https://" + process.env.PUBLIC_URL
-          : "http://localhost:3000"
-      }`
-    );
-
-    console.log(process.env);
-
     // https://github.com/orgs/supabase/discussions/2760
     const { error } = await supabase.auth.signInWithOtp({
       email,
