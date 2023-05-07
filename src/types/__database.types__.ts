@@ -50,6 +50,7 @@ export interface Database {
           id: number
           interior: Database["public"]["Enums"]["quality_assessment_enum"]
           lease_length: number | null
+          listing_title: string | null
           local_gym: boolean | null
           local_supermarket: boolean | null
           notes: string | null
@@ -75,6 +76,7 @@ export interface Database {
           id?: number
           interior?: Database["public"]["Enums"]["quality_assessment_enum"]
           lease_length?: number | null
+          listing_title?: string | null
           local_gym?: boolean | null
           local_supermarket?: boolean | null
           notes?: string | null
@@ -100,6 +102,7 @@ export interface Database {
           id?: number
           interior?: Database["public"]["Enums"]["quality_assessment_enum"]
           lease_length?: number | null
+          listing_title?: string | null
           local_gym?: boolean | null
           local_supermarket?: boolean | null
           notes?: string | null

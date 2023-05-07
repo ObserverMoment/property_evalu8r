@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Property } from "../types/types";
 import { updateProperty } from "../common/supabase";
 import { MessageInstance } from "antd/es/message/interface";
@@ -17,6 +17,14 @@ function UpdateNotes({
 }) {
   const originalNotes = property.notes;
   const [notes, setNotes] = useState<string | null>(property.notes);
+
+  const textAreaInput = useCallback((inputElement: any) => {
+    setTimeout(() => {
+      if (inputElement) {
+        inputElement.focus();
+      }
+    }, 500);
+  }, []);
 
   const handleSave = async () => {
     if (originalNotes !== notes) {
@@ -43,6 +51,8 @@ function UpdateNotes({
         onChange={(e) => setNotes(e.target.value)}
         placeholder="Notes..."
         autoSize
+        ref={textAreaInput}
+        autoFocus
       />
       <MySpacer height={20} />
       <PrimaryButton onClick={handleSave} size="sm">

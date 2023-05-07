@@ -151,6 +151,7 @@ const PropertyCardHeader = ({
     user_id,
     created_at,
     url_link,
+    listing_title,
     agent_email,
     agent_phone,
     agent_website,
@@ -161,7 +162,28 @@ const PropertyCardHeader = ({
   handleRequestNoteUpdate,
 }: PropertyCardHeaderProps) => (
   <FlexRow style={{ fontSize: "1.1em" }}>
-    <Space size={30}>
+    <Space size={16}>
+      {listing_title && (
+        <Text style={{ fontSize: "0.7em" }}>{listing_title}</Text>
+      )}
+
+      {url_link && (
+        <Link style={{ fontSize: "0.7em" }} href={url_link} target="_blank">
+          Link to property
+        </Link>
+      )}
+      {agent_website && (
+        <Link
+          style={{ fontSize: "0.7em" }}
+          href={agent_website}
+          target="_blank"
+        >
+          Agent website
+        </Link>
+      )}
+      {agent_phone && <Text style={{ fontSize: "0.7em" }}>{agent_phone}</Text>}
+      {agent_email && <Text style={{ fontSize: "0.7em" }}>{agent_email}</Text>}
+
       <div
         style={{
           display: "flex",
@@ -176,23 +198,6 @@ const PropertyCardHeader = ({
           {new Date(created_at)}
         </Moment>
       </div>
-
-      {url_link && (
-        <Link style={{ fontSize: "0.7em" }} href={url_link} target="_blank">
-          Link to property
-        </Link>
-      )}
-      {agent_website && (
-        <Link
-          style={{ fontSize: "0.7em" }}
-          href={agent_website}
-          target="_blank"
-        >
-          Link to agent website
-        </Link>
-      )}
-      {agent_phone && <Text style={{ fontSize: "0.7em" }}>{agent_phone}</Text>}
-      {agent_email && <Text style={{ fontSize: "0.7em" }}>{agent_email}</Text>}
 
       {authedUserId === user_id && (
         <FileAddTwoTone

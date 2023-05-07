@@ -3,7 +3,13 @@ import { Property } from "../types/types";
 import { currencyFormat } from "./utils";
 
 export const propertyFieldDefs = {
-  stringFields: ["url_link", "agent_website", "agent_email", "agent_phone"],
+  stringFields: [
+    "listing_title",
+    "url_link",
+    "agent_website",
+    "agent_email",
+    "agent_phone",
+  ],
   textAreaFields: ["notes"],
   numberFields: [
     "house_price",
