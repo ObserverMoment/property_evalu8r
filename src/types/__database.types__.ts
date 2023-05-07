@@ -52,6 +52,7 @@ export interface Database {
           lease_length: number | null
           local_gym: boolean | null
           local_supermarket: boolean | null
+          notes: string | null
           sc_gr_annual: number | null
           sq_metres: number | null
           url_link: string | null
@@ -76,6 +77,7 @@ export interface Database {
           lease_length?: number | null
           local_gym?: boolean | null
           local_supermarket?: boolean | null
+          notes?: string | null
           sc_gr_annual?: number | null
           sq_metres?: number | null
           url_link?: string | null
@@ -100,6 +102,7 @@ export interface Database {
           lease_length?: number | null
           local_gym?: boolean | null
           local_supermarket?: boolean | null
+          notes?: string | null
           sc_gr_annual?: number | null
           sq_metres?: number | null
           url_link?: string | null

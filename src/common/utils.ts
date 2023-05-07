@@ -22,3 +22,6 @@ export const convertNullableBoolToNumber = (
 
 export const convertNumberToNullabeBool = (input: number) =>
   input >= 1 ? true : input <= -1 ? false : null;
+
+export const currencyFormat = (num: number) =>
+  "£" + num.toFixed(0).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");

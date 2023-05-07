@@ -1,8 +1,10 @@
 import { Database } from "../types/__database.types__";
 import { Property } from "../types/types";
+import { currencyFormat } from "./utils";
 
 export const propertyFieldDefs = {
   stringFields: ["url_link", "agent_website", "agent_email", "agent_phone"],
+  textAreaFields: ["notes"],
   numberFields: [
     "house_price",
     "floor_level",
@@ -32,6 +34,7 @@ interface PropertyNumberInputConfigObject {
     validator?: (v: any) => boolean;
     validatorMessage?: string;
     algorithm: (x: number) => number;
+    displayFormat: (x: number) => string;
   };
 }
 
@@ -40,32 +43,52 @@ export const propertyNumberInputConfig: PropertyNumberInputConfigObject = {
     min: 0,
     prefix: "£",
     algorithm: (x) => x * -1,
+    displayFormat: (x: number) => currencyFormat(x),
   },
   floor_level: {
     min: 0,
     algorithm: (x) => x * 2000,
+    displayFormat: (x: number) => x.toString(),
   },
   walk_to_station: {
     min: 0,
     suffix: "mins",
     algorithm: (x) => x * -1000,
+    displayFormat: (x: number) => x.toString(),
   },
   lease_length: {
     min: 0,
     suffix: "years",
     algorithm: (x) => (x - 125) * 1000,
+    displayFormat: (x: number) => x.toString(),
   },
   energy_effeciency: {
     min: 0,
     max: 100,
-    suffix: "0 - 100",
+    suffix: "(0-100)",
     validator: (v: number) => v >= 0 && v <= 100,
     validatorMessage: "Range is 0 to 100",
     algorithm: (x) => (x - 70) * 1000,
+    displayFormat: (x: number) => x.toString(),
   },
-  est_month_rent: { min: 0, prefix: "£", algorithm: (x) => x * 30 },
-  sc_gr_annual: { min: 0, prefix: "£", algorithm: (x) => x * -30 },
-  sq_metres: { min: 0, suffix: "sq mtr", algorithm: (x) => x * 9000 },
+  est_month_rent: {
+    min: 0,
+    prefix: "£",
+    algorithm: (x) => x * 30,
+    displayFormat: (x: number) => currencyFormat(x),
+  },
+  sc_gr_annual: {
+    min: 0,
+    prefix: "£",
+    algorithm: (x) => x * -30,
+    displayFormat: (x: number) => currencyFormat(x),
+  },
+  sq_metres: {
+    min: 0,
+    suffix: "sq mtr",
+    algorithm: (x) => x * 9000,
+    displayFormat: (x: number) => x.toString(),
+  },
 };
 
 interface ScoreAlgorithmCalculationConfig {
@@ -173,7 +196,7 @@ export const scoreAlgorithmCalculationWeights: ScoreAlgorithmCalculationWeights 
     // Quality Enum
     interior: 10000,
     view: 10000,
-    // Bool - all weights are positive so control the sign of output via [inputToNumberConverter]
+    // Bool. All weights are positive so control the sign of output via [inputToNumberConverter]
     cladding_cert: 10000,
     electrics_cert: 5000,
     local_gym: 10000,
@@ -232,7 +255,9 @@ export const checkPropertyCompleteInfo = (properties: Property[]) =>
       if (
         Object.entries(next).every(
           ([k, v]) =>
-            ["agent_website", "agent_phone", "agent_email"].includes(k) ||
+            ["agent_website", "agent_phone", "agent_email", "notes"].includes(
+              k
+            ) ||
             (v !== null && v !== undefined && v !== "")
         )
       ) {

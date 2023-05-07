@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Property } from "../types/types";
 import { deleteProperty, getProperties } from "../common/supabase";
-import { PropertyList, SortByEnum } from "../components/propertyList";
+import {
+  PropertyList,
+  SortByEnum,
+} from "../components/propertyList/PropertyList";
 import AddNewProperty from "../forms/AddNewProperty";
 import { mapReplaceArray } from "../common/utils";
 import UpdateProperty from "../forms/UpdateProperty";
@@ -23,6 +26,7 @@ import { Drawer, Empty, Select, message } from "antd";
 import { MyTheme } from "../components/styled/theme";
 import { MyModal } from "../components/styled/modal";
 import { WarningTwoIcon } from "@chakra-ui/icons";
+import UpdateNotes from "../forms/UpdateNotes";
 
 function Home({
   signOut,
@@ -42,6 +46,7 @@ function Home({
   /// Panels
   const [openAddPanel, setOpenAddPanel] = useState(false);
   const [openUpdatePanel, setOpenUpdatePanel] = useState(false);
+  const [openNotesPanel, setOpenNotesPanel] = useState(false);
   const [propertyToUpdate, setPropertyToUpdate] = useState<Property | null>(
     null
   );
@@ -64,6 +69,7 @@ function Home({
       });
   }, []);
 
+  /// Create New Property
   const handleSaveProperty = (data: Property | undefined) => {
     if (data) {
       setProperties([data, ...properties]);
@@ -71,6 +77,7 @@ function Home({
     setOpenAddPanel(false);
   };
 
+  /// Update Property
   const handleOpenUpdateProperty = (p: Property) => {
     setPropertyToUpdate(p);
     setOpenUpdatePanel(true);
@@ -84,6 +91,21 @@ function Home({
     setPropertyToUpdate(null);
   };
 
+  /// Update Notes
+  const handleOpenUpdateNotes = (p: Property) => {
+    setPropertyToUpdate(p);
+    setOpenNotesPanel(true);
+  };
+
+  const handleCloseNotes = (data: Property | undefined) => {
+    if (data) {
+      setProperties(mapReplaceArray({ modified: data, previous: properties }));
+    }
+    setOpenNotesPanel(false);
+    setPropertyToUpdate(null);
+  };
+
+  /// Delete Property
   const handleRequestDeleteProperty = (data: Property) => {
     setPropertyToBeDeleted(data);
     onOpen();
@@ -126,13 +148,16 @@ function Home({
     <HomeContent>
       {contextHolder}
       <ButtonsContainer>
-        <PrimaryButton onClick={() => setOpenAdjustPanel(true)}>
-          Adjust Algorithmn
-        </PrimaryButton>
-        <MySpacer width={20} />
         <PrimaryButton onClick={() => setOpenAddPanel(true)}>
           Add Property
         </PrimaryButton>
+
+        <MySpacer width={20} />
+
+        <PrimaryButton onClick={() => setOpenAdjustPanel(true)}>
+          Adjust Algorithmn
+        </PrimaryButton>
+
         <MySpacer width={20} />
 
         <SecondaryButton onClick={signOut}>Sign Out</SecondaryButton>
@@ -182,6 +207,7 @@ function Home({
                 properties={completed}
                 openUpdateProperty={handleOpenUpdateProperty}
                 handleRequestDeleteProperty={handleRequestDeleteProperty}
+                handleRequestNoteUpdate={handleOpenUpdateNotes}
                 authedUserId={authedUserId}
               />
             ) : (
@@ -196,6 +222,7 @@ function Home({
                 properties={awaitingInfo}
                 openUpdateProperty={handleOpenUpdateProperty}
                 handleRequestDeleteProperty={handleRequestDeleteProperty}
+                handleRequestNoteUpdate={handleOpenUpdateNotes}
                 authedUserId={authedUserId}
               />
             ) : (
@@ -219,6 +246,7 @@ function Home({
           messageApi={messageApi}
         />
       </Drawer>
+
       <Drawer
         placement="right"
         closable={false}
@@ -235,6 +263,24 @@ function Home({
           />
         )}
       </Drawer>
+
+      <Drawer
+        placement="right"
+        closable={false}
+        maskClosable={false}
+        onClose={() => setOpenNotesPanel(false)}
+        open={openNotesPanel}
+        key="Note"
+      >
+        {propertyToUpdate && (
+          <UpdateNotes
+            property={propertyToUpdate}
+            closeDrawer={handleCloseNotes}
+            messageApi={messageApi}
+          />
+        )}
+      </Drawer>
+
       <Drawer
         title="Adjust Algorithm"
         placement="right"

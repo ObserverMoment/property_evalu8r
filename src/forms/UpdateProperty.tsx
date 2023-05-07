@@ -13,7 +13,7 @@ function UpdateProperty({
   messageApi,
 }: {
   property: Property;
-  closeDrawer: (created?: Property) => void;
+  closeDrawer: (updated?: Property) => void;
   messageApi: MessageInstance;
 }) {
   const { formState, checkErrors, getObjectData } = useFormState<Property>([
