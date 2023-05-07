@@ -192,6 +192,7 @@ function Home({
             onChange={setSortBy}
             options={[
               { value: "highestScore", label: "Highest Score" },
+              { value: "highestPoints", label: "Highest Points" },
               { value: "lowestCost", label: "Lowest Cost" },
               { value: "dateAdded", label: "Latest Added" },
             ]}
@@ -240,11 +241,13 @@ function Home({
         open={openAddPanel}
         key="Add"
       >
-        <AddNewProperty
-          onSaveProperty={handleSaveProperty}
-          onCancel={() => setOpenAddPanel(false)}
-          messageApi={messageApi}
-        />
+        {openAddPanel && (
+          <AddNewProperty
+            onSaveProperty={handleSaveProperty}
+            onCancel={() => setOpenAddPanel(false)}
+            messageApi={messageApi}
+          />
+        )}
       </Drawer>
 
       <Drawer

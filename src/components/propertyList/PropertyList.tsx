@@ -13,7 +13,7 @@ export type SortByEnum =
   | "dateAdded"
   | "highestScore"
   | "lowestCost"
-  | "highestPoints ";
+  | "highestPoints";
 
 interface PropertyListProps {
   properties: Property[];
@@ -38,7 +38,9 @@ export function PropertyList({
     if (sortBy === "highestScore") {
       return propertyScores[b.id].score - propertyScores[a.id].score;
     } else if (sortBy === "lowestCost") {
-      return propertyScores[b.id].cost - propertyScores[a.id].cost;
+      return propertyScores[a.id].cost - propertyScores[b.id].cost;
+    } else if (sortBy === "highestPoints") {
+      return propertyScores[b.id].points - propertyScores[a.id].points;
     } else {
       const da = moment(a.created_at.toString());
       const db = moment(b.created_at.toString());
