@@ -59,7 +59,12 @@ export function PropertyCard({
         />
       }
       bodyStyle={{ padding: "0 10px 8px 10px" }}
-      extra={<PropertyCardScoreDispplay propertyScore={propertyScore} />}
+      extra={
+        <PropertyCardScoreDisplay
+          propertyScore={propertyScore}
+          squareMetres={property.sq_metres}
+        />
+      }
       size="small"
     >
       <div
@@ -156,8 +161,14 @@ const PropertyCardHeader = ({
   handleRequestNoteUpdate,
 }: PropertyCardHeaderProps) => (
   <FlexRow style={{ fontSize: "1.1em" }}>
-    <Space size={20}>
-      <div style={{ display: "flex", flexDirection: "column" }}>
+    <Space size={30}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "start",
+        }}
+      >
         {authedUserId === user_id && (
           <Text style={{ fontSize: "0.5em" }}>Added by You on</Text>
         )}
@@ -168,7 +179,7 @@ const PropertyCardHeader = ({
 
       {url_link && (
         <Link style={{ fontSize: "0.7em" }} href={url_link} target="_blank">
-          {url_link}
+          Link to property
         </Link>
       )}
       {agent_website && (
@@ -177,7 +188,7 @@ const PropertyCardHeader = ({
           href={agent_website}
           target="_blank"
         >
-          {agent_website}
+          Link to agent website
         </Link>
       )}
       {agent_phone && <Text style={{ fontSize: "0.7em" }}>{agent_phone}</Text>}
@@ -213,16 +224,26 @@ const PropertyCardHeader = ({
   </FlexRow>
 );
 
-const PropertyCardScoreDispplay = ({
+const PropertyCardScoreDisplay = ({
   propertyScore: { cost, points, score },
+  squareMetres,
 }: {
   propertyScore: PropertyScore;
+  squareMetres: number | null;
 }) => (
   <Space direction="horizontal" size={16}>
+    {squareMetres && (
+      <div>
+        <BadgeBuilder label="£/sqmtr" />
+        {currencyFormat(Math.abs(cost / squareMetres))}
+      </div>
+    )}
+
     <div>
       <BadgeBuilder label="30 Yr Cost" />
       {currencyFormat(Math.abs(cost))}
     </div>
+
     <div>
       <BadgeBuilder label="Points" />
       {points}
