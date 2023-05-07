@@ -25,8 +25,8 @@ function Auth() {
 
     console.log(
       `${
-        process.env.VERCEL_URL
-          ? "https://" + process.env.VERCEL_URL
+        process.env.PUBLIC_URL
+          ? "https://" + process.env.PUBLIC_URL
           : "http://localhost:3000"
       }`
     );
@@ -38,8 +38,8 @@ function Auth() {
       email,
       options: {
         emailRedirectTo: `${
-          process.env.VERCEL_URL
-            ? "https://" + process.env.VERCEL_URL
+          process.env.PUBLIC_URL
+            ? "https://" + process.env.PUBLIC_URL
             : "http://localhost:3000"
         }`,
       },
