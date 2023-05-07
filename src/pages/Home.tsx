@@ -1,33 +1,40 @@
-import {
-  Badge,
-  Button,
-  Drawer,
-  Empty,
-  Modal,
-  Space,
-  Tabs,
-  Typography,
-  message,
-} from "antd";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Property } from "../types/types";
-import {
-  SupabaseContext,
-  deleteProperty,
-  getProperties,
-} from "../common/supabase";
+import { deleteProperty, getProperties } from "../common/supabase";
 import { PropertyList } from "../components/propertyList";
 import AddNewProperty from "../forms/AddNewProperty";
 import { mapReplaceArray } from "../common/utils";
 import UpdateProperty from "../forms/UpdateProperty";
 import { checkPropertyCompleteInfo } from "../common/propertyUtils";
-import Paragraph from "antd/es/typography/Paragraph";
 import { showMessage } from "../common/notifications";
+import { HomeContent, MySpacer } from "../components/styled/layout";
+import { PrimaryButton, SecondaryButton } from "../components/styled/styled";
+import styled from "@emotion/styled";
+import {
+  Badge,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+  useDisclosure,
+} from "@chakra-ui/react";
+import { Drawer, Empty, message } from "antd";
+import { MyTheme } from "../components/styled/theme";
+import { MyModal } from "../components/styled/modal";
+import { WarningTwoIcon } from "@chakra-ui/icons";
 
-const { Text, Title } = Typography;
+function Home({
+  signOut,
+  authedUserId,
+}: {
+  signOut: () => void;
+  authedUserId: string;
+}) {
+  // ChakraUI modal hook.
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
-function Home() {
-  const supabase = useContext(SupabaseContext);
+  // Ant Design message hook.
   const [messageApi, contextHolder] = message.useMessage();
 
   /// Panels
@@ -39,7 +46,6 @@ function Home() {
   const [openAdjustPanel, setOpenAdjustPanel] = useState(false);
 
   /// Delete
-  const [isDeleteConfirmModalOpen, setDeleteConfirmModalOpen] = useState(false);
   const [propertyToBeDeleted, setPropertyToBeDeleted] =
     useState<Property | null>(null);
 
@@ -56,7 +62,7 @@ function Home() {
       });
   }, []);
 
-  const handleCloseAddProperty = (data: Property | undefined) => {
+  const handleSaveProperty = (data: Property | undefined) => {
     if (data) {
       setProperties([data, ...properties]);
     }
@@ -78,7 +84,7 @@ function Home() {
 
   const handleRequestDeleteProperty = (data: Property) => {
     setPropertyToBeDeleted(data);
-    setDeleteConfirmModalOpen(true);
+    onOpen();
   };
 
   const handleDeleteProperty = async () => {
@@ -102,12 +108,12 @@ function Home() {
       }
     }
     setPropertyToBeDeleted(null);
-    setDeleteConfirmModalOpen(false);
+    onClose();
   };
 
   const handleCancelDeleteProperty = () => {
     setPropertyToBeDeleted(null);
-    setDeleteConfirmModalOpen(false);
+    onClose();
   };
 
   // Properties that do not have full info cannot be put through the score calculating algo.
@@ -115,59 +121,76 @@ function Home() {
   const { completed, awaitingInfo } = checkPropertyCompleteInfo(properties);
 
   return (
-    <Space direction="vertical" size={12} align="center">
+    <HomeContent>
       {contextHolder}
-      <Title level={4}>A Rich & Jue Property Co.</Title>
-      <Text>{properties.length} saved properties</Text>
-      <Space direction="horizontal" size={16}>
-        <Button onClick={() => setOpenAdjustPanel(true)}>
+      <ButtonsContainer>
+        <PrimaryButton onClick={() => setOpenAdjustPanel(true)}>
           Adjust Algorithmn
-        </Button>
-        <Button onClick={() => setOpenAddPanel(true)}>Add Property</Button>
-        <Button onClick={() => supabase.auth.signOut()}>Sign Out</Button>
-      </Space>
+        </PrimaryButton>
+        <MySpacer width={20} />
+        <PrimaryButton onClick={() => setOpenAddPanel(true)}>
+          Add Property
+        </PrimaryButton>
+        <MySpacer width={20} />
 
-      <Tabs
-        defaultActiveKey="1"
-        centered
-        items={[
-          {
-            key: "1",
-            label: (
-              <TabLabelWithCount title="Completed" count={completed.length} />
-            ),
-            children: completed.length ? (
+        <SecondaryButton onClick={signOut}>Sign Out</SecondaryButton>
+      </ButtonsContainer>
+
+      <Tabs variant="enclosed" defaultIndex={0} align="center">
+        <TabList>
+          <Tab
+            _selected={{
+              color: MyTheme.colors.secondary,
+              border: `1px solid ${MyTheme.colors.secondary}`,
+            }}
+          >
+            Completed
+            <Badge position="relative" top={-2} right={-1} fontSize="0.6em">
+              {completed.length}
+            </Badge>
+          </Tab>
+          <Tab
+            _selected={{
+              color: MyTheme.colors.secondary,
+              border: `1px solid ${MyTheme.colors.secondary}`,
+            }}
+          >
+            Awaiting Info
+            <Badge position="relative" top={-2} right={-1} fontSize="0.6em">
+              {awaitingInfo.length}
+            </Badge>
+          </Tab>
+        </TabList>
+
+        <TabPanels>
+          <TabPanel>
+            {completed.length ? (
               <PropertyList
                 key="completed"
                 properties={completed}
                 openUpdateProperty={handleOpenUpdateProperty}
                 handleRequestDeleteProperty={handleRequestDeleteProperty}
+                authedUserId={authedUserId}
               />
             ) : (
               <Empty description="No completed properties yet..." />
-            ),
-          },
-          {
-            key: "2",
-            label: (
-              <TabLabelWithCount
-                title="Awaiting Info"
-                count={awaitingInfo.length}
-              />
-            ),
-            children: awaitingInfo.length ? (
+            )}
+          </TabPanel>
+          <TabPanel>
+            {awaitingInfo.length ? (
               <PropertyList
                 key="awaitingInfo"
                 properties={awaitingInfo}
                 openUpdateProperty={handleOpenUpdateProperty}
                 handleRequestDeleteProperty={handleRequestDeleteProperty}
+                authedUserId={authedUserId}
               />
             ) : (
               <Empty description="No completed properties yet..." />
-            ),
-          },
-        ]}
-      />
+            )}
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
 
       <Drawer
         placement="right"
@@ -178,7 +201,8 @@ function Home() {
         key="Add"
       >
         <AddNewProperty
-          closeDrawer={handleCloseAddProperty}
+          onSaveProperty={handleSaveProperty}
+          onCancel={() => setOpenAddPanel(false)}
           messageApi={messageApi}
         />
       </Drawer>
@@ -209,34 +233,26 @@ function Home() {
         <div>Coming soon...</div>
       </Drawer>
 
-      <Modal
-        title="Delete this property?"
-        open={isDeleteConfirmModalOpen}
-        onOk={handleDeleteProperty}
+      <MyModal
+        onConfirm={handleDeleteProperty}
         onCancel={handleCancelDeleteProperty}
-      >
-        <Paragraph>This cannot be undone!</Paragraph>
-      </Modal>
-    </Space>
+        onClose={onClose}
+        title="Delete this property?"
+        message="This cannot be undone!"
+        isOpen={isOpen}
+        icon={<WarningTwoIcon color="red" />}
+      />
+    </HomeContent>
   );
 }
 
-const TabLabelWithCount = ({
-  title,
-  count,
-}: {
-  title: string;
-  count: number;
-}) => (
-  <Badge
-    showZero
-    offset={[6, -5]}
-    size="small"
-    count={count}
-    style={{ backgroundColor: "#000000" }}
-  >
-    <div>{title}</div>
-  </Badge>
-);
+const ButtonsContainer = styled.div`
+  display: flex;
+  justify-items: center;
+  align-items: center;
+  padding: 0 0 16px 0;
+  flex-wrap: wrap;
+  flex-direction: row;
+`;
 
 export default Home;

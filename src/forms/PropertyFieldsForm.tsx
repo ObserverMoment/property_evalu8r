@@ -1,20 +1,13 @@
-import {
-  Button,
-  Form,
-  Input,
-  InputNumber,
-  Radio,
-  Space,
-  Typography,
-} from "antd";
+import { Form, Input, InputNumber, Radio, Space, Typography } from "antd";
 import {
   propertyFieldDefs,
   propertyNumberInputConfig,
 } from "../common/propertyUtils";
-import { FlexRow, Spacer } from "../common/styled";
 import { Property } from "../types/types";
 import { FormState } from "./useFormState";
 import { PropsWithChildren } from "react";
+import { FlexRow, MySpacer } from "../components/styled/layout";
+import { PrimaryButton, SecondaryButton } from "../components/styled/styled";
 
 const { Text, Title } = Typography;
 
@@ -51,13 +44,15 @@ function PropertyFieldsForm({
       <FlexRow justifyContent="space-between" style={{ paddingBottom: "10px" }}>
         <Title level={5}>{title}</Title>
         <Space>
-          <Button onClick={handleCancel}>Cancel</Button>
-          <Button htmlType="submit" type="primary" disabled={saveBtnDisabled}>
+          <SecondaryButton type="button" size="sm" onClick={handleCancel}>
+            Cancel
+          </SecondaryButton>
+          <PrimaryButton size="sm" type="submit" disabled={saveBtnDisabled}>
             Submit
-          </Button>
+          </PrimaryButton>
         </Space>
       </FlexRow>
-      <Spacer height={8} />
+      <MySpacer height={8} />
       {propertyFieldDefs.stringFields.map((k) => (
         <MyFormItem key={k} formState={formState} fieldKey={k}>
           <Input

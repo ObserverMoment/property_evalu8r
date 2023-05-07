@@ -1,50 +1,52 @@
-import { Button, Form, Input, Modal, Spin } from "antd";
-import { FormEvent, useContext, useState } from "react";
+import { Form, Input, Spin } from "antd";
+import { useContext, useState } from "react";
 import { SupabaseContext } from "../common/supabase";
-import Paragraph from "antd/es/typography/Paragraph";
 import * as EmailValidator from "email-validator";
-import { FlexRow } from "../common/styled";
+import { FlexRow, MySpacer } from "../components/styled/layout";
+import { PrimaryButton } from "../components/styled/styled";
+import { MyModal } from "../components/styled/modal";
+import { useDisclosure } from "@chakra-ui/react";
+import { Text } from "@chakra-ui/react";
+import { CheckCircleIcon } from "@chakra-ui/icons";
 
 function Auth() {
+  // ChakraUI modal hook.
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const supabase = useContext(SupabaseContext);
 
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalTitle, setModalTitle] = useState("");
   const [modalMessage, setModalMessage] = useState("");
 
-  const handleLogin = async (event: FormEvent<HTMLInputElement>) => {
-    console.log("login");
-
+  const handleLogin = async () => {
     setLoading(true);
+
+    // https://github.com/orgs/supabase/discussions/2760
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: `${
-          process.env.NEXT_PUBLIC_VERCEL_URL
-            ? "https://" + process.env.NEXT_PUBLIC_VERCEL_URL
-            : "http://localhost:3000"
-        }`,
+        emailRedirectTo: "http://localhost:3000",
       },
     });
 
     if (error) {
       setModalTitle("Oops, it didn't work");
       setModalMessage(error.message);
-      setIsModalOpen(true);
+      onOpen();
     } else {
       setModalTitle("Almost there...");
       setModalMessage("Check your email for the login link!");
-      setIsModalOpen(true);
+      onOpen();
     }
     setLoading(false);
   };
 
   return (
-    <div>
-      <Paragraph>Sign in via Magic Link with your email</Paragraph>
+    <>
+      <Text>Sign in via Magic Link with your email</Text>
+      <MySpacer height={16} />
       <Form
         name="nest-messages"
         onFinish={handleLogin}
@@ -56,30 +58,38 @@ function Auth() {
           rules={[{ type: "email" }]}
           required
         >
-          <Input value={email} onChange={(e) => setEmail(e.target.value)} />
+          <Input
+            style={{ width: "300px" }}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
         </Form.Item>
 
         <Form.Item>
           <FlexRow justifyContent="center">
-            <Button
-              type="primary"
-              htmlType="submit"
-              disabled={loading || !EmailValidator.validate(email)}
-            >
-              {loading ? <Spin size="small" /> : <span>Send Magic Link</span>}
-            </Button>
+            {loading ? (
+              <Spin size="small" />
+            ) : (
+              <PrimaryButton
+                type="submit"
+                disabled={loading || !EmailValidator.validate(email)}
+              >
+                Send Magic Link
+              </PrimaryButton>
+            )}
           </FlexRow>
         </Form.Item>
       </Form>
-      <Modal
+
+      <MyModal
+        onConfirm={onClose}
+        onClose={onClose}
         title={modalTitle}
-        open={isModalOpen}
-        onOk={() => setIsModalOpen(false)}
-        cancelButtonProps={{ hidden: true }}
-      >
-        <Paragraph>{modalMessage}</Paragraph>
-      </Modal>
-    </div>
+        message={modalMessage}
+        isOpen={isOpen}
+        icon={<CheckCircleIcon color="" />}
+      />
+    </>
   );
 }
 

@@ -1,17 +1,13 @@
 import React from "react";
 import styled from "@emotion/styled";
 import { Card, Space, Typography } from "antd";
-import {
-  EditTwoTone,
-  DeleteTwoTone,
-  LineChartOutlined,
-} from "@ant-design/icons";
-import { FlexRow, Spacer } from "../common/styled";
+import { EditTwoTone, DeleteTwoTone } from "@ant-design/icons";
 import { Property } from "../types/types";
 import { convertToTitleCase } from "../common/utils";
 import {
   calculatePropertyScore,
   propertyFieldDefs,
+  propertyNumberInputConfig,
 } from "../common/propertyUtils";
 import {
   CheckCircleTwoTone,
@@ -19,6 +15,8 @@ import {
   QuestionCircleTwoTone,
 } from "@ant-design/icons";
 import Moment from "react-moment";
+import { FlexRow } from "./styled/layout";
+import { MyTheme } from "./styled/theme";
 
 const { Text, Link } = Typography;
 
@@ -30,12 +28,14 @@ interface PropertyListProps {
   properties: Property[];
   openUpdateProperty: (p: Property) => void;
   handleRequestDeleteProperty: (p: Property) => void;
+  authedUserId: string;
 }
 
 export function PropertyList({
   properties,
   openUpdateProperty,
   handleRequestDeleteProperty,
+  authedUserId,
 }: PropertyListProps) {
   return (
     <PropertyListContainer>
@@ -46,6 +46,7 @@ export function PropertyList({
             property={p}
             openUpdateProperty={openUpdateProperty}
             handleRequestDeleteProperty={handleRequestDeleteProperty}
+            authedUserId={authedUserId}
           />
         </div>
       ))}
@@ -57,48 +58,75 @@ interface PropertyCardProps {
   property: Property;
   openUpdateProperty: (p: Property) => void;
   handleRequestDeleteProperty: (p: Property) => void;
+  authedUserId: string;
 }
 
 export function PropertyCard({
   property,
   openUpdateProperty,
   handleRequestDeleteProperty,
+  authedUserId,
 }: PropertyCardProps) {
+  const propertCardStyle = { border: "1px solid grey", borderRadius: "6px" };
   return (
     <Card
+      bordered={false}
+      style={{ borderRadius: "8px" }}
       title={
-        <PropertyCardHeader
-          dateAdded={new Date(property.created_at)}
-          urlLink={property.url_link}
-          agentWebsite={property.agent_website}
-          agentEmail={property.agent_email}
-          agentPhone={property.agent_phone}
-        />
+        <PropertyCardHeader property={property} authedUserId={authedUserId} />
       }
       extra={
         <PropertyCardExtra
           property={property}
           handleRequestUpdate={() => openUpdateProperty(property)}
           handleRequestDelete={() => handleRequestDeleteProperty(property)}
+          authedUserId={authedUserId}
         />
       }
       size="small"
     >
       <FlexRow>
-        <Space>
+        <Space wrap>
           {propertyFieldDefs.numberFields.map((k) => (
-            <Card key={k} size="small">
+            <Card
+              bordered={false}
+              style={propertCardStyle}
+              key={k}
+              size="small"
+            >
               <Text style={{ fontSize: "0.75em" }}>
                 {convertToTitleCase(k)}
               </Text>
-              <div style={{ fontSize: "1.1em" }}>
-                {property[k] ? property[k].toString() : "..."}
+
+              <div>
+                {propertyNumberInputConfig[k].prefix && (
+                  <Text style={{ paddingRight: "2px" }}>
+                    {propertyNumberInputConfig[k].prefix}
+                  </Text>
+                )}
+
+                <Text>{property[k] ? property[k].toString() : "..."}</Text>
+                {propertyNumberInputConfig[k].suffix && (
+                  <Text
+                    style={{
+                      paddingLeft: "2px",
+                      fontSize: "0.6em",
+                    }}
+                  >
+                    {propertyNumberInputConfig[k].suffix}
+                  </Text>
+                )}
               </div>
             </Card>
           ))}
 
           {propertyFieldDefs.qualityEnumFields.map((k) => (
-            <Card key={k} size="small">
+            <Card
+              key={k}
+              size="small"
+              bordered={false}
+              style={propertCardStyle}
+            >
               <Text style={{ fontSize: "0.75em" }}>
                 {convertToTitleCase(k)}
               </Text>
@@ -107,7 +135,12 @@ export function PropertyCard({
           ))}
 
           {propertyFieldDefs.boolFields.map((k) => (
-            <Card key={k} size="small">
+            <Card
+              key={k}
+              size="small"
+              bordered={false}
+              style={propertCardStyle}
+            >
               <Text style={{ fontSize: "0.75em" }}>
                 {convertToTitleCase(k)}
               </Text>
@@ -123,41 +156,48 @@ export function PropertyCard({
 }
 
 interface PropertyCardHeaderProps {
-  dateAdded: Date;
-  urlLink: string | null | undefined;
-  agentWebsite: string | null | undefined;
-  agentPhone: string | null | undefined;
-  agentEmail: string | null | undefined;
+  property: Property;
+  authedUserId: string;
 }
 
 const PropertyCardHeader = ({
-  dateAdded,
-  urlLink,
-  agentWebsite,
-  agentPhone,
-  agentEmail,
+  property: {
+    user_id,
+    created_at,
+    url_link,
+    agent_email,
+    agent_phone,
+    agent_website,
+  },
+  authedUserId,
 }: PropertyCardHeaderProps) => (
-  <FlexRow>
-    <Space size={30} style={{ fontSize: "1.2em" }}>
-      <Moment style={{ fontSize: "0.7em" }} format="DD/MM/YYYY">
-        {dateAdded}
-      </Moment>
-      {urlLink && (
-        <Link style={{ fontSize: "0.75em" }} href={urlLink} target="_blank">
-          {urlLink}
+  <FlexRow style={{ fontSize: "1.1em" }}>
+    <Space size={20}>
+      <div style={{ display: "flex", flexDirection: "column" }}>
+        {authedUserId === user_id && (
+          <Text style={{ fontSize: "0.5em" }}>Added by You on</Text>
+        )}
+        <Moment style={{ fontSize: "0.6em" }} format="DD/MM/YYYY">
+          {new Date(created_at)}
+        </Moment>
+      </div>
+
+      {url_link && (
+        <Link style={{ fontSize: "0.7em" }} href={url_link} target="_blank">
+          {url_link}
         </Link>
       )}
-      {agentWebsite && (
+      {agent_website && (
         <Link
-          style={{ fontSize: "0.75em" }}
-          href={agentWebsite}
+          style={{ fontSize: "0.7em" }}
+          href={agent_website}
           target="_blank"
         >
-          {agentWebsite}
+          {agent_website}
         </Link>
       )}
-      {agentPhone && <Text style={{ fontSize: "0.75em" }}>{agentPhone}</Text>}
-      {agentEmail && <Text style={{ fontSize: "0.75em" }}>{agentEmail}</Text>}
+      {agent_phone && <Text style={{ fontSize: "0.7em" }}>{agent_phone}</Text>}
+      {agent_email && <Text style={{ fontSize: "0.7em" }}>{agent_email}</Text>}
     </Space>
   </FlexRow>
 );
@@ -166,6 +206,7 @@ interface PropertyCardExtraProps {
   property: Property;
   handleRequestUpdate: () => void;
   handleRequestDelete: () => void;
+  authedUserId: string;
 }
 
 /// Includes the score calculation and display.
@@ -173,28 +214,49 @@ const PropertyCardExtra = ({
   property,
   handleRequestUpdate,
   handleRequestDelete,
+  authedUserId,
 }: PropertyCardExtraProps) => (
-  <Space
-    size={30}
-    style={{ fontSize: "1.3em", fontWeight: "bold", color: "#e10bc8" }}
-  >
-    <FlexRow>
-      <LineChartOutlined />
-      <Spacer width={8} />
-      <div>{calculatePropertyScore(property)}</div>
-    </FlexRow>
-    <EditTwoTone
-      key="edit"
-      style={{ fontSize: "20px" }}
-      twoToneColor="#0042bc"
-      onClick={handleRequestUpdate}
+  <Space size={30}>
+    <PropertyCardScoreDispplay
+      costAndScore={calculatePropertyScore(property)}
     />
-    <DeleteTwoTone
-      key="delete"
-      style={{ fontSize: "20px" }}
-      twoToneColor="#d00c0c"
-      onClick={handleRequestDelete}
-    />
+    {authedUserId === property.user_id && (
+      <EditTwoTone
+        key="edit"
+        style={{ fontSize: "20px" }}
+        twoToneColor="#0042bc"
+        onClick={handleRequestUpdate}
+      />
+    )}
+
+    {authedUserId === property.user_id && (
+      <DeleteTwoTone
+        key="delete"
+        style={{ fontSize: "20px" }}
+        twoToneColor="#d00c0c"
+        onClick={handleRequestDelete}
+      />
+    )}
+  </Space>
+);
+
+const PropertyCardScoreDispplay = ({
+  costAndScore: { cost, score },
+}: {
+  costAndScore: { cost: number; score: number };
+}) => (
+  <Space size={30}>
+    <div>30 Yr Cost: £{Math.abs(cost)}</div>
+    <div>Score: {score}</div>
+    <div
+      style={{
+        color: MyTheme.colors.primary,
+        fontSize: "1.7em",
+        fontWeight: "bold",
+      }}
+    >
+      {score + cost}
+    </div>
   </Space>
 );
 

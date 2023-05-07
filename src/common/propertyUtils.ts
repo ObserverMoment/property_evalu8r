@@ -163,12 +163,12 @@ interface ScoreAlgorithmCalculationWeights {
 export const scoreAlgorithmCalculationWeights: ScoreAlgorithmCalculationWeights =
   {
     // Number
-    house_price: -1,
+    house_price: -1, // 'Cost'
+    sc_gr_annual: -30, // 'Cost'
     floor_level: 2000,
     walk_to_station: -1000,
     lease_length: 1000,
     energy_effeciency: 1000,
-    sc_gr_annual: -30,
     sq_metres: 9000,
     // Quality Enum
     interior: 10000,
@@ -181,19 +181,28 @@ export const scoreAlgorithmCalculationWeights: ScoreAlgorithmCalculationWeights 
     garden_balcony: 10000,
   };
 
-export const calculatePropertyScore = (property: Property) => {
+export const calculatePropertyScore = (
+  property: Property
+): { cost: number; score: number } => {
   const inputKeys = Object.keys(scoreAlgorithmCalculationConfig);
-  const output = inputKeys.reduce((acum, nextKey) => {
+  const costKeys = ["house_price", "sc_gr_annual"];
+  const scoreKeys = inputKeys.filter((k) => !costKeys.includes(k));
+
+  const cost = costKeys.reduce((acum, nextKey) => {
     const config = scoreAlgorithmCalculationConfig[nextKey];
     const numericScore = config.inputToNumberConverter(property[nextKey]);
     const weight = scoreAlgorithmCalculationWeights[nextKey];
-    console.log(nextKey);
-    console.log(config.formula(numericScore, weight));
-    console.log("-------");
     return acum + config.formula(numericScore, weight);
   }, 0);
 
-  return output;
+  const score = scoreKeys.reduce((acum, nextKey) => {
+    const config = scoreAlgorithmCalculationConfig[nextKey];
+    const numericScore = config.inputToNumberConverter(property[nextKey]);
+    const weight = scoreAlgorithmCalculationWeights[nextKey];
+    return acum + config.formula(numericScore, weight);
+  }, 0);
+
+  return { cost, score };
 };
 
 /// All fields except agent details must be not null / undefined / empty string

@@ -1,29 +1,47 @@
+import "./index.css";
 import * as React from "react";
 import { createRoot } from "react-dom/client";
-// import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { SupabaseProvider } from "./common/supabase";
+import { ChakraBaseProvider } from "@chakra-ui/react";
+import { extendTheme } from "@chakra-ui/react";
+import "./fonts/Kanit/Kanit-Medium.ttf";
 import { ConfigProvider } from "antd";
+import { MyTheme } from "./components/styled/theme";
+
+const theme = extendTheme({
+  /// TODO
+});
 
 const root = createRoot(document.getElementById("root")!);
 
+/// ConfigProvider for ant design form components
 root.render(
   <React.StrictMode>
-    <ConfigProvider
-      theme={{
-        token: {
-          colorPrimary: "#a911a9",
-          borderRadius: 30,
-          colorBgBase: "#e1e9f5",
-          colorText: "#521e3a",
-        },
-      }}
-    >
-      <SupabaseProvider>
-        <App />
-      </SupabaseProvider>
-    </ConfigProvider>
+    <ChakraBaseProvider theme={theme}>
+      <ConfigProvider
+        theme={{
+          token: {
+            borderRadius: 30,
+            colorBgBase: MyTheme.colors.background,
+            colorPrimary: MyTheme.colors.primary,
+            colorText: MyTheme.colors.text,
+            colorBorder: MyTheme.colors.border,
+            colorTextPlaceholder: MyTheme.colors.border,
+          },
+          components: {
+            Card: {
+              colorBgContainer: MyTheme.colors.cardBackground,
+            },
+          },
+        }}
+      >
+        <SupabaseProvider>
+          <App />
+        </SupabaseProvider>
+      </ConfigProvider>
+    </ChakraBaseProvider>
   </React.StrictMode>
 );
 

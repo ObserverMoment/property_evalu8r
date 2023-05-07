@@ -11,33 +11,37 @@ import { convertToTitleCase } from "../common/utils";
 import { MessageInstance } from "antd/es/message/interface";
 
 function AddNewProperty({
-  closeDrawer,
+  onSaveProperty,
+  onCancel,
   messageApi,
 }: {
-  closeDrawer: (created?: Property) => void;
+  onSaveProperty: (created?: Property) => void;
+  onCancel: () => void;
   messageApi: MessageInstance;
 }) {
-  const { formState, checkErrors, getObjectData } = useFormState<Property>(
-    [
-      ...propertyFieldDefs.stringFields,
-      ...propertyFieldDefs.numberFields,
-      ...propertyFieldDefs.boolFields,
-      ...propertyFieldDefs.qualityEnumFields,
-    ].map((k) => ({
+  const { formState, checkErrors, getObjectData } = useFormState<Property>([
+    ...propertyFieldDefs.stringFields
+      .concat(propertyFieldDefs.numberFields)
+      .concat(propertyFieldDefs.boolFields)
+      .map((k) => ({
+        key: k,
+        value: null,
+        label: convertToTitleCase(k),
+        validator: propertyNumberInputConfig[k]?.validator,
+      })),
+    ...propertyFieldDefs.qualityEnumFields.map((k) => ({
       key: k,
-      value: null,
+      value: "Okay",
       label: convertToTitleCase(k),
       validator: propertyNumberInputConfig[k]?.validator,
-    }))
-  );
-
-  const handleCancel = () => closeDrawer();
+    })),
+  ]);
 
   const handleSave = async () => {
     const { data, error } = await createProperty(getObjectData());
     if (data !== null && data.length && !error) {
       messageApi.success("Property added");
-      closeDrawer(data.at(0));
+      onSaveProperty(data.at(0));
     } else {
       messageApi.error("Something went wrong...");
       console.log(error);
@@ -48,7 +52,7 @@ function AddNewProperty({
     <PropertyFieldsForm
       title="Add Property"
       formState={formState}
-      handleCancel={handleCancel}
+      handleCancel={onCancel}
       handleSave={handleSave}
       saveBtnDisabled={!Object.values(checkErrors()).every((e) => e === true)}
     />

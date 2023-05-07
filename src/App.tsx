@@ -1,15 +1,19 @@
-import "antd/dist/reset.css";
 import React, { useContext, useEffect, useState } from "react";
 import { SupabaseContext } from "./common/supabase";
 import { Session } from "@supabase/supabase-js";
-import { ReactSVG } from "react-svg";
-import { Spacer } from "./common/styled";
 import Auth from "./pages/Auth";
 import Home from "./pages/Home";
-import { Layout, Typography } from "antd";
-import { Content } from "antd/es/layout/layout";
+import {
+  PageContent,
+  PageFooter,
+  PageHeader,
+  PageLayout,
+} from "./components/styled/layout";
+import { Header1 } from "./components/styled/styled";
+import { ReactSVG } from "react-svg";
 
-const { Title } = Typography;
+import cityArtSvg from "./assets/city_art.svg";
+import { MyTheme } from "./components/styled/theme";
 
 function App() {
   const supabase = useContext(SupabaseContext);
@@ -28,20 +32,36 @@ function App() {
   }, [supabase.auth]);
 
   return (
-    <Layout
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        minHeight: "100vh",
-      }}
-    >
-      <Spacer height={20} />
-      <ReactSVG src="logo.svg" style={{ width: 80 }} />
-      <Spacer height={12} />
-      <Title>House Calc0matic</Title>
-      <Content>{!session ? <Auth /> : <Home />}</Content>
-    </Layout>
+    <PageLayout>
+      <PageHeader>
+        <div style={{ width: "28px" }}>
+          <ReactSVG src="logo.svg" />
+        </div>
+        <Header1>Property Evalu8R</Header1>
+      </PageHeader>
+
+      <PageContent style={{ backgroundImage: `url(${cityArtSvg})` }}>
+        {!session ? (
+          <Auth />
+        ) : (
+          <Home
+            signOut={supabase.auth.signOut}
+            authedUserId={session.user.id}
+          />
+        )}
+      </PageContent>
+
+      <PageFooter
+        style={{
+          fontSize: "0.8em",
+          padding: "10px",
+          background: MyTheme.colors.footer,
+        }}
+      >
+        A Quarksoup Technology. Built by RB in 2023 for the Rich & Jue Property
+        Co.
+      </PageFooter>
+    </PageLayout>
   );
 }
 

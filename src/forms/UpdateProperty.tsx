@@ -39,12 +39,7 @@ function UpdateProperty({
     })),
   ]);
 
-  const handleCancel = () => {
-    closeDrawer();
-  };
-
   const handleSave = async () => {
-    console.log("handleSave");
     const { data, error } = await updateProperty({
       ...property,
       ...getObjectData(),
@@ -62,7 +57,7 @@ function UpdateProperty({
     <PropertyFieldsForm
       title="Update Property"
       formState={formState}
-      handleCancel={handleCancel}
+      handleCancel={closeDrawer}
       handleSave={handleSave}
       saveBtnDisabled={!Object.values(checkErrors()).every((e) => e === true)}
     />

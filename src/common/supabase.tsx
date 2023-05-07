@@ -30,11 +30,8 @@ export const getSessionUserId = async (): Promise<string | undefined> => {
   return session?.user.id;
 };
 
-export const getProperties = async () => {
-  const userId = await getSessionUserId();
-
-  return await supabase.from("properties").select().eq("user_id", userId);
-};
+export const getProperties = async () =>
+  await supabase.from("properties").select();
 
 export const createProperty = async (data: Property) => {
   const userId = await getSessionUserId();
