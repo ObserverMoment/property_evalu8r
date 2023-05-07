@@ -240,7 +240,12 @@ export const calculatePropertyScore = (property: Property): PropertyScore => {
     return acum + config.formula(numericScore, weight);
   }, 0);
 
-  return { propertyId: property.id, cost, points, score: points + cost };
+  return {
+    propertyId: property.id,
+    cost: Math.floor(cost),
+    points: Math.floor(points),
+    score: Math.floor(points + cost),
+  };
 };
 
 export const calculateAllPropertyScores = (

@@ -191,10 +191,10 @@ function Home({
             style={{ width: 180, position: "absolute", right: 100 }}
             onChange={setSortBy}
             options={[
+              { value: "dateAdded", label: "Latest Added" },
               { value: "highestScore", label: "Highest Score" },
               { value: "highestPoints", label: "Highest Points" },
               { value: "lowestCost", label: "Lowest Cost" },
-              { value: "dateAdded", label: "Latest Added" },
             ]}
           />
         </TabList>
