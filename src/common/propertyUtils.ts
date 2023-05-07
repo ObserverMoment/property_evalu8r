@@ -13,21 +13,21 @@ export const propertyFieldDefs = {
   textAreaFields: ["notes"],
   numberFields: [
     "house_price",
+    "sq_metres",
     "floor_level",
     "walk_to_station",
     "lease_length",
+    "sc_gr_annual",
     "energy_effeciency",
     "est_month_rent",
-    "sc_gr_annual",
-    "sq_metres",
   ],
   qualityEnumFields: ["interior", "view"],
   boolFields: [
-    "cladding_cert",
-    "electrics_cert",
+    "garden_balcony",
     "local_gym",
     "local_supermarket",
-    "garden_balcony",
+    "cladding_cert",
+    "electrics_cert",
   ],
 };
 
