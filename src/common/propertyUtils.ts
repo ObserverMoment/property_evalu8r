@@ -16,10 +16,10 @@ export const propertyFieldDefs = {
     "sq_metres",
     "floor_level",
     "walk_to_station",
+    "walk_to_park",
     "lease_length",
     "sc_gr_annual",
     "energy_effeciency",
-    "est_month_rent",
   ],
   qualityEnumFields: ["interior", "view"],
   boolFields: [
@@ -39,7 +39,6 @@ interface PropertyNumberInputConfigObject {
     suffix?: string;
     validator?: (v: any) => boolean;
     validatorMessage?: string;
-    algorithm: (x: number) => number;
     displayFormat: (x: number) => string;
   };
 }
@@ -48,24 +47,25 @@ export const propertyNumberInputConfig: PropertyNumberInputConfigObject = {
   house_price: {
     min: 0,
     prefix: "£",
-    algorithm: (x) => x * -1,
     displayFormat: (x: number) => currencyFormat(x),
   },
   floor_level: {
     min: 0,
-    algorithm: (x) => x * 2000,
     displayFormat: (x: number) => x.toString(),
   },
   walk_to_station: {
     min: 0,
     suffix: "mins",
-    algorithm: (x) => x * -1000,
+    displayFormat: (x: number) => x.toString(),
+  },
+  walk_to_park: {
+    min: 0,
+    suffix: "mins",
     displayFormat: (x: number) => x.toString(),
   },
   lease_length: {
     min: 0,
     suffix: "years",
-    algorithm: (x) => (x - 125) * 1000,
     displayFormat: (x: number) => x.toString(),
   },
   energy_effeciency: {
@@ -74,25 +74,16 @@ export const propertyNumberInputConfig: PropertyNumberInputConfigObject = {
     suffix: "(0-100)",
     validator: (v: number) => v >= 0 && v <= 100,
     validatorMessage: "Range is 0 to 100",
-    algorithm: (x) => (x - 70) * 1000,
     displayFormat: (x: number) => x.toString(),
-  },
-  est_month_rent: {
-    min: 0,
-    prefix: "£",
-    algorithm: (x) => x * 30,
-    displayFormat: (x: number) => currencyFormat(x),
   },
   sc_gr_annual: {
     min: 0,
     prefix: "£",
-    algorithm: (x) => x * -30,
     displayFormat: (x: number) => currencyFormat(x),
   },
   sq_metres: {
     min: 0,
     suffix: "sq mtr",
-    algorithm: (x) => x * 9000,
     displayFormat: (x: number) => x.toString(),
   },
 };
@@ -118,6 +109,11 @@ export const scoreAlgorithmCalculationConfig: ScoreAlgorithmCalculationConfig =
     walk_to_station: {
       inputToNumberConverter: (x: number) => x,
       formula: (x, w) => (x - 9) * w,
+    },
+    // Each minute affects score by [-weight]
+    walk_to_park: {
+      inputToNumberConverter: (x: number) => x,
+      formula: (x, w) => x * w,
     },
     // Anything under 125 will reduce score, anything above will increase it up to a max of [max]
     lease_length: {
@@ -196,6 +192,7 @@ export const scoreAlgorithmCalculationWeights: ScoreAlgorithmCalculationWeights 
     sc_gr_annual: 30, // 'Cost'
     floor_level: 2000,
     walk_to_station: -1000,
+    walk_to_park: -500,
     lease_length: 1000,
     energy_effeciency: 1000,
     sq_metres: 9000,

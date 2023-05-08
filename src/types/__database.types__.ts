@@ -43,7 +43,6 @@ export interface Database {
           created_at: string
           electrics_cert: boolean | null
           energy_effeciency: number | null
-          est_month_rent: number | null
           floor_level: number | null
           garden_balcony: boolean | null
           house_price: number | null
@@ -59,6 +58,7 @@ export interface Database {
           url_link: string | null
           user_id: string | null
           view: Database["public"]["Enums"]["quality_assessment_enum"]
+          walk_to_park: number | null
           walk_to_station: number | null
         }
         Insert: {
@@ -69,7 +69,6 @@ export interface Database {
           created_at?: string
           electrics_cert?: boolean | null
           energy_effeciency?: number | null
-          est_month_rent?: number | null
           floor_level?: number | null
           garden_balcony?: boolean | null
           house_price?: number | null
@@ -85,6 +84,7 @@ export interface Database {
           url_link?: string | null
           user_id?: string | null
           view?: Database["public"]["Enums"]["quality_assessment_enum"]
+          walk_to_park?: number | null
           walk_to_station?: number | null
         }
         Update: {
@@ -95,7 +95,6 @@ export interface Database {
           created_at?: string
           electrics_cert?: boolean | null
           energy_effeciency?: number | null
-          est_month_rent?: number | null
           floor_level?: number | null
           garden_balcony?: boolean | null
           house_price?: number | null
@@ -111,6 +110,7 @@ export interface Database {
           url_link?: string | null
           user_id?: string | null
           view?: Database["public"]["Enums"]["quality_assessment_enum"]
+          walk_to_park?: number | null
           walk_to_station?: number | null
         }
       }
