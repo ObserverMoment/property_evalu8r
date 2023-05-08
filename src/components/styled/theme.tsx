@@ -4,7 +4,7 @@ export const MyTheme = {
     primary: "#ffffff",
     text: "#000",
     background: "#f5cba4",
-    cardBackground: "#ecbd91",
+    cardBackground: "#f3cba4",
     border: "#575e5e",
     footer: "#1f1f20",
   },

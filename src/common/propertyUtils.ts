@@ -192,8 +192,8 @@ interface ScoreAlgorithmCalculationWeights {
 export const scoreAlgorithmCalculationWeights: ScoreAlgorithmCalculationWeights =
   {
     // Number
-    house_price: -1, // 'Cost'
-    sc_gr_annual: -30, // 'Cost'
+    house_price: 1, // 'Cost'
+    sc_gr_annual: 30, // 'Cost'
     floor_level: 2000,
     walk_to_station: -1000,
     lease_length: 1000,
@@ -215,6 +215,7 @@ export interface PropertyScore {
   cost: number;
   points: number;
   score: number; // points - cost
+  sqMtrCost: number | null;
 }
 
 export interface PropertScoresResult {
@@ -244,7 +245,11 @@ export const calculatePropertyScore = (property: Property): PropertyScore => {
     propertyId: property.id,
     cost: Math.floor(cost),
     points: Math.floor(points),
-    score: Math.floor(points + cost),
+    score: Math.floor(points - cost),
+    sqMtrCost:
+      property.house_price && property.sq_metres
+        ? Math.floor(property.house_price / property.sq_metres)
+        : null,
   };
 };
 

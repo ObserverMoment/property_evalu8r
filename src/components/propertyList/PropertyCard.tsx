@@ -59,18 +59,13 @@ export function PropertyCard({
         />
       }
       bodyStyle={{ padding: "0 10px 8px 10px" }}
-      extra={
-        <PropertyCardScoreDisplay
-          propertyScore={propertyScore}
-          squareMetres={property.sq_metres}
-        />
-      }
+      extra={<PropertyCardScoreDisplay propertyScore={propertyScore} />}
       size="small"
     >
       <div
         onClick={() => handleRequestNoteUpdate(property)}
         style={{
-          padding: "0 4px 4px 4px",
+          padding: "4px",
           textAlign: "left",
           fontSize: "0.7em",
         }}
@@ -230,23 +225,21 @@ const PropertyCardHeader = ({
 );
 
 const PropertyCardScoreDisplay = ({
-  propertyScore: { cost, points, score },
-  squareMetres,
+  propertyScore: { cost, points, score, sqMtrCost },
 }: {
   propertyScore: PropertyScore;
-  squareMetres: number | null;
 }) => (
   <Space direction="horizontal" size={16}>
-    {squareMetres && (
+    {sqMtrCost && (
       <div>
         <BadgeBuilder label="£/sqmtr" />
-        {currencyFormat(Math.abs(cost / squareMetres))}
+        {currencyFormat(sqMtrCost)}
       </div>
     )}
 
     <div>
       <BadgeBuilder label="30 Yr Cost" />
-      {currencyFormat(Math.abs(cost))}
+      {currencyFormat(cost)}
     </div>
 
     <div>

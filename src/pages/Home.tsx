@@ -1,29 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { Property } from "../types/types";
 import { deleteProperty, getProperties } from "../common/supabase";
-import {
-  PropertyList,
-  SortByEnum,
-} from "../components/propertyList/PropertyList";
+import { PropertyList } from "../components/propertyList/PropertyList";
 import AddNewProperty from "../forms/AddNewProperty";
 import { mapReplaceArray } from "../common/utils";
 import UpdateProperty from "../forms/UpdateProperty";
-import { checkPropertyCompleteInfo } from "../common/propertyUtils";
 import { showMessage } from "../common/notifications";
 import { HomeContent, MySpacer } from "../components/styled/layout";
 import { PrimaryButton, SecondaryButton } from "../components/styled/styled";
 import styled from "@emotion/styled";
-import {
-  Badge,
-  Tab,
-  TabList,
-  TabPanel,
-  TabPanels,
-  Tabs,
-  useDisclosure,
-} from "@chakra-ui/react";
-import { Drawer, Empty, Select, message } from "antd";
-import { MyTheme } from "../components/styled/theme";
+import { useDisclosure } from "@chakra-ui/react";
+import { Drawer, message } from "antd";
 import { MyModal } from "../components/styled/modal";
 import { WarningTwoIcon } from "@chakra-ui/icons";
 import UpdateNotes from "../forms/UpdateNotes";
@@ -41,8 +28,6 @@ function Home({
   // Ant Design message hook.
   const [messageApi, contextHolder] = message.useMessage();
 
-  const [sortBy, setSortBy] = useState<SortByEnum>("highestScore");
-
   /// Panels
   const [openAddPanel, setOpenAddPanel] = useState(false);
   const [openUpdatePanel, setOpenUpdatePanel] = useState(false);
@@ -57,12 +42,12 @@ function Home({
     useState<Property | null>(null);
 
   /// Property Data
-  const [properties, setProperties] = useState<Property[]>([]);
+  const [allProperties, setAllProperties] = useState<Property[]>([]);
 
   useEffect(() => {
     getProperties()
       .then((res) => {
-        setProperties(res.data!);
+        setAllProperties(res.data!);
       })
       .catch((e) => {
         console.log(e.message);
@@ -72,7 +57,7 @@ function Home({
   /// Create New Property
   const handleSaveProperty = (data: Property | undefined) => {
     if (data) {
-      setProperties([data, ...properties]);
+      setAllProperties([data, ...allProperties]);
     }
     setOpenAddPanel(false);
   };
@@ -85,7 +70,9 @@ function Home({
 
   const handleCloseUpdateProperty = (data: Property | undefined) => {
     if (data) {
-      setProperties(mapReplaceArray({ modified: data, previous: properties }));
+      setAllProperties(
+        mapReplaceArray({ modified: data, previous: allProperties })
+      );
     }
     setOpenUpdatePanel(false);
     setPropertyToUpdate(null);
@@ -99,7 +86,9 @@ function Home({
 
   const handleCloseNotes = (data: Property | undefined) => {
     if (data) {
-      setProperties(mapReplaceArray({ modified: data, previous: properties }));
+      setAllProperties(
+        mapReplaceArray({ modified: data, previous: allProperties })
+      );
     }
     setOpenNotesPanel(false);
     setPropertyToUpdate(null);
@@ -126,8 +115,8 @@ function Home({
           messageApi: messageApi,
           type: "success",
         });
-        setProperties(
-          properties.filter((p) => p.id !== propertyToBeDeleted.id)
+        setAllProperties(
+          allProperties.filter((p) => p.id !== propertyToBeDeleted.id)
         );
       }
     }
@@ -139,10 +128,6 @@ function Home({
     setPropertyToBeDeleted(null);
     onClose();
   };
-
-  // Properties that do not have full info cannot be put through the score calculating algo.
-  // If any fields are missing then property is classed as [awaitingInfo]
-  const { completed, awaitingInfo } = checkPropertyCompleteInfo(properties);
 
   return (
     <HomeContent>
@@ -163,75 +148,13 @@ function Home({
         <SecondaryButton onClick={signOut}>Sign Out</SecondaryButton>
       </ButtonsContainer>
 
-      <Tabs variant="enclosed" defaultIndex={0} align="center">
-        <TabList>
-          <Tab
-            _selected={{
-              background: MyTheme.colors.secondary,
-            }}
-          >
-            Completed
-            <Badge position="relative" top={-2} right={-1} fontSize="0.6em">
-              {completed.length}
-            </Badge>
-          </Tab>
-          <Tab
-            _selected={{
-              background: MyTheme.colors.secondary,
-            }}
-          >
-            Awaiting Info
-            <Badge position="relative" top={-2} right={-1} fontSize="0.6em">
-              {awaitingInfo.length}
-            </Badge>
-          </Tab>
-
-          <Select
-            defaultValue="dateAdded"
-            style={{ width: 180, position: "absolute", right: 100 }}
-            onChange={setSortBy}
-            options={[
-              { value: "dateAdded", label: "Latest Added" },
-              { value: "highestScore", label: "Highest Score" },
-              { value: "highestPoints", label: "Highest Points" },
-              { value: "lowestCost", label: "Lowest Cost" },
-            ]}
-          />
-        </TabList>
-
-        <TabPanels>
-          <TabPanel>
-            {completed.length ? (
-              <PropertyList
-                key="completed"
-                sortBy={sortBy}
-                properties={completed}
-                openUpdateProperty={handleOpenUpdateProperty}
-                handleRequestDeleteProperty={handleRequestDeleteProperty}
-                handleRequestNoteUpdate={handleOpenUpdateNotes}
-                authedUserId={authedUserId}
-              />
-            ) : (
-              <Empty description="No completed properties yet..." />
-            )}
-          </TabPanel>
-          <TabPanel>
-            {awaitingInfo.length ? (
-              <PropertyList
-                key="awaitingInfo"
-                sortBy={sortBy}
-                properties={awaitingInfo}
-                openUpdateProperty={handleOpenUpdateProperty}
-                handleRequestDeleteProperty={handleRequestDeleteProperty}
-                handleRequestNoteUpdate={handleOpenUpdateNotes}
-                authedUserId={authedUserId}
-              />
-            ) : (
-              <Empty description="No completed properties yet..." />
-            )}
-          </TabPanel>
-        </TabPanels>
-      </Tabs>
+      <PropertyList
+        properties={allProperties}
+        openUpdateProperty={handleOpenUpdateProperty}
+        handleRequestDeleteProperty={handleRequestDeleteProperty}
+        handleRequestNoteUpdate={handleOpenUpdateNotes}
+        authedUserId={authedUserId}
+      />
 
       <Drawer
         placement="right"
