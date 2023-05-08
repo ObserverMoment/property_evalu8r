@@ -39,9 +39,7 @@ export interface Database {
           agent_email: string | null
           agent_phone: string | null
           agent_website: string | null
-          cladding_cert: boolean | null
           created_at: string
-          electrics_cert: boolean | null
           energy_effeciency: number | null
           floor_level: number | null
           garden_balcony: boolean | null
@@ -53,6 +51,7 @@ export interface Database {
           local_gym: boolean | null
           local_supermarket: boolean | null
           notes: string | null
+          off_street_parking: boolean | null
           sc_gr_annual: number | null
           sq_metres: number | null
           url_link: string | null
@@ -65,9 +64,7 @@ export interface Database {
           agent_email?: string | null
           agent_phone?: string | null
           agent_website?: string | null
-          cladding_cert?: boolean | null
           created_at?: string
-          electrics_cert?: boolean | null
           energy_effeciency?: number | null
           floor_level?: number | null
           garden_balcony?: boolean | null
@@ -79,6 +76,7 @@ export interface Database {
           local_gym?: boolean | null
           local_supermarket?: boolean | null
           notes?: string | null
+          off_street_parking?: boolean | null
           sc_gr_annual?: number | null
           sq_metres?: number | null
           url_link?: string | null
@@ -91,9 +89,7 @@ export interface Database {
           agent_email?: string | null
           agent_phone?: string | null
           agent_website?: string | null
-          cladding_cert?: boolean | null
           created_at?: string
-          electrics_cert?: boolean | null
           energy_effeciency?: number | null
           floor_level?: number | null
           garden_balcony?: boolean | null
@@ -105,6 +101,7 @@ export interface Database {
           local_gym?: boolean | null
           local_supermarket?: boolean | null
           notes?: string | null
+          off_street_parking?: boolean | null
           sc_gr_annual?: number | null
           sq_metres?: number | null
           url_link?: string | null
@@ -112,6 +109,23 @@ export interface Database {
           view?: Database["public"]["Enums"]["quality_assessment_enum"]
           walk_to_park?: number | null
           walk_to_station?: number | null
+        }
+      }
+      user_favourite_properties: {
+        Row: {
+          created_at: string | null
+          property_id: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          property_id: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          property_id?: number
+          user_id?: string
         }
       }
     }

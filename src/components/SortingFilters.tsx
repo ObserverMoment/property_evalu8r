@@ -1,7 +1,6 @@
 import React from "react";
 import { Input, Radio, Select } from "antd";
 import styled from "@emotion/styled";
-import { MyTheme } from "./styled/theme";
 import { MySpacer } from "./styled/layout";
 
 export type SortByEnum =
@@ -11,7 +10,7 @@ export type SortByEnum =
   | "highestPoints"
   | "sqrMtrCost";
 
-export type ShowTypeEnum = "all" | "completed" | "awaitingInfo";
+export type ShowTypeEnum = "all" | "completed" | "awaitingInfo" | "favourites";
 
 interface SortingFiltersProps {
   searchText: string;
@@ -41,6 +40,7 @@ function SortingFilters({
           <Radio.Button value="all">All</Radio.Button>
           <Radio.Button value="completed">Completed</Radio.Button>
           <Radio.Button value="awaitingInfo">Awaiting Info</Radio.Button>
+          <Radio.Button value="favourites">Favourites</Radio.Button>
         </Radio.Group>
       </div>
 
@@ -76,7 +76,7 @@ function SortingFilters({
 const SortingFiltersContainer = styled.div`
   padding: 8px;
   margin: 12px;
-  background: ${MyTheme.colors.secondary};
+  background: rgba(0, 0, 0, 0.7);
   border-radius: 30em;
   box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px,
     rgba(0, 0, 0, 0.3) 0px 3px 7px -3px;

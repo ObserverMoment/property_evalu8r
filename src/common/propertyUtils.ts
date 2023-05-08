@@ -26,8 +26,7 @@ export const propertyFieldDefs = {
     "garden_balcony",
     "local_gym",
     "local_supermarket",
-    "cladding_cert",
-    "electrics_cert",
+    "off_street_parking",
   ],
 };
 
@@ -159,14 +158,6 @@ export const scoreAlgorithmCalculationConfig: ScoreAlgorithmCalculationConfig =
         }[x]),
       formula: (x, w) => x * w,
     },
-    cladding_cert: {
-      inputToNumberConverter: (x: boolean) => (x ? 0 : -1),
-      formula: (x, w) => x * w,
-    },
-    electrics_cert: {
-      inputToNumberConverter: (x: boolean) => (x ? 0 : -1),
-      formula: (x, w) => x * w,
-    },
     local_gym: {
       inputToNumberConverter: (x: boolean) => (x ? 0 : -1),
       formula: (x, w) => x * w,
@@ -176,6 +167,10 @@ export const scoreAlgorithmCalculationConfig: ScoreAlgorithmCalculationConfig =
       formula: (x, w) => x * w,
     },
     garden_balcony: {
+      inputToNumberConverter: (x: boolean) => (x ? 1 : 0),
+      formula: (x, w) => x * w,
+    },
+    off_street_parking: {
       inputToNumberConverter: (x: boolean) => (x ? 1 : 0),
       formula: (x, w) => x * w,
     },
@@ -200,11 +195,10 @@ export const scoreAlgorithmCalculationWeights: ScoreAlgorithmCalculationWeights 
     interior: 10000,
     view: 10000,
     // Bool. All weights are positive so control the sign of output via [inputToNumberConverter]
-    cladding_cert: 10000,
-    electrics_cert: 5000,
     local_gym: 10000,
     local_supermarket: 10000,
     garden_balcony: 10000,
+    off_street_parking: 10000,
   };
 
 export interface PropertyScore {

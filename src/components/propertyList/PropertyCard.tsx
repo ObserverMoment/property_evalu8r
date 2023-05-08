@@ -8,14 +8,15 @@ import {
 import { FlexRow } from "../styled/layout";
 import { convertToTitleCase, currencyFormat } from "../../common/utils";
 import Moment from "react-moment";
-
 import {
   CheckCircleTwoTone,
   CloseCircleTwoTone,
   QuestionCircleTwoTone,
   FileAddTwoTone,
   EditTwoTone,
-  DeleteTwoTone,
+  DeleteOutlined,
+  HeartOutlined,
+  HeartFilled,
 } from "@ant-design/icons";
 import { MyTheme } from "../styled/theme";
 import { Badge } from "@chakra-ui/react";
@@ -28,6 +29,9 @@ interface PropertyCardProps {
   openUpdateProperty: (p: Property) => void;
   handleRequestDeleteProperty: (p: Property) => void;
   handleRequestNoteUpdate: (p: Property) => void;
+  isFavourite: boolean;
+  handleAddFavourite: (pId: number) => void;
+  handleRemoveFavourite: (pId: number) => void;
   authedUserId: string;
 }
 
@@ -37,6 +41,9 @@ export function PropertyCard({
   openUpdateProperty,
   handleRequestDeleteProperty,
   handleRequestNoteUpdate,
+  isFavourite,
+  handleAddFavourite,
+  handleRemoveFavourite,
   authedUserId,
 }: PropertyCardProps) {
   const propertyFieldCardStyle = {
@@ -45,6 +52,8 @@ export function PropertyCard({
     padding: "0px",
     margin: "3px",
   };
+
+  const propertyFieldTitleStyle = { fontSize: "0.8em" };
 
   return (
     <Card
@@ -56,6 +65,9 @@ export function PropertyCard({
           handleRequestNoteUpdate={() => handleRequestNoteUpdate(property)}
           handleRequestUpdate={() => openUpdateProperty(property)}
           handleRequestDelete={() => handleRequestDeleteProperty(property)}
+          isFavourite={isFavourite}
+          handleAddFavourite={handleAddFavourite}
+          handleRemoveFavourite={handleRemoveFavourite}
         />
       }
       bodyStyle={{ padding: "0 10px 8px 10px" }}
@@ -67,7 +79,7 @@ export function PropertyCard({
         style={{
           padding: "4px",
           textAlign: "left",
-          fontSize: "0.7em",
+          fontSize: "0.8em",
         }}
       >
         {property.notes}
@@ -80,7 +92,7 @@ export function PropertyCard({
             key={k}
             size="small"
           >
-            <Text style={{ fontSize: "0.75em" }}>{convertToTitleCase(k)}</Text>
+            <Text style={propertyFieldTitleStyle}>{convertToTitleCase(k)}</Text>
 
             <div>
               <Text>
@@ -110,7 +122,7 @@ export function PropertyCard({
             bordered={false}
             style={propertyFieldCardStyle}
           >
-            <Text style={{ fontSize: "0.75em" }}>{convertToTitleCase(k)}</Text>
+            <Text style={propertyFieldTitleStyle}>{convertToTitleCase(k)}</Text>
             <div>{property[k]}</div>
           </Card>
         ))}
@@ -122,8 +134,8 @@ export function PropertyCard({
             bordered={false}
             style={propertyFieldCardStyle}
           >
-            <Text style={{ fontSize: "0.75em" }}>{convertToTitleCase(k)}</Text>
-            <div style={{ fontSize: "1.2em" }}>
+            <Text style={propertyFieldTitleStyle}>{convertToTitleCase(k)}</Text>
+            <div>
               <BooleanValueDisplay input={property[k]} />
             </div>
           </Card>
@@ -139,10 +151,14 @@ interface PropertyCardHeaderProps {
   handleRequestUpdate: () => void;
   handleRequestDelete: () => void;
   handleRequestNoteUpdate: () => void;
+  isFavourite: boolean;
+  handleAddFavourite: (pId: number) => void;
+  handleRemoveFavourite: (pId: number) => void;
 }
 
 const PropertyCardHeader = ({
   property: {
+    id,
     user_id,
     created_at,
     url_link,
@@ -155,9 +171,12 @@ const PropertyCardHeader = ({
   handleRequestUpdate,
   handleRequestDelete,
   handleRequestNoteUpdate,
+  isFavourite,
+  handleAddFavourite,
+  handleRemoveFavourite,
 }: PropertyCardHeaderProps) => (
   <FlexRow style={{ fontSize: "1.1em" }}>
-    <Space size={16}>
+    <Space size={24}>
       {listing_title && (
         <Text style={{ fontSize: "0.7em" }}>{listing_title}</Text>
       )}
@@ -213,11 +232,23 @@ const PropertyCardHeader = ({
       )}
 
       {authedUserId === user_id && (
-        <DeleteTwoTone
+        <DeleteOutlined
           key="delete"
-          style={{ fontSize: "20px" }}
-          twoToneColor="#d00c0c"
+          style={{ fontSize: "20px", color: "#744040" }}
+          twoToneColor="#822929"
           onClick={handleRequestDelete}
+        />
+      )}
+
+      {isFavourite ? (
+        <HeartFilled
+          style={{ color: "#9e0e69", fontSize: "20px" }}
+          onClick={() => handleRemoveFavourite(id)}
+        />
+      ) : (
+        <HeartOutlined
+          style={{ color: "#95517c", fontSize: "20px" }}
+          onClick={() => handleAddFavourite(id)}
         />
       )}
     </Space>

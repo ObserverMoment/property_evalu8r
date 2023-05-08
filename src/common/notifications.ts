@@ -31,7 +31,7 @@ export const openNotification = ({
 type MessageType = "success" | "error" | "warning";
 
 interface ShowMessageProps {
-  content: string;
+  content?: string;
   type?: MessageType;
   messageApi: MessageInstance;
 }
@@ -39,6 +39,17 @@ interface ShowMessageProps {
 export const showMessage = ({
   content,
   type = "success",
+  messageApi,
+}: ShowMessageProps) => {
+  messageApi.open({
+    type: type || "Success!",
+    content: content,
+  });
+};
+
+export const showErrorMessage = ({
+  content = "Something went wrong",
+  type = "error",
   messageApi,
 }: ShowMessageProps) => {
   messageApi.open({

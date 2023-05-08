@@ -1,5 +1,4 @@
 import styled from "@emotion/styled";
-import { MyTheme } from "./theme";
 
 export const PageLayout = styled.div`
   min-height: 100vh;
@@ -7,7 +6,6 @@ export const PageLayout = styled.div`
   margin: 0;
   padding: 0;
   color: white;
-  /* background: ${MyTheme.colors.background}; */
   background: linear-gradient(
     to right top,
     #ecbd91,
@@ -23,21 +21,6 @@ export const PageLayout = styled.div`
     #bf8492,
     #b78092
   );
-  /* background: linear-gradient(
-    to right top,
-    #1b1f1e,
-    #1f2524,
-    #232a29,
-    #283030,
-    #2c3636,
-    #2c3636,
-    #2c3636,
-    #2c3636,
-    #283030,
-    #242b2a,
-    #202524,
-    #1c201f
-  ); */
   /* https://stackoverflow.com/questions/206652/how-to-create-div-to-fill-all-space-between-header-and-footer-div */
   display: grid;
   /* let content auto to occupy remaining height and pass value in fit-content with min-height for header and footer */

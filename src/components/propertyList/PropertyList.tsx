@@ -15,6 +15,9 @@ interface PropertyListProps {
   openUpdateProperty: (p: Property) => void;
   handleRequestDeleteProperty: (p: Property) => void;
   handleRequestNoteUpdate: (p: Property) => void;
+  favourites: number[];
+  handleAddFavourite: (pId: number) => void;
+  handleRemoveFavourite: (pId: number) => void;
   authedUserId: string;
 }
 
@@ -23,6 +26,9 @@ export function PropertyList({
   openUpdateProperty,
   handleRequestDeleteProperty,
   handleRequestNoteUpdate,
+  favourites,
+  handleAddFavourite,
+  handleRemoveFavourite,
   authedUserId,
 }: PropertyListProps) {
   // Sort, search and filter
@@ -63,6 +69,8 @@ export function PropertyList({
       ? checkPropertyCompleteInfo(searchFiltered).completed
       : showType === "awaitingInfo"
       ? checkPropertyCompleteInfo(searchFiltered).awaitingInfo
+      : showType === "favourites"
+      ? searchFiltered.filter((p) => favourites.includes(p.id))
       : searchFiltered;
 
   const sortedProperties = sortProperties(typeFiltered);
@@ -88,6 +96,9 @@ export function PropertyList({
               openUpdateProperty={openUpdateProperty}
               handleRequestDeleteProperty={handleRequestDeleteProperty}
               handleRequestNoteUpdate={handleRequestNoteUpdate}
+              isFavourite={favourites.includes(p.id)}
+              handleAddFavourite={handleAddFavourite}
+              handleRemoveFavourite={handleRemoveFavourite}
               authedUserId={authedUserId}
             />
           </div>

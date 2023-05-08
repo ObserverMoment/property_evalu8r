@@ -1,11 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Property } from "../types/types";
-import { deleteProperty, getProperties } from "../common/supabase";
+import {
+  addFavourite,
+  deleteProperty,
+  getFavourites,
+  getProperties,
+  removeFavourite,
+} from "../common/supabase";
 import { PropertyList } from "../components/propertyList/PropertyList";
 import AddNewProperty from "../forms/AddNewProperty";
 import { mapReplaceArray } from "../common/utils";
 import UpdateProperty from "../forms/UpdateProperty";
-import { showMessage } from "../common/notifications";
+import { showErrorMessage, showMessage } from "../common/notifications";
 import { HomeContent, MySpacer } from "../components/styled/layout";
 import { PrimaryButton, SecondaryButton } from "../components/styled/styled";
 import styled from "@emotion/styled";
@@ -28,7 +34,12 @@ function Home({
   // Ant Design message hook.
   const [messageApi, contextHolder] = message.useMessage();
 
-  /// Panels
+  /// Property Data
+  const [allProperties, setAllProperties] = useState<Property[]>([]);
+  // Array of property IDs.
+  const [favourites, setFavourites] = useState<number[]>([]);
+
+  /// Panel state.
   const [openAddPanel, setOpenAddPanel] = useState(false);
   const [openUpdatePanel, setOpenUpdatePanel] = useState(false);
   const [openNotesPanel, setOpenNotesPanel] = useState(false);
@@ -41,8 +52,23 @@ function Home({
   const [propertyToBeDeleted, setPropertyToBeDeleted] =
     useState<Property | null>(null);
 
-  /// Property Data
-  const [allProperties, setAllProperties] = useState<Property[]>([]);
+  const getInitialData = async () => {
+    try {
+      const { data: properties } = await getProperties();
+      const { data: favourites } = await getFavourites();
+      setAllProperties(properties!);
+      setFavourites(favourites!.map((f) => f.property_id));
+    } catch (e: any) {
+      messageApi.error("Something went wrong...");
+      console.log(e.toString());
+    }
+  };
+
+  const cachedInitFunction = useCallback(getInitialData, [messageApi]);
+
+  useEffect(() => {
+    cachedInitFunction();
+  }, [cachedInitFunction]);
 
   useEffect(() => {
     getProperties()
@@ -104,10 +130,8 @@ function Home({
     if (propertyToBeDeleted) {
       const { error } = await deleteProperty(propertyToBeDeleted);
       if (error) {
-        showMessage({
-          content: "Something went wrong...",
+        showErrorMessage({
           messageApi: messageApi,
-          type: "error",
         });
       } else {
         showMessage({
@@ -127,6 +151,30 @@ function Home({
   const handleCancelDeleteProperty = () => {
     setPropertyToBeDeleted(null);
     onClose();
+  };
+
+  const handleAddFavourite = async (propertyId: number) => {
+    const { error } = await addFavourite(propertyId);
+    if (error) {
+      showErrorMessage({
+        messageApi: messageApi,
+      });
+    } else {
+      setFavourites([...favourites, propertyId]);
+    }
+  };
+
+  const handleRemoveFavourite = async (propertyId: number) => {
+    const { error } = await removeFavourite(propertyId);
+    if (error) {
+      showMessage({
+        content: "Something went wrong...",
+        messageApi: messageApi,
+        type: "error",
+      });
+    } else {
+      setFavourites(favourites.filter((f) => f !== propertyId));
+    }
   };
 
   return (
@@ -153,6 +201,9 @@ function Home({
         openUpdateProperty={handleOpenUpdateProperty}
         handleRequestDeleteProperty={handleRequestDeleteProperty}
         handleRequestNoteUpdate={handleOpenUpdateNotes}
+        favourites={favourites}
+        handleAddFavourite={handleAddFavourite}
+        handleRemoveFavourite={handleRemoveFavourite}
         authedUserId={authedUserId}
       />
 
