@@ -111,5 +111,6 @@ export function PropertyList({
 }
 
 const PropertyListContainer = styled.div`
-  padding: 8px 20px;
+  padding: 0 0 0 12px;
+  max-width: 95vw;
 `;

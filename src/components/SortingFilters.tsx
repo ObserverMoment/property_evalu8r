@@ -2,6 +2,9 @@ import React from "react";
 import { Input, Radio, Select } from "antd";
 import styled from "@emotion/styled";
 import { MySpacer } from "./styled/layout";
+import { useMediaSize } from "../common/useMediaSize";
+import { DeviceSize } from "../types/types";
+import { MyTheme } from "./styled/theme";
 
 export type SortByEnum =
   | "recentlyAdded"
@@ -29,22 +32,41 @@ function SortingFilters({
   sortBy,
   setSortBy,
 }: SortingFiltersProps) {
+  const deviceSize = useMediaSize();
+
   return (
-    <SortingFiltersContainer>
+    <SortingFiltersContainer deviceSize={deviceSize}>
       <div>
         <Radio.Group
           onChange={(e) => setShowType(e.target.value)}
           defaultValue={showType}
           value={showType}
         >
-          <Radio.Button value="all">All</Radio.Button>
-          <Radio.Button value="completed">Completed</Radio.Button>
-          <Radio.Button value="awaitingInfo">Awaiting Info</Radio.Button>
-          <Radio.Button value="favourites">Favourites</Radio.Button>
+          <StyledRadioButton active={showType === "all"} value="all">
+            All
+          </StyledRadioButton>
+          <StyledRadioButton
+            active={showType === "completed"}
+            value="completed"
+          >
+            Completed
+          </StyledRadioButton>
+          <StyledRadioButton
+            active={showType === "awaitingInfo"}
+            value="awaitingInfo"
+          >
+            Awaiting Info
+          </StyledRadioButton>
+          <StyledRadioButton
+            active={showType === "favourites"}
+            value="favourites"
+          >
+            Favourites
+          </StyledRadioButton>
         </Radio.Group>
       </div>
 
-      <div style={{ display: "flex" }}>
+      <div style={{ display: "flex", justifyContent: "center" }}>
         <Select
           defaultValue={sortBy}
           style={{ width: 180 }}
@@ -59,7 +81,7 @@ function SortingFilters({
           ]}
         />
 
-        <MySpacer width={20} />
+        <MySpacer width={12} />
 
         <Input
           placeholder="Search listing title"
@@ -73,16 +95,24 @@ function SortingFilters({
   );
 }
 
-const SortingFiltersContainer = styled.div`
+const SortingFiltersContainer = styled.div<{ deviceSize: DeviceSize }>`
   padding: 8px;
   margin: 12px;
   background: rgba(0, 0, 0, 0.7);
-  border-radius: 30em;
+  border-radius: 8px;
   box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px,
     rgba(0, 0, 0, 0.3) 0px 3px 7px -3px;
   display: flex;
   justify-content: space-between;
   width: 90vw;
+  flex-direction: ${(p) => (p.deviceSize === "large" ? "row" : "column")};
+  row-gap: 8px;
+`;
+
+const StyledRadioButton = styled(Radio.Button)<{ active: boolean }>`
+  background: ${(p) =>
+    p.active ? MyTheme.colors.primary : "rgba(263,203,164,0.85)"};
+  transition: all 200ms ease;
 `;
 
 export default SortingFilters;

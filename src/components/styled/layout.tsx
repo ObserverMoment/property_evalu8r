@@ -1,10 +1,10 @@
 import styled from "@emotion/styled";
+import { DEVICES } from "./theme";
 
 export const PageLayout = styled.div`
   min-height: 100vh;
   text-align: center;
   margin: 0;
-  padding: 0;
   color: white;
   background: linear-gradient(
     to right top,
@@ -29,12 +29,24 @@ export const PageLayout = styled.div`
 `;
 
 export const PageHeader = styled.header`
-  height: 70px;
-  padding: 16px;
   grid-area: header;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
+  flex-direction: column;
+  width: 95vw;
+  @media ${DEVICES.tablet} {
+    flex-direction: row;
+    height: 80px;
+    width: 97vw;
+    padding: 0 20px;
+  }
+  @media ${DEVICES.desktop} {
+    flex-direction: row;
+    height: 80px;
+    width: 85vw;
+    padding: 0 20px;
+  }
 `;
 
 export const PageContent = styled.main`
@@ -52,6 +64,7 @@ export const HomeContent = styled.div`
   justify-content: start;
   flex-direction: column;
   align-items: center;
+  max-width: 99vw;
 `;
 
 export const PageFooter = styled.footer`
@@ -61,6 +74,8 @@ export const PageFooter = styled.footer`
 
 type FlexRowProps = {
   justifyContent?: string;
+  gap?: string;
+  alignItems?: string;
 };
 
 export const FlexRow = styled.div<FlexRowProps>`
@@ -68,7 +83,8 @@ export const FlexRow = styled.div<FlexRowProps>`
   flex-direction: row;
   flex-wrap: wrap;
   justify-content: ${(p) => p.justifyContent};
-  align-items: center;
+  gap: ${(p) => p.gap};
+  align-items: ${(p) => p.alignItems || ""};
 `;
 
 type MySpacerProps = {

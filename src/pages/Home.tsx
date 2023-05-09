@@ -12,14 +12,19 @@ import AddNewProperty from "../forms/AddNewProperty";
 import { mapReplaceArray } from "../common/utils";
 import UpdateProperty from "../forms/UpdateProperty";
 import { showErrorMessage, showMessage } from "../common/notifications";
-import { HomeContent, MySpacer } from "../components/styled/layout";
-import { PrimaryButton, SecondaryButton } from "../components/styled/styled";
+import { HomeContent, MySpacer, PageHeader } from "../components/styled/layout";
+import {
+  LogoTitle,
+  PrimaryButton,
+  SecondaryButton,
+} from "../components/styled/styled";
 import styled from "@emotion/styled";
 import { useDisclosure } from "@chakra-ui/react";
 import { Drawer, message } from "antd";
 import { MyModal } from "../components/styled/modal";
 import { WarningTwoIcon } from "@chakra-ui/icons";
 import UpdateNotes from "../forms/UpdateNotes";
+import { DEVICES } from "../components/styled/theme";
 
 function Home({
   signOut,
@@ -180,21 +185,16 @@ function Home({
   return (
     <HomeContent>
       {contextHolder}
-      <ButtonsContainer>
-        <PrimaryButton onClick={() => setOpenAddPanel(true)}>
-          Add Property
-        </PrimaryButton>
-
-        <MySpacer width={20} />
-
-        <PrimaryButton onClick={() => setOpenAdjustPanel(true)}>
-          Adjust Algorithmn
-        </PrimaryButton>
-
-        <MySpacer width={20} />
-
-        <SecondaryButton onClick={signOut}>Sign Out</SecondaryButton>
-      </ButtonsContainer>
+      <PageHeader>
+        <LogoTitle />
+        <ButtonsContainer>
+          <PrimaryButton onClick={() => setOpenAddPanel(true)}>
+            Add Property
+          </PrimaryButton>
+          <MySpacer width={16} />
+          <SecondaryButton onClick={signOut}>Sign Out</SecondaryButton>
+        </ButtonsContainer>
+      </PageHeader>
 
       <PropertyList
         properties={allProperties}
@@ -283,12 +283,15 @@ function Home({
 }
 
 const ButtonsContainer = styled.div`
+  padding: 8px;
   display: flex;
   justify-items: center;
   align-items: center;
-  padding: 0 0 16px 0;
   flex-wrap: wrap;
   flex-direction: row;
+  @media ${DEVICES.tablet} {
+    padding: 0;
+  }
 `;
 
 export default Home;

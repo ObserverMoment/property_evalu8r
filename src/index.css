@@ -9,6 +9,18 @@ body {
   
 }
 
+div, span, a {
+  color: #000;
+  font-size: 14px;
+  
+}
+
+@media (min-width: 700px) {
+  div, span, a {
+    font-size: 16px;
+  }
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
