@@ -33,13 +33,6 @@ function App() {
 
   return (
     <PageLayout>
-      <PageHeader>
-        <div style={{ width: "28px" }}>
-          <ReactSVG src="logo.svg" />
-        </div>
-        <Header1>Property Evalu8R</Header1>
-      </PageHeader>
-
       <PageContent style={{ backgroundImage: `url(${cityArtSvg})` }}>
         {!session ? (
           <Auth />

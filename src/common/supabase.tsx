@@ -9,8 +9,8 @@ const FAVOURITES_TABLE_NAME = "user_favourite_properties";
 
 // Create a single supabase client for interacting with your database
 const supabase = createClient<Database>(
-  "https://biibfeljultiwqmsnkse.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJpaWJmZWxqdWx0aXdxbXNua3NlIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODMwNDY5ODIsImV4cCI6MTk5ODYyMjk4Mn0.Rs2lSQaDk3wmypxkSjl8rDYqLEobEq5CBaNt22cntCE"
+  process.env.REACT_APP_SUPABASE_URL || "",
+  process.env.REACT_APP_SUPABASE_KEY || ""
 );
 
 export const SupabaseContext = createContext(supabase);

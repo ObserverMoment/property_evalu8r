@@ -8,8 +8,9 @@ import { FormState } from "./useFormState";
 import { PropsWithChildren } from "react";
 import { FlexRow, MySpacer } from "../components/styled/layout";
 import { PrimaryButton, SecondaryButton } from "../components/styled/styled";
+import styled from "@emotion/styled";
 
-const { Text, Title } = Typography;
+const { Title } = Typography;
 
 interface PropertyFieldsFormProps {
   title: string;
@@ -40,7 +41,7 @@ function PropertyFieldsForm({
   ];
 
   return (
-    <Form onFinish={handleSave}>
+    <Form onFinish={handleSave} layout="horizontal">
       <FlexRow justifyContent="space-between" style={{ paddingBottom: "10px" }}>
         <Title level={5}>{title}</Title>
         <Space>
@@ -130,16 +131,22 @@ const MyFormItem = ({
   hasError = false,
   children,
 }: PropsWithChildren<MyFormItemProps>) => (
-  <Form.Item
-    key={fieldKey}
-    style={{ marginBottom: "14px" }}
-    label={
-      <Text style={{ fontSize: "0.75em" }}>{formState[fieldKey].label}</Text>
-    }
-    validateStatus={hasError ? "error" : undefined}
-  >
-    {children}
-  </Form.Item>
+  <MyFormItemContainer key={fieldKey}>
+    <div style={{ fontSize: "0.75em", paddingRight: "4px" }}>
+      {formState[fieldKey].label}:{" "}
+    </div>
+    <div style={{ flexBasis: "250px" }}>{children}</div>
+  </MyFormItemContainer>
 );
+
+const MyFormItemContainer = styled.div`
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 4px;
+  flex-wrap: nowrap;
+  flex-direction: row;
+  display: flex;
+  width: 100%;
+`;
 
 export default PropertyFieldsForm;

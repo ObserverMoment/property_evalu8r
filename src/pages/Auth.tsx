@@ -2,8 +2,8 @@ import { Form, Input, Spin } from "antd";
 import { useContext, useState } from "react";
 import { SupabaseContext } from "../common/supabase";
 import * as EmailValidator from "email-validator";
-import { FlexRow, MySpacer } from "../components/styled/layout";
-import { PrimaryButton } from "../components/styled/styled";
+import { FlexRow, MySpacer, PageHeader } from "../components/styled/layout";
+import { LogoTitle, PrimaryButton } from "../components/styled/styled";
 import { MyModal } from "../components/styled/modal";
 import { useDisclosure } from "@chakra-ui/react";
 import { Text } from "@chakra-ui/react";
@@ -49,16 +49,19 @@ function Auth() {
 
   return (
     <>
-      <Text>Sign in via Magic Link with your email</Text>
+      <PageHeader>
+        <LogoTitle />
+      </PageHeader>
+      <Text>Enter your email below to sign in via magic link.</Text>
       <MySpacer height={16} />
       <Form
         name="nest-messages"
         onFinish={handleLogin}
         style={{ maxWidth: 600 }}
+        layout="vertical"
       >
         <Form.Item
           name={["user", "email"]}
-          label="Email"
           rules={[{ type: "email" }]}
           required
         >
@@ -66,6 +69,7 @@ function Auth() {
             style={{ width: "300px" }}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            placeholder="your@email.com"
           />
         </Form.Item>
 

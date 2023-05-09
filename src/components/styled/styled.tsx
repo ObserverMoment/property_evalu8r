@@ -1,5 +1,16 @@
 import styled from "@emotion/styled";
 import { MyTheme } from "./theme";
+import { ReactSVG } from "react-svg";
+
+/// Site logo
+export const LogoTitle = () => (
+  <div style={{ display: "flex", alignItems: "center" }}>
+    <Header1>Property Evalu8R</Header1>
+    <div style={{ width: "28px" }}>
+      <ReactSVG src="logo.svg" style={{ position: "relative", top: "1px" }} />
+    </div>
+  </div>
+);
 
 //// Typography
 export const Header1 = styled.h1`
@@ -7,6 +18,17 @@ export const Header1 = styled.h1`
   padding: 0;
   margin: 0;
   font-weight: 200;
+  color: ${MyTheme.colors.primary};
+  font-weight: normal;
+`;
+
+/// Card
+export const MyCard = styled.div`
+  border-radius: 16px;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03),
+    0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02);
+  background: ${MyTheme.colors.cardBackground};
+  padding: 10px;
 `;
 
 //// Buttons
@@ -39,6 +61,7 @@ export const PrimaryButton = styled.button<ButtonProps>`
   align-items: center;
   border-radius: 62rem;
   background-color: ${MyTheme.colors.primary};
+  border: 1px solid ${MyTheme.colors.primary};
   color: #212423;
   font-size: ${(p) => getButtonFontSize(p.size)};
   font-weight: 600;

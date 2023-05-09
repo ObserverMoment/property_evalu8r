@@ -11,6 +11,7 @@ import {
 import { PrimaryButton, SecondaryButton } from "./styled";
 import { ReactNode } from "react";
 import { MySpacer } from "./layout";
+import { MyTheme } from "./theme";
 
 interface MyModalProps {
   onConfirm: () => void;
@@ -43,16 +44,20 @@ export const MyModal = ({
       closeOnOverlayClick={closeOnOverlayClick}
     >
       <ModalOverlay />
-      <ModalContent backgroundColor="#212423" color="#fff">
+      <ModalContent backgroundColor="#212423" style={{ color: "white" }}>
         <ModalHeader>
           <Flex alignItems="center">
-            {icon}
+            <span style={{ color: MyTheme.colors.primary }}>{icon}</span>
             {icon && <MySpacer width={8} />}
-            {title}
+            <span style={{ color: MyTheme.colors.primary }}>{title}</span>
           </Flex>
         </ModalHeader>
         {showCloseButton && <ModalCloseButton />}
-        <ModalBody>{message && <span>{message}</span>}</ModalBody>
+        <ModalBody>
+          {message && (
+            <span style={{ color: MyTheme.colors.primary }}>{message}</span>
+          )}
+        </ModalBody>
 
         <ModalFooter>
           {onCancel && (
