@@ -87,13 +87,13 @@ function Home({
   };
 
   const handleCloseUpdateProperty = (data: Property | undefined) => {
+    setPropertyToUpdate(null);
+    setOpenUpdatePanel(false);
     if (data) {
       setAllProperties(
         mapReplaceArray({ modified: data, previous: allProperties })
       );
     }
-    setOpenUpdatePanel(false);
-    setPropertyToUpdate(null);
   };
 
   /// Update Notes
@@ -209,6 +209,7 @@ function Home({
       >
         {propertyToUpdate && (
           <UpdateProperty
+            key={propertyToUpdate.id}
             property={propertyToUpdate}
             closeDrawer={handleCloseUpdateProperty}
             messageApi={messageApi}
