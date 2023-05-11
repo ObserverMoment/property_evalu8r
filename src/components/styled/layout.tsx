@@ -76,12 +76,13 @@ type FlexRowProps = {
   justifyContent?: string;
   gap?: string;
   alignItems?: string;
+  wrap?: string;
 };
 
 export const FlexRow = styled.div<FlexRowProps>`
   display: flex;
   flex-direction: row;
-  flex-wrap: wrap;
+  flex-wrap: ${(p) => p.wrap || "wrap"};
   justify-content: ${(p) => p.justifyContent};
   gap: ${(p) => p.gap};
   align-items: ${(p) => p.alignItems || ""};
