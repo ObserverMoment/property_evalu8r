@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Property } from "../types/types";
 import {
   addFavourite,
@@ -20,11 +20,12 @@ import {
 } from "../components/styled/styled";
 import styled from "@emotion/styled";
 import { useDisclosure } from "@chakra-ui/react";
-import { Drawer, message } from "antd";
+import { message } from "antd";
 import { MyModal } from "../components/styled/modal";
 import { WarningTwoIcon } from "@chakra-ui/icons";
 import UpdateNotes from "../forms/UpdateNotes";
 import { DEVICES } from "../components/styled/theme";
+import { ResponsiveDrawer } from "../components/styled/drawer";
 
 function Home({
   signOut,
@@ -51,39 +52,25 @@ function Home({
   const [propertyToUpdate, setPropertyToUpdate] = useState<Property | null>(
     null
   );
-  const [openAdjustPanel, setOpenAdjustPanel] = useState(false);
 
   /// Delete
   const [propertyToBeDeleted, setPropertyToBeDeleted] =
     useState<Property | null>(null);
 
-  const getInitialData = async () => {
-    try {
-      const { data: properties } = await getProperties();
-      const { data: favourites } = await getFavourites();
-      setAllProperties(properties!);
-      setFavourites(favourites!.map((f) => f.property_id));
-    } catch (e: any) {
-      messageApi.error("Something went wrong...");
-      console.log(e.toString());
-    }
-  };
-
-  const cachedInitFunction = useCallback(getInitialData, [messageApi]);
-
   useEffect(() => {
-    cachedInitFunction();
-  }, [cachedInitFunction]);
-
-  useEffect(() => {
-    getProperties()
-      .then((res) => {
-        setAllProperties(res.data!);
-      })
-      .catch((e) => {
-        console.log(e.message);
-      });
-  }, []);
+    const getInitialData = async () => {
+      try {
+        const { data: properties } = await getProperties();
+        const { data: favourites } = await getFavourites();
+        setAllProperties(properties!);
+        setFavourites(favourites!.map((f) => f.property_id));
+      } catch (e: any) {
+        messageApi.error("Something went wrong...");
+        console.log(e.toString());
+      }
+    };
+    getInitialData();
+  }, [messageApi]);
 
   /// Create New Property
   const handleSaveProperty = (data: Property | undefined) => {
@@ -113,16 +100,6 @@ function Home({
   const handleOpenUpdateNotes = (p: Property) => {
     setPropertyToUpdate(p);
     setOpenNotesPanel(true);
-  };
-
-  const handleCloseNotes = (data: Property | undefined) => {
-    if (data) {
-      setAllProperties(
-        mapReplaceArray({ modified: data, previous: allProperties })
-      );
-    }
-    setOpenNotesPanel(false);
-    setPropertyToUpdate(null);
   };
 
   /// Delete Property
@@ -207,13 +184,12 @@ function Home({
         authedUserId={authedUserId}
       />
 
-      <Drawer
-        placement="right"
+      <ResponsiveDrawer
         closable={false}
         maskClosable={false}
         onClose={() => setOpenAddPanel(false)}
         open={openAddPanel}
-        key="Add"
+        drawerKey="Add"
       >
         {openAddPanel && (
           <AddNewProperty
@@ -222,15 +198,14 @@ function Home({
             messageApi={messageApi}
           />
         )}
-      </Drawer>
+      </ResponsiveDrawer>
 
-      <Drawer
-        placement="right"
+      <ResponsiveDrawer
         closable={false}
         maskClosable={false}
         onClose={() => setOpenUpdatePanel(false)}
         open={openUpdatePanel}
-        key="Update"
+        drawerKey="Update"
       >
         {propertyToUpdate && (
           <UpdateProperty
@@ -239,35 +214,23 @@ function Home({
             messageApi={messageApi}
           />
         )}
-      </Drawer>
+      </ResponsiveDrawer>
 
-      <Drawer
-        placement="right"
-        closable={false}
-        maskClosable={false}
+      <ResponsiveDrawer
+        closable={true}
+        maskClosable={true}
         onClose={() => setOpenNotesPanel(false)}
         open={openNotesPanel}
-        key="Note"
+        drawerKey="Note"
       >
         {propertyToUpdate && (
           <UpdateNotes
             property={propertyToUpdate}
-            closeDrawer={handleCloseNotes}
             messageApi={messageApi}
+            authedUserId={authedUserId}
           />
         )}
-      </Drawer>
-
-      <Drawer
-        title="Adjust Algorithm"
-        placement="right"
-        closable={false}
-        onClose={() => setOpenAdjustPanel(false)}
-        open={openAdjustPanel}
-        key="Adjust"
-      >
-        <div>Coming soon...</div>
-      </Drawer>
+      </ResponsiveDrawer>
 
       <MyModal
         onConfirm={handleDeleteProperty}

@@ -19,5 +19,8 @@ export const MyTheme = {
     cardBackground: "rgba(263,203,164,0.6)",
     border: "#575e5e",
     footer: "#1f1f20",
+    // Notes
+    authorNote: "#e6caef",
+    notAuthorNote: "#d6d6ea",
   },
 };

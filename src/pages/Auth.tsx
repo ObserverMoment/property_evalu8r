@@ -36,6 +36,7 @@ function Auth() {
     });
 
     if (error) {
+      console.log(error);
       setModalTitle("Oops, it didn't work");
       setModalMessage(error.message);
       onOpen();

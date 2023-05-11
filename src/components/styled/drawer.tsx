@@ -1,79 +1,35 @@
-import {
-  Drawer,
-  DrawerBody,
-  DrawerContent,
-  DrawerHeader,
-  DrawerOverlay,
-  useDisclosure,
-} from "@chakra-ui/react";
-import React, { PropsWithChildren } from "react";
-import { PrimaryButton, SecondaryButton } from "./styled";
+import { PropsWithChildren } from "react";
+import { useMediaSize } from "../../common/useMediaSize";
+import { Drawer } from "antd";
 
-interface DrawerOpeningButtonProps {
-  btnText: string;
-  showheader: boolean;
-}
-
-/// A button which opens a drawer...
-export const DrawerOpeningButton = ({
-  btnText,
-  children,
-  showheader,
-}: PropsWithChildren<DrawerOpeningButtonProps>) => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const btnRef = React.useRef();
-
-  return (
-    <>
-      <PrimaryButton onClick={onOpen}>{btnText}</PrimaryButton>
-      <MyDrawer
-        isOpen={isOpen}
-        onClose={onClose}
-        btnRef={btnRef}
-        showheader={showheader}
-      >
-        {children}
-      </MyDrawer>
-    </>
-  );
-};
-
-interface MyDrawerProps {
-  isOpen: boolean;
+interface ResponsiveDrawerProps {
+  drawerKey: string;
+  closable: boolean;
+  maskClosable: boolean;
   onClose: () => void;
-  btnRef: React.MutableRefObject<any>;
-  showheader: boolean;
+  open: boolean;
 }
 
-export const MyDrawer = ({
-  isOpen,
+export const ResponsiveDrawer = ({
+  drawerKey,
+  closable,
+  maskClosable,
   onClose,
-  btnRef,
+  open,
   children,
-  showheader,
-}: PropsWithChildren<MyDrawerProps>) => {
+}: PropsWithChildren<ResponsiveDrawerProps>) => {
+  const deviceSize = useMediaSize();
   return (
     <Drawer
-      size="xs"
-      isOpen={isOpen}
+      key={drawerKey}
       placement="right"
+      closable={closable}
+      maskClosable={maskClosable}
       onClose={onClose}
-      finalFocusRef={btnRef}
-      closeOnOverlayClick={false}
+      open={open}
+      width={deviceSize === "small" ? "100%" : "400px"}
     >
-      <DrawerOverlay />
-      <DrawerContent>
-        {showheader && (
-          <DrawerHeader>
-            Drawer Title
-            <SecondaryButton onClick={onClose}>Cancel</SecondaryButton>
-            <PrimaryButton onClick={() => {}}>Save</PrimaryButton>
-          </DrawerHeader>
-        )}
-        <DrawerBody>{children}</DrawerBody>
-      </DrawerContent>
+      {children}
     </Drawer>
   );
 };
-
-export default MyDrawer;

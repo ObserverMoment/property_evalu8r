@@ -51,7 +51,7 @@ export const PropertyCardFieldsDisplay = ({
     ))}
 
     {propertyFieldDefs.boolFields.map((k) => (
-      <PropertyFieldDisplayCard>
+      <PropertyFieldDisplayCard key={k}>
         <PropertyFieldTitle>{convertToTitleCase(k)}</PropertyFieldTitle>
         <div>
           <BooleanValueDisplay input={property[k]} />

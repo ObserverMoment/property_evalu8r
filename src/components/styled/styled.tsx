@@ -32,18 +32,20 @@ export const MyCard = styled.div`
 `;
 
 //// Buttons
-const getButtonPadding = (size: "sm" | "md" | "lg" | undefined) =>
+const getButtonPadding = (size: "micro" | "sm" | "md" | "lg" | undefined) =>
   size
     ? {
+        micro: "0.3rem 0.5rem",
         sm: "0.5rem 2rem",
         md: "0.7rem 2.9rem",
         lg: "1rem 3.2rem",
       }[size]
     : "0.7rem 2.9rem";
 
-const getButtonFontSize = (size: "sm" | "md" | "lg" | undefined) =>
+const getButtonFontSize = (size: "micro" | "sm" | "md" | "lg" | undefined) =>
   size
     ? {
+        micro: "10px",
         sm: "12px",
         md: "14px",
         undefined: "14px",
@@ -52,7 +54,7 @@ const getButtonFontSize = (size: "sm" | "md" | "lg" | undefined) =>
     : "14px";
 
 interface ButtonProps {
-  size?: "sm" | "md" | "lg";
+  size?: "micro" | "sm" | "md" | "lg";
 }
 
 export const PrimaryButton = styled.button<ButtonProps>`
