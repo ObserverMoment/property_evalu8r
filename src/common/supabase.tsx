@@ -43,7 +43,7 @@ export const checkSupabaseApiResponse = ({
   if (error) {
     messageApi.error("Something went wrong...");
     console.log(error.message);
-  } else if (!data || !data.at(0)) {
+  } else if (!data) {
     messageApi.error("Something went wrong...");
     console.log("There was not data returned.");
   } else {

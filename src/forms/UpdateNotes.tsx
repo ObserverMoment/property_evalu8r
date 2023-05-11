@@ -143,9 +143,7 @@ const SingleNoteContent = styled.div<SingleNoteContainerProps>`
   background: ${(p) =>
     p.userIsAuthor ? MyTheme.colors.authorNote : MyTheme.colors.notAuthorNote};
   text-align: ${(p) => (p.userIsAuthor ? "right" : "left")};
-  padding: 6px 14px;
-  align-items: center;
-  justify-content: center;
+  padding: 4px 8px;
   font-size: 0.9em;
 `;
 
@@ -166,26 +164,29 @@ const SingleNote = ({
   userIsAuthor,
   handleDeleteNote,
 }: SingleNoteProps) => (
-  <SingleNoteContainer userIsAuthor={userIsAuthor}>
-    <div>
-      <FlexRow justifyContent={userIsAuthor ? "end" : "start"}>
-        <UsernameTag>
-          {data.user_id.username} ({moment(data.created_at).format("MMM Do")})
-        </UsernameTag>
-      </FlexRow>
+  <div>
+    <FlexRow justifyContent={userIsAuthor ? "end" : "start"}>
+      <UsernameTag>
+        {data.user_id.username} ({moment(data.created_at).format("MMM Do")})
+      </UsernameTag>
+    </FlexRow>
 
-      <FlexRow>
-        {userIsAuthor && (
-          <div style={{ padding: "8px" }}>
-            <DeleteOutlined onClick={handleDeleteNote} />
-          </div>
-        )}
-        <SingleNoteContent userIsAuthor={userIsAuthor}>
-          {data.note}
-        </SingleNoteContent>
-      </FlexRow>
-    </div>
-  </SingleNoteContainer>
+    <SingleNoteContainer userIsAuthor={userIsAuthor}>
+      {userIsAuthor && (
+        <div
+          style={{ paddingRight: "8px", display: "flex", alignItems: "center" }}
+        >
+          <DeleteOutlined
+            onClick={handleDeleteNote}
+            style={{ fontSize: "0.9em" }}
+          />
+        </div>
+      )}
+      <SingleNoteContent userIsAuthor={userIsAuthor}>
+        {data.note}
+      </SingleNoteContent>
+    </SingleNoteContainer>
+  </div>
 );
 
 export default UpdateNotes;
