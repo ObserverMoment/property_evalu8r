@@ -6,11 +6,8 @@ import Home from "./pages/Home";
 import {
   PageContent,
   PageFooter,
-  PageHeader,
   PageLayout,
 } from "./components/styled/layout";
-import { Header1 } from "./components/styled/styled";
-import { ReactSVG } from "react-svg";
 
 import cityArtSvg from "./assets/city_art.svg";
 import { MyTheme } from "./components/styled/theme";
