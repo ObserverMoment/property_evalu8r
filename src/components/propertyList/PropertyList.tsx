@@ -7,7 +7,7 @@ import {
 } from "../../common/propertyUtils";
 import moment from "moment";
 import { PropertyCard } from "./PropertyCard";
-import SortingFilters, { ShowTypeEnum, SortByEnum } from "../SortingFilters";
+import SortingFilters, { ShowTypeEnum, SortByEnum } from "./SortingFilters";
 import { Empty } from "antd";
 
 interface PropertyListProps {
@@ -35,8 +35,6 @@ export function PropertyList({
   const [searchText, setSearchText] = useState<string>("");
   const [showType, setShowType] = useState<ShowTypeEnum>("all");
   const [sortBy, setSortBy] = useState<SortByEnum>("recentlyAdded");
-
-  console.log(searchText);
 
   const propertyScores = calculateAllPropertyScores(properties);
 

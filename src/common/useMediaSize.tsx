@@ -14,7 +14,6 @@ export const MediaSizeProvider = ({ children }: PropsWithChildren) => {
   const [deviceSize, setDeviceSize] = useState<DeviceSize>("small");
 
   const updateMedia = () => {
-    console.log(window.innerWidth);
     setDeviceSize(
       window.innerWidth > MEDIA_SIZES.desktop
         ? "large"

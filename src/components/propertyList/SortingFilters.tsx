@@ -1,10 +1,10 @@
 import React from "react";
 import { Input, Radio, Select } from "antd";
 import styled from "@emotion/styled";
-import { MySpacer } from "./styled/layout";
-import { useMediaSize } from "../common/useMediaSize";
-import { DeviceSize } from "../types/types";
-import { MyTheme } from "./styled/theme";
+import { MySpacer } from "../styled/layout";
+import { useMediaSize } from "../../common/useMediaSize";
+import { DeviceSize } from "../../types/types";
+import { MyTheme } from "../styled/theme";
 
 export type SortByEnum =
   | "recentlyAdded"
@@ -34,6 +34,13 @@ function SortingFilters({
 }: SortingFiltersProps) {
   const deviceSize = useMediaSize();
 
+  const radioInputs = [
+    ["all", "All"],
+    ["completed", "Completed"],
+    ["awaitingInfo", "Awaiting Info"],
+    ["favourites", "Favourites"],
+  ];
+
   return (
     <SortingFiltersContainer deviceSize={deviceSize}>
       <div>
@@ -42,27 +49,39 @@ function SortingFilters({
           defaultValue={showType}
           value={showType}
         >
-          <StyledRadioButton active={showType === "all"} value="all">
+          {radioInputs.map(([value, display]) => (
+            <StyledRadioButton
+              key={value}
+              active={showType === value ? 1 : null}
+              value={value}
+            >
+              {display}
+            </StyledRadioButton>
+          ))}
+          {/* <StyledRadioButton
+            isActive={showType === "all" ? 1 : null}
+            value="all"
+          >
             All
           </StyledRadioButton>
           <StyledRadioButton
-            active={showType === "completed"}
+            isActive={showType === "completed" ? 1 : null}
             value="completed"
           >
             Completed
           </StyledRadioButton>
           <StyledRadioButton
-            active={showType === "awaitingInfo"}
+            isActive={showType === "awaitingInfo" ? 1 : null}
             value="awaitingInfo"
           >
             Awaiting Info
           </StyledRadioButton>
           <StyledRadioButton
-            active={showType === "favourites"}
+            isActive={showType === "favourites" ? 1 : null}
             value="favourites"
           >
             Favourites
-          </StyledRadioButton>
+          </StyledRadioButton> */}
         </Radio.Group>
       </div>
 
@@ -109,7 +128,12 @@ const SortingFiltersContainer = styled.div<{ deviceSize: DeviceSize }>`
   row-gap: 8px;
 `;
 
-const StyledRadioButton = styled(Radio.Button)<{ active: boolean }>`
+// https://styled-components.com/docs/api#transient-props
+interface StyledRadioButtonProps {
+  active: number | null;
+}
+
+const StyledRadioButton = styled(Radio.Button)<StyledRadioButtonProps>`
   background: ${(p) =>
     p.active ? MyTheme.colors.primary : "rgba(263,203,164,0.85)"};
   transition: all 200ms ease;

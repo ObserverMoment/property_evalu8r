@@ -1,12 +1,7 @@
 import { Property } from "../../types/types";
 import { FlexRow } from "../styled/layout";
-import {
-  FileAddTwoTone,
-  EditTwoTone,
-  DeleteOutlined,
-  HeartOutlined,
-  HeartFilled,
-} from "@ant-design/icons";
+import { DeleteOutlined, HeartOutlined, HeartFilled } from "@ant-design/icons";
+import { SecondaryButton } from "../styled/styled";
 
 interface PropertyCardEditIconsProps {
   property: Property;
@@ -44,21 +39,15 @@ export const PropertyCardEditIcons = ({
       )}
 
       {authedUserId === user_id && (
-        <FileAddTwoTone
-          key="note"
-          style={{ fontSize: "20px" }}
-          twoToneColor="#0042bc"
-          onClick={handleRequestNoteUpdate}
-        />
+        <SecondaryButton size="micro" onClick={handleRequestNoteUpdate}>
+          Notes
+        </SecondaryButton>
       )}
 
       {authedUserId === user_id && (
-        <EditTwoTone
-          key="edit"
-          style={{ fontSize: "20px" }}
-          twoToneColor="#0042bc"
-          onClick={handleRequestUpdate}
-        />
+        <SecondaryButton size="micro" onClick={handleRequestUpdate}>
+          Edit
+        </SecondaryButton>
       )}
 
       {authedUserId === user_id && (

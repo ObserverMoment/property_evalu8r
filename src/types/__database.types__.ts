@@ -113,17 +113,60 @@ export interface Database {
       }
       user_favourite_properties: {
         Row: {
-          created_at: string | null
+          created_at: string
+          id: string
           property_id: number
           user_id: string
         }
         Insert: {
-          created_at?: string | null
+          created_at?: string
+          id?: string
           property_id: number
           user_id: string
         }
         Update: {
-          created_at?: string | null
+          created_at?: string
+          id?: string
+          property_id?: number
+          user_id?: string
+        }
+      }
+      user_profiles: {
+        Row: {
+          id: string
+          updated_at: string | null
+          username: string
+        }
+        Insert: {
+          id: string
+          updated_at?: string | null
+          username: string
+        }
+        Update: {
+          id?: string
+          updated_at?: string | null
+          username?: string
+        }
+      }
+      user_property_notes: {
+        Row: {
+          created_at: string
+          id: string
+          note: string
+          property_id: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          note: string
+          property_id: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          note?: string
           property_id?: number
           user_id?: string
         }

@@ -1,23 +1,34 @@
-import React, { useCallback, useState } from "react";
-import { Property } from "../types/types";
-import { updateProperty } from "../common/supabase";
+import React, { useCallback, useEffect, useState } from "react";
+import { Property, PropertyNoteWithAuthor } from "../types/types";
+import {
+  checkSupabaseApiResponse,
+  createNewPropertyNote,
+  deletePropertyNote,
+  getPropertyNotes,
+} from "../common/supabase";
 import { MessageInstance } from "antd/es/message/interface";
 import TextArea from "antd/es/input/TextArea";
 import { PrimaryButton } from "../components/styled/styled";
-import { MySpacer } from "../components/styled/layout";
+import { FlexRow, MySpacer } from "../components/styled/layout";
+import moment from "moment";
+import styled from "@emotion/styled";
+import { MyTheme } from "../components/styled/theme";
+import { DeleteOutlined } from "@ant-design/icons";
+import { showMessage } from "../common/notifications";
 
 function UpdateNotes({
   property,
-  closeDrawer,
   messageApi,
+  authedUserId,
 }: {
   property: Property;
-  closeDrawer: (updated?: Property) => void;
   messageApi: MessageInstance;
+  authedUserId: string;
 }) {
-  const originalNotes = property.notes;
-  const [notes, setNotes] = useState<string | null>(property.notes);
+  const [newNoteText, setNewNoteText] = useState<string>("");
+  const [notes, setNotes] = useState<PropertyNoteWithAuthor[]>([]);
 
+  /// setTimeout needed for text area to autofocus correctly.
   const textAreaInput = useCallback((inputElement: any) => {
     setTimeout(() => {
       if (inputElement) {
@@ -26,40 +37,155 @@ function UpdateNotes({
     }, 500);
   }, []);
 
-  const handleSave = async () => {
-    if (originalNotes !== notes) {
-      const { data, error } = await updateProperty({
-        ...property,
-        notes,
+  useEffect(() => {
+    const getNotesForProperty = async () => {
+      const { data, error } = await getPropertyNotes(property.id);
+
+      checkSupabaseApiResponse({
+        data,
+        error,
+        messageApi,
+        onSuccess(data) {
+          setNotes(data);
+          setNewNoteText("");
+        },
       });
-      if (data !== null && data.length && !error) {
-        messageApi.success("Notes updated");
-        closeDrawer(data.at(0));
+    };
+    getNotesForProperty();
+  }, [messageApi, property.id]);
+
+  const handleCreateNewNote = async () => {
+    if (newNoteText) {
+      const { data, error } = await createNewPropertyNote({
+        propertyId: property.id,
+        note: newNoteText,
+      });
+
+      checkSupabaseApiResponse({
+        data,
+        error,
+        messageApi,
+        onSuccess(data) {
+          setNotes([data.at(0), ...notes]);
+          setNewNoteText("");
+        },
+      });
+    }
+  };
+
+  const handleDeleteNote = async (note: PropertyNoteWithAuthor) => {
+    if (note.user_id.id === authedUserId) {
+      const { error } = await deletePropertyNote({
+        noteId: note.id,
+      });
+
+      if (error) {
+        showMessage({
+          content: "Something went wrong...",
+          messageApi: messageApi,
+          type: "error",
+        });
       } else {
-        messageApi.error("Something went wrong...");
-        console.log(error);
+        showMessage({
+          content: "Note deleted",
+          messageApi: messageApi,
+          type: "success",
+        });
+        setNotes(notes.filter((n) => n.id !== note.id));
       }
-    } else {
-      closeDrawer();
     }
   };
 
   return (
     <div style={{ paddingTop: "16px" }}>
       <TextArea
-        value={notes || undefined}
-        onChange={(e) => setNotes(e.target.value)}
-        placeholder="Notes..."
+        value={newNoteText}
+        onChange={(e) => setNewNoteText(e.target.value)}
+        placeholder="Add a new note..."
         autoSize
         ref={textAreaInput}
         autoFocus
       />
       <MySpacer height={20} />
-      <PrimaryButton onClick={handleSave} size="sm">
-        Done
+      <PrimaryButton onClick={() => handleCreateNewNote()} size="sm">
+        Submit
       </PrimaryButton>
+      <MySpacer height={20} />
+
+      {notes
+        .sort((a, b) =>
+          moment(b.created_at.toString()).diff(moment(a.created_at.toString()))
+        )
+        .map((note) => (
+          <SingleNote
+            key={note.id}
+            data={note}
+            userIsAuthor={note.user_id.id === authedUserId}
+            handleDeleteNote={() => handleDeleteNote(note)}
+          />
+        ))}
     </div>
   );
 }
+
+interface SingleNoteContainerProps {
+  userIsAuthor: boolean;
+}
+
+const SingleNoteContainer = styled.div<SingleNoteContainerProps>`
+  display: flex;
+  justify-content: ${(p) => (p.userIsAuthor ? "end" : "start")};
+  margin: 6px;
+`;
+
+const SingleNoteContent = styled.div<SingleNoteContainerProps>`
+  border-radius: 12px;
+  background: ${(p) =>
+    p.userIsAuthor ? MyTheme.colors.authorNote : MyTheme.colors.notAuthorNote};
+  text-align: ${(p) => (p.userIsAuthor ? "right" : "left")};
+  padding: 6px 14px;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9em;
+`;
+
+const UsernameTag = styled.div`
+  color: ${MyTheme.colors.secondary};
+  font-size: 0.55em;
+  padding: 1px;
+`;
+
+interface SingleNoteProps {
+  data: PropertyNoteWithAuthor;
+  userIsAuthor: boolean;
+  handleDeleteNote: () => void;
+}
+
+const SingleNote = ({
+  data,
+  userIsAuthor,
+  handleDeleteNote,
+}: SingleNoteProps) => (
+  <SingleNoteContainer userIsAuthor={userIsAuthor}>
+    <div>
+      <FlexRow justifyContent={userIsAuthor ? "end" : "start"}>
+        <UsernameTag>
+          {data.user_id.username} ({moment(data.created_at).format("MMM Do")})
+        </UsernameTag>
+      </FlexRow>
+
+      <FlexRow>
+        {userIsAuthor && (
+          <div style={{ padding: "8px" }}>
+            <DeleteOutlined onClick={handleDeleteNote} />
+          </div>
+        )}
+        <SingleNoteContent userIsAuthor={userIsAuthor}>
+          {data.note}
+        </SingleNoteContent>
+      </FlexRow>
+    </div>
+  </SingleNoteContainer>
+);
 
 export default UpdateNotes;
