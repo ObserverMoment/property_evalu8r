@@ -35,6 +35,7 @@ interface FormStateResponse<StateObjectType> {
   getObjectData: () => StateObjectType;
   formDirty: () => boolean;
   checkErrors: () => FormErrors<StateObjectType>;
+  resetFormState: () => void;
 }
 
 export function useFormState<StateObjectType extends Record<string, any>>(
@@ -61,6 +62,30 @@ export function useFormState<StateObjectType extends Record<string, any>>(
       return acum;
     }, {} as StateObjectType)
   );
+
+  function resetFormState() {
+    setFormState(
+      fieldDefs.reduce<StateObjectType>((acum, next) => {
+        (acum as Record<string, any>)[next.key] = {
+          key: next.key,
+          value: next.value,
+          label: next.label,
+          isDirty: next.isDirty || false,
+          validator: next.validator,
+          setValue: (newValue: any) =>
+            setFormState((prev) => ({
+              ...prev,
+              [next.key]: {
+                ...prev[next.key],
+                value: newValue,
+                isDirty: true,
+              },
+            })),
+        };
+        return acum;
+      }, {} as StateObjectType)
+    );
+  }
 
   // Returns just key value pairs that an api would want.
   function getObjectData(): StateObjectType {
@@ -90,5 +115,6 @@ export function useFormState<StateObjectType extends Record<string, any>>(
     getObjectData,
     formDirty,
     checkErrors,
+    resetFormState,
   };
 }

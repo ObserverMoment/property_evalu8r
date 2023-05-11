@@ -16,28 +16,29 @@ function UpdateProperty({
   closeDrawer: (updated?: Property) => void;
   messageApi: MessageInstance;
 }) {
-  const { formState, checkErrors, getObjectData } = useFormState<Property>([
-    ...propertyFieldDefs.stringFields.map((k) => ({
-      key: k,
-      value: property[k],
-      label: convertToTitleCase(k),
-    })),
-    ...propertyFieldDefs.qualityEnumFields.map((k) => ({
-      key: k,
-      value: property[k],
-      label: convertToTitleCase(k),
-    })),
-    ...propertyFieldDefs.numberFields.map((k) => ({
-      key: k,
-      value: property[k],
-      label: convertToTitleCase(k),
-    })),
-    ...propertyFieldDefs.boolFields.map((k) => ({
-      key: k,
-      value: property[k],
-      label: convertToTitleCase(k),
-    })),
-  ]);
+  const { formState, checkErrors, getObjectData, resetFormState } =
+    useFormState<Property>([
+      ...propertyFieldDefs.stringFields.map((k) => ({
+        key: k,
+        value: property[k],
+        label: convertToTitleCase(k),
+      })),
+      ...propertyFieldDefs.qualityEnumFields.map((k) => ({
+        key: k,
+        value: property[k],
+        label: convertToTitleCase(k),
+      })),
+      ...propertyFieldDefs.numberFields.map((k) => ({
+        key: k,
+        value: property[k],
+        label: convertToTitleCase(k),
+      })),
+      ...propertyFieldDefs.boolFields.map((k) => ({
+        key: k,
+        value: property[k],
+        label: convertToTitleCase(k),
+      })),
+    ]);
 
   const handleSave = async () => {
     const { data, error } = await updateProperty({
@@ -46,6 +47,7 @@ function UpdateProperty({
     });
     if (data !== null && data.length && !error) {
       messageApi.success("Property updated");
+      resetFormState();
       closeDrawer(data.at(0));
     } else {
       messageApi.error("Something went wrong...");
