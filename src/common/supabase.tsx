@@ -6,6 +6,9 @@ import { Property } from "../types/types";
 import { MessageInstance } from "antd/es/message/interface";
 
 const PROPERTIES_TABLE_NAME = "properties";
+const PROJECTS_TABLE_NAME = "projects";
+// const PROJECTS_MEMBERS_TABLE_NAME = "project_members";
+const USER_PROFILES_TABLE_NAME = "user_profiles";
 const FAVOURITES_TABLE_NAME = "user_favourite_properties";
 const NOTES_TABLE_NAME = "user_property_notes";
 
@@ -29,11 +32,12 @@ export const SupabaseProvider = ({ children }: SupabaseProviderProps) => (
 
 /// Check supabase response
 interface CheckSupabaseApiResponseProps {
-  data: any[] | null;
+  data: any | any[] | null;
   error: PostgrestError | null;
   messageApi: MessageInstance;
   onSuccess: (data: any[]) => void;
 }
+
 export const checkSupabaseApiResponse = ({
   data,
   error,
@@ -52,6 +56,7 @@ export const checkSupabaseApiResponse = ({
 };
 
 /// Supabase DB calls
+//// Authed User ////
 export const getSessionUserId = async (): Promise<string | undefined> => {
   const {
     data: { session },
@@ -59,9 +64,52 @@ export const getSessionUserId = async (): Promise<string | undefined> => {
   return session?.user.id;
 };
 
+export const getAuthedUserProfile = async () => {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  return await supabase
+    .from(USER_PROFILES_TABLE_NAME)
+    .select()
+    .eq("id", session?.user.id)
+    .limit(1)
+    .single();
+};
+
+export const updateAuthedUserName = async (newUsername: string) => {
+  const userId = await getSessionUserId();
+  return await supabase
+    .from(USER_PROFILES_TABLE_NAME)
+    .update({
+      username: newUsername,
+    })
+    .eq("id", userId)
+    .select()
+    .limit(1)
+    .single();
+};
+
+/// Authed User Projects ///
+export const getProjects = async () =>
+  await supabase.from(PROJECTS_TABLE_NAME).select();
+
+// Creates a project and adds the creator to the project_members table, then returns the new project in a single transaction.
+export const createProject = async (name: string, password: string) => {
+  return await supabase
+    .rpc("insert_project_and_add_member", {
+      project_name: name,
+      project_password: password,
+    })
+    .limit(1)
+    .single();
+};
+
 /// Properties ////
-export const getProperties = async () =>
-  await supabase.from(PROPERTIES_TABLE_NAME).select();
+export const getProperties = async (projectId: number) =>
+  await supabase
+    .from(PROPERTIES_TABLE_NAME)
+    .select()
+    .eq("project_id", projectId);
 
 export const createProperty = async (data: Property) => {
   const userId = await getSessionUserId();
@@ -72,7 +120,9 @@ export const createProperty = async (data: Property) => {
       ...data,
       user_id: userId,
     })
-    .select();
+    .select()
+    .limit(1)
+    .single();
 };
 
 export const updateProperty = async (data: Property) => {
@@ -80,7 +130,9 @@ export const updateProperty = async (data: Property) => {
     .from(PROPERTIES_TABLE_NAME)
     .update(data)
     .eq("id", data.id)
-    .select();
+    .select()
+    .limit(1)
+    .single();
 };
 
 export const deleteProperty = async (data: Property) => {
@@ -104,7 +156,9 @@ export const addFavourite = async (propertyId: number) => {
       user_id: userId!,
       property_id: propertyId,
     })
-    .select();
+    .select()
+    .limit(1)
+    .single();
 };
 
 export const removeFavourite = async (propertyId: number) =>
@@ -137,7 +191,9 @@ export const createNewPropertyNote = async ({
       user_id: userId!,
       property_id: propertyId,
     })
-    .select(NOTE_AND_USERNAME_SELECT);
+    .select(NOTE_AND_USERNAME_SELECT)
+    .limit(1)
+    .single();
 };
 
 export const deletePropertyNote = async ({ noteId }: { noteId: string }) => {

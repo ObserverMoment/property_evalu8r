@@ -34,6 +34,46 @@ export interface Database {
   }
   public: {
     Tables: {
+      project_members: {
+        Row: {
+          created_at: string | null
+          id: number
+          project_id: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: number
+          project_id: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: number
+          project_id?: number
+          user_id?: string
+        }
+      }
+      projects: {
+        Row: {
+          created_at: string | null
+          id: number
+          name: string
+          password: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: number
+          name: string
+          password: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: number
+          name?: string
+          password?: string
+        }
+      }
       properties: {
         Row: {
           agent_email: string | null
@@ -52,6 +92,7 @@ export interface Database {
           local_supermarket: boolean | null
           notes: string | null
           off_street_parking: boolean | null
+          project_id: number
           sc_gr_annual: number | null
           sq_metres: number | null
           url_link: string | null
@@ -77,6 +118,7 @@ export interface Database {
           local_supermarket?: boolean | null
           notes?: string | null
           off_street_parking?: boolean | null
+          project_id: number
           sc_gr_annual?: number | null
           sq_metres?: number | null
           url_link?: string | null
@@ -102,6 +144,7 @@ export interface Database {
           local_supermarket?: boolean | null
           notes?: string | null
           off_street_parking?: boolean | null
+          project_id?: number
           sc_gr_annual?: number | null
           sq_metres?: number | null
           url_link?: string | null
@@ -176,7 +219,18 @@ export interface Database {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      insert_project_and_add_member: {
+        Args: {
+          project_name: string
+          project_password: string
+        }
+        Returns: {
+          created_at: string | null
+          id: number
+          name: string
+          password: string
+        }[]
+      }
     }
     Enums: {
       quality_assessment_enum: "Awful" | "Bad" | "Okay" | "Good" | "Great"

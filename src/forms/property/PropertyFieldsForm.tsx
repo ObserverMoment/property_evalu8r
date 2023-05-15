@@ -2,12 +2,12 @@ import { Form, Input, InputNumber, Radio, Space, Typography } from "antd";
 import {
   propertyFieldDefs,
   propertyNumberInputConfig,
-} from "../common/propertyUtils";
-import { Property } from "../types/types";
-import { FormState } from "./useFormState";
+} from "../../common/propertyUtils";
+import { Property } from "../../types/types";
+import { FormState } from "../useFormState";
 import { PropsWithChildren } from "react";
-import { FlexRow, MySpacer } from "../components/styled/layout";
-import { PrimaryButton, SecondaryButton } from "../components/styled/styled";
+import { FlexRow, MySpacer } from "../../components/styled/layout";
+import { PrimaryButton, SecondaryButton } from "../../components/styled/styled";
 import styled from "@emotion/styled";
 
 const { Title } = Typography;

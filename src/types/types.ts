@@ -6,6 +6,12 @@ export type UserProfile = {
   [s: string]: any;
 } & Database["public"]["Tables"]["user_profiles"]["Row"];
 
+export type Project = {
+  [s: string]: any;
+  id: number;
+  name: string;
+};
+
 export type Property = {
   [s: string]: any;
 } & Database["public"]["Tables"]["properties"]["Row"];
