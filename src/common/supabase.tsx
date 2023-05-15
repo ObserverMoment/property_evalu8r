@@ -72,7 +72,6 @@ export const getAuthedUserProfile = async () => {
     .from(USER_PROFILES_TABLE_NAME)
     .select()
     .eq("id", session?.user.id)
-    .limit(1)
     .single();
 };
 
@@ -85,7 +84,6 @@ export const updateAuthedUserName = async (newUsername: string) => {
     })
     .eq("id", userId)
     .select()
-    .limit(1)
     .single();
 };
 
@@ -100,7 +98,6 @@ export const createProject = async (name: string, password: string) => {
       project_name: name,
       project_password: password,
     })
-    .limit(1)
     .single();
 };
 
@@ -121,7 +118,6 @@ export const createProperty = async (data: Property) => {
       user_id: userId,
     })
     .select()
-    .limit(1)
     .single();
 };
 
@@ -131,7 +127,6 @@ export const updateProperty = async (data: Property) => {
     .update(data)
     .eq("id", data.id)
     .select()
-    .limit(1)
     .single();
 };
 
@@ -157,7 +152,6 @@ export const addFavourite = async (propertyId: number) => {
       property_id: propertyId,
     })
     .select()
-    .limit(1)
     .single();
 };
 
@@ -192,7 +186,6 @@ export const createNewPropertyNote = async ({
       property_id: propertyId,
     })
     .select(NOTE_AND_USERNAME_SELECT)
-    .limit(1)
     .single();
 };
 
