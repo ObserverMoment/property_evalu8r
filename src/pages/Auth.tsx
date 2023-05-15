@@ -3,11 +3,12 @@ import { useContext, useState } from "react";
 import { SupabaseContext } from "../common/supabase";
 import * as EmailValidator from "email-validator";
 import { FlexRow, MySpacer, PageHeader } from "../components/styled/layout";
-import { LogoTitle, PrimaryButton } from "../components/styled/styled";
+import { Header1, PrimaryButton } from "../components/styled/styled";
 import { MyModal } from "../components/styled/modal";
 import { useDisclosure } from "@chakra-ui/react";
 import { Text } from "@chakra-ui/react";
 import { CheckCircleIcon } from "@chakra-ui/icons";
+import { ReactSVG } from "react-svg";
 
 function Auth() {
   // ChakraUI modal hook.
@@ -51,7 +52,13 @@ function Auth() {
   return (
     <>
       <PageHeader>
-        <LogoTitle />
+        <Header1>Property Evalu8r</Header1>
+        <div style={{ width: "28px" }}>
+          <ReactSVG
+            src="logo.svg"
+            style={{ position: "relative", top: "1px" }}
+          />
+        </div>
       </PageHeader>
       <Text>Enter your email below to sign in via magic link.</Text>
       <MySpacer height={16} />

@@ -1,31 +1,21 @@
 import React, { useEffect, useState } from "react";
-import { Property } from "../types/types";
+import { Project, UserProfile } from "../types/types";
 import {
-  addFavourite,
-  deleteProperty,
-  getFavourites,
-  getProperties,
-  removeFavourite,
+  createProject,
+  getAuthedUserProfile,
+  getProjects,
+  updateAuthedUserName,
 } from "../common/supabase";
 import { PropertyList } from "../components/propertyList/PropertyList";
-import AddNewProperty from "../forms/AddNewProperty";
-import { mapReplaceArray } from "../common/utils";
-import UpdateProperty from "../forms/UpdateProperty";
-import { showErrorMessage, showMessage } from "../common/notifications";
 import { HomeContent, MySpacer, PageHeader } from "../components/styled/layout";
-import {
-  LogoTitle,
-  PrimaryButton,
-  SecondaryButton,
-} from "../components/styled/styled";
-import styled from "@emotion/styled";
-import { useDisclosure } from "@chakra-ui/react";
+import { Header1, MyCard, SecondaryButton } from "../components/styled/styled";
 import { message } from "antd";
-import { MyModal } from "../components/styled/modal";
-import { WarningTwoIcon } from "@chakra-ui/icons";
-import UpdateNotes from "../forms/UpdateNotes";
-import { DEVICES } from "../components/styled/theme";
+import { AccountSettingsMenu } from "../components/accountSettingsMenu/AccountSettingsMenu";
+import styled from "@emotion/styled";
+import { MyTheme } from "../components/styled/theme";
+import { showErrorMessage } from "../common/notifications";
 import { ResponsiveDrawer } from "../components/styled/drawer";
+import CreateNewProject from "../forms/CreateNewProject";
 
 function Home({
   signOut,
@@ -34,128 +24,64 @@ function Home({
   signOut: () => void;
   authedUserId: string;
 }) {
-  // ChakraUI modal hook.
-  const { isOpen, onOpen, onClose } = useDisclosure();
-
   // Ant Design message hook.
   const [messageApi, contextHolder] = message.useMessage();
 
-  /// Property Data
-  const [allProperties, setAllProperties] = useState<Property[]>([]);
-  // Array of property IDs.
-  const [favourites, setFavourites] = useState<number[]>([]);
+  // Simple modal where user can create new project.
+  const [openCreateNewProject, setOpenCreateNewProject] = useState(false);
 
-  /// Panel state.
-  const [openAddPanel, setOpenAddPanel] = useState(false);
-  const [openUpdatePanel, setOpenUpdatePanel] = useState(false);
-  const [openNotesPanel, setOpenNotesPanel] = useState(false);
-  const [propertyToUpdate, setPropertyToUpdate] = useState<Property | null>(
-    null
-  );
-
-  /// Delete
-  const [propertyToBeDeleted, setPropertyToBeDeleted] =
-    useState<Property | null>(null);
+  /// Authed user profile
+  const [userProfile, setUserProfile] = useState<UserProfile>();
+  // All projects in which user is a member.
+  const [userProjects, setUserProjects] = useState<Project[]>([]);
+  // Active project id
+  const [activeProject, setActiveProject] = useState<Project | null>(null);
 
   useEffect(() => {
     const getInitialData = async () => {
       try {
-        const { data: properties } = await getProperties();
-        const { data: favourites } = await getFavourites();
-        setAllProperties(properties!);
-        setFavourites(favourites!.map((f) => f.property_id));
+        const { data: userProfile, error: userProfileError } =
+          await getAuthedUserProfile();
+
+        const { data: projects, error: projectsError } = await getProjects();
+
+        if (userProfileError || projectsError) {
+          console.log(userProfileError);
+          console.log(projectsError);
+          throw new Error("Problem initialising data");
+        }
+        setUserProfile(userProfile!);
+        setUserProjects(projects!);
       } catch (e: any) {
-        messageApi.error("Something went wrong...");
+        messageApi.error("Problem initialising data");
         console.log(e.toString());
       }
     };
     getInitialData();
   }, [messageApi]);
 
-  /// Create New Property
-  const handleSaveProperty = (data: Property | undefined) => {
-    if (data) {
-      setAllProperties([data, ...allProperties]);
-    }
-    setOpenAddPanel(false);
-  };
-
-  /// Update Property
-  const handleOpenUpdateProperty = (p: Property) => {
-    setPropertyToUpdate(p);
-    setOpenUpdatePanel(true);
-  };
-
-  const handleCloseUpdateProperty = (data: Property | undefined) => {
-    setPropertyToUpdate(null);
-    setOpenUpdatePanel(false);
-    if (data) {
-      setAllProperties(
-        mapReplaceArray({ modified: data, previous: allProperties })
-      );
-    }
-  };
-
-  /// Update Notes
-  const handleOpenUpdateNotes = (p: Property) => {
-    setPropertyToUpdate(p);
-    setOpenNotesPanel(true);
-  };
-
-  /// Delete Property
-  const handleRequestDeleteProperty = (data: Property) => {
-    setPropertyToBeDeleted(data);
-    onOpen();
-  };
-
-  const handleDeleteProperty = async () => {
-    if (propertyToBeDeleted) {
-      const { error } = await deleteProperty(propertyToBeDeleted);
-      if (error) {
-        showErrorMessage({
-          messageApi: messageApi,
-        });
-      } else {
-        showMessage({
-          content: "Property deleted.",
-          messageApi: messageApi,
-          type: "success",
-        });
-        setAllProperties(
-          allProperties.filter((p) => p.id !== propertyToBeDeleted.id)
-        );
-      }
-    }
-    setPropertyToBeDeleted(null);
-    onClose();
-  };
-
-  const handleCancelDeleteProperty = () => {
-    setPropertyToBeDeleted(null);
-    onClose();
-  };
-
-  const handleAddFavourite = async (propertyId: number) => {
-    const { error } = await addFavourite(propertyId);
-    if (error) {
+  const updateUsername = async (newUsername: string) => {
+    const { data, error } = await updateAuthedUserName(newUsername);
+    if (error || !data) {
       showErrorMessage({
         messageApi: messageApi,
       });
     } else {
-      setFavourites([...favourites, propertyId]);
+      setUserProfile({ ...userProfile, ...data });
     }
   };
 
-  const handleRemoveFavourite = async (propertyId: number) => {
-    const { error } = await removeFavourite(propertyId);
-    if (error) {
-      showMessage({
-        content: "Something went wrong...",
+  const handleCreateNewProject = async (name: string, password: string) => {
+    const { data, error } = await createProject(name, password);
+    if (error || !data) {
+      showErrorMessage({
         messageApi: messageApi,
-        type: "error",
       });
     } else {
-      setFavourites(favourites.filter((f) => f !== propertyId));
+      setUserProjects([data!, ...userProjects]);
+      setActiveProject(data!);
+      setOpenCreateNewProject(false);
+      messageApi.success(`Created and switched to new project ${data.name}`);
     }
   };
 
@@ -163,98 +89,89 @@ function Home({
     <HomeContent>
       {contextHolder}
       <PageHeader>
-        <LogoTitle />
-        <ButtonsContainer>
-          <PrimaryButton onClick={() => setOpenAddPanel(true)}>
-            Add Property
-          </PrimaryButton>
-          <MySpacer width={16} />
-          <SecondaryButton onClick={signOut}>Sign Out</SecondaryButton>
-        </ButtonsContainer>
+        <Header1>Property Evalu8r</Header1>
+
+        {userProfile && (
+          <AccountSettingsMenu
+            signOut={signOut}
+            userProfile={userProfile}
+            updateUsername={updateUsername}
+            activeProject={activeProject}
+            setActiveProject={setActiveProject}
+            projects={userProjects}
+            openCreateNewProject={() => setOpenCreateNewProject(true)}
+          />
+        )}
       </PageHeader>
 
-      <PropertyList
-        properties={allProperties}
-        openUpdateProperty={handleOpenUpdateProperty}
-        handleRequestDeleteProperty={handleRequestDeleteProperty}
-        handleRequestNoteUpdate={handleOpenUpdateNotes}
-        favourites={favourites}
-        handleAddFavourite={handleAddFavourite}
-        handleRemoveFavourite={handleRemoveFavourite}
-        authedUserId={authedUserId}
-      />
-
-      <ResponsiveDrawer
-        closable={false}
-        maskClosable={false}
-        onClose={() => setOpenAddPanel(false)}
-        open={openAddPanel}
-        drawerKey="Add"
-      >
-        {openAddPanel && (
-          <AddNewProperty
-            onSaveProperty={handleSaveProperty}
-            onCancel={() => setOpenAddPanel(false)}
-            messageApi={messageApi}
-          />
-        )}
-      </ResponsiveDrawer>
-
-      <ResponsiveDrawer
-        closable={false}
-        maskClosable={false}
-        onClose={() => setOpenUpdatePanel(false)}
-        open={openUpdatePanel}
-        drawerKey="Update"
-      >
-        {propertyToUpdate && (
-          <UpdateProperty
-            key={propertyToUpdate.id}
-            property={propertyToUpdate}
-            closeDrawer={handleCloseUpdateProperty}
-            messageApi={messageApi}
-          />
-        )}
-      </ResponsiveDrawer>
+      {!activeProject ? (
+        <MyCard>
+          <div>
+            {userProjects.length > 0 && <div>Select a project</div>}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                flexDirection: "column",
+              }}
+            >
+              {userProjects.map((p) => (
+                <ProjectSelectButton
+                  key={p.id}
+                  onClick={() => setActiveProject(p)}
+                >
+                  {p.name}
+                </ProjectSelectButton>
+              ))}
+            </div>
+          </div>
+          <MySpacer height={12} />
+          <SecondaryButton onClick={() => setOpenCreateNewProject(true)}>
+            {userProjects.length
+              ? "Create a new project"
+              : "Create your first project"}
+          </SecondaryButton>
+          <MySpacer height={12} />
+        </MyCard>
+      ) : (
+        <PropertyList
+          key={activeProject.id}
+          activeProject={activeProject}
+          authedUserId={authedUserId}
+          messageApi={messageApi}
+        />
+      )}
 
       <ResponsiveDrawer
         closable={true}
         maskClosable={true}
-        onClose={() => setOpenNotesPanel(false)}
-        open={openNotesPanel}
+        onClose={() => setOpenCreateNewProject(false)}
+        open={openCreateNewProject}
         drawerKey="Note"
       >
-        {propertyToUpdate && (
-          <UpdateNotes
-            property={propertyToUpdate}
-            messageApi={messageApi}
-            authedUserId={authedUserId}
-          />
-        )}
+        <CreateNewProject createNewProject={handleCreateNewProject} />
       </ResponsiveDrawer>
-
-      <MyModal
-        onConfirm={handleDeleteProperty}
-        onCancel={handleCancelDeleteProperty}
-        onClose={onClose}
-        title="Delete this property?"
-        message="This cannot be undone!"
-        isOpen={isOpen}
-        icon={<WarningTwoIcon color="red" />}
-      />
     </HomeContent>
   );
 }
 
-const ButtonsContainer = styled.div`
-  padding: 8px;
+const ProjectSelectButton = styled.button`
   display: flex;
-  justify-items: center;
+  padding: 10px 20px;
   align-items: center;
-  flex-wrap: wrap;
-  flex-direction: row;
-  @media ${DEVICES.tablet} {
-    padding: 0;
+  border-radius: 8px;
+  border: 3px solid ${MyTheme.colors.secondary};
+  color: ${MyTheme.colors.secondary};
+  font-size: 1.2em;
+  font-weight: bold;
+  text-align: center;
+  text-decoration: none;
+  transition: all 350ms ease;
+  margin: 10px;
+  :hover {
+    cursor: pointer;
+    border-color: ${MyTheme.colors.linkText};
+    color: ${MyTheme.colors.linkText};
   }
 `;
 

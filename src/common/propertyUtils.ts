@@ -100,33 +100,33 @@ export const scoreAlgorithmCalculationConfig: ScoreAlgorithmCalculationConfig =
       inputToNumberConverter: (x: number) => x,
       formula: (x, w) => x * w,
     },
+    sc_gr_annual: {
+      inputToNumberConverter: (x: number) => x,
+      formula: (x, w) => x * w,
+    },
     floor_level: {
       inputToNumberConverter: (x: number) => x,
       formula: (x, w) => Math.min(x, 6) * w,
     },
-    // Each minute over 9 minutes affects score by [-weight]
+    // Each minute over 10 minutes affects score by [-weight], under 10 minutes [+weight]
     walk_to_station: {
       inputToNumberConverter: (x: number) => x,
-      formula: (x, w) => (x - 9) * w,
+      formula: (x, w) => (x - 10) * w,
     },
-    // Each minute affects score by [-weight]
+    // Each minute over 15 minutes affects score by [-weight],  under 15 minutes [+weight]
     walk_to_park: {
       inputToNumberConverter: (x: number) => x,
-      formula: (x, w) => x * w,
+      formula: (x, w) => (x - 15) * w,
     },
     // Anything under 125 will reduce score, anything above will increase it up to a max of [max]
     lease_length: {
       inputToNumberConverter: (x: number) => x,
-      formula: (x, w) => Math.min(x - 125, 160) * w,
+      formula: (x, w) => Math.min(x - 125, 25) * w,
     },
     // Anything below 70 will reduce score, anything above will increase it.
     energy_effeciency: {
       inputToNumberConverter: (x: number) => x,
       formula: (x, w) => (x - 70) * w,
-    },
-    sc_gr_annual: {
-      inputToNumberConverter: (x: number) => x,
-      formula: (x, w) => x * w,
     },
     sq_metres: {
       inputToNumberConverter: (x: number) => x,
@@ -183,21 +183,21 @@ interface ScoreAlgorithmCalculationWeights {
 export const scoreAlgorithmCalculationWeights: ScoreAlgorithmCalculationWeights =
   {
     // Number
-    house_price: 1, // 'Cost'
-    sc_gr_annual: 30, // 'Cost'
-    floor_level: 2000,
+    house_price: 1, // 'Initial Cost'
+    sc_gr_annual: 30, // '30 years of ongoing Cost'
+    floor_level: 5000,
     walk_to_station: -1000,
     walk_to_park: -500,
     lease_length: 1000,
     energy_effeciency: 1000,
-    sq_metres: 9000,
+    sq_metres: 8000,
     // Quality Enum
     interior: 10000,
-    view: 10000,
+    view: 12000,
     // Bool. All weights are positive so control the sign of output via [inputToNumberConverter]
     local_gym: 10000,
     local_supermarket: 10000,
-    garden_balcony: 10000,
+    garden_balcony: 15000,
     off_street_parking: 10000,
   };
 
@@ -236,7 +236,7 @@ export const calculatePropertyScore = (property: Property): PropertyScore => {
     propertyId: property.id,
     cost: Math.floor(cost),
     points: Math.floor(points),
-    score: Math.floor(points - cost),
+    score: points / cost,
     sqMtrCost:
       property.house_price && property.sq_metres
         ? Math.floor(property.house_price / property.sq_metres)

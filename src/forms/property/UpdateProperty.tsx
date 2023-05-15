@@ -1,10 +1,10 @@
 import React from "react";
-import { Property } from "../types/types";
-import { useFormState } from "./useFormState";
-import { updateProperty } from "../common/supabase";
-import { propertyFieldDefs } from "../common/propertyUtils";
+import { Property } from "../../types/types";
+import { useFormState } from "../useFormState";
+import { updateProperty } from "../../common/supabase";
+import { propertyFieldDefs } from "../../common/propertyUtils";
 import PropertyFieldsForm from "./PropertyFieldsForm";
-import { convertToTitleCase } from "../common/utils";
+import { convertToTitleCase } from "../../common/utils";
 import { MessageInstance } from "antd/es/message/interface";
 
 function UpdateProperty({
@@ -45,10 +45,10 @@ function UpdateProperty({
       ...property,
       ...getObjectData(),
     });
-    if (data !== null && data.length && !error) {
+    if (data && !error) {
       messageApi.success("Property updated");
       resetFormState();
-      closeDrawer(data.at(0));
+      closeDrawer(data);
     } else {
       messageApi.error("Something went wrong...");
       console.log(error);

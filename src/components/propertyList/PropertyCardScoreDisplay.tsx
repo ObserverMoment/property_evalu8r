@@ -1,5 +1,5 @@
 import { PropertyScore } from "../../common/propertyUtils";
-import { currencyFormat } from "../../common/utils";
+import { currencyFormat, numberFormat } from "../../common/utils";
 import { MyTheme } from "../styled/theme";
 import { Badge } from "@chakra-ui/react";
 import { FlexRow } from "../styled/layout";
@@ -33,7 +33,7 @@ export const PropertyCardScoreDisplay = ({
 
     <div>
       <BadgeBuilder label="Points" />
-      {points}
+      {numberFormat(points)}
     </div>
     <div
       style={{
@@ -43,8 +43,8 @@ export const PropertyCardScoreDisplay = ({
         padding: "0px 3px 0px 8px",
       }}
     >
-      <BadgeBuilder label=" Points - cost" />
-      {score}
+      <BadgeBuilder label=" Points / cost" />
+      {numberFormat(score, 3)}
     </div>
   </FlexRow>
 );
