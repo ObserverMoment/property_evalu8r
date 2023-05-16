@@ -28,6 +28,7 @@ export const ResponsiveDrawer = ({
       onClose={onClose}
       open={open}
       width={deviceSize === "small" ? "100%" : "400px"}
+      zIndex={9999999}
     >
       {children}
     </Drawer>

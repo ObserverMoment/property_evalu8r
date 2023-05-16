@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import { Project, Property } from "../../types/types";
+import {
+  LikesByProperty,
+  Project,
+  Property,
+  UserLikesDislikesInProperties,
+  UserProfile,
+} from "../../types/types";
 import {
   calculateAllPropertyScores,
   checkPropertyCompleteInfo,
@@ -10,11 +16,11 @@ import { PropertyCard } from "./PropertyCard";
 import SortingFilters, { ShowTypeEnum, SortByEnum } from "./SortingFilters";
 import { Empty, Spin } from "antd";
 import {
-  addFavourite,
+  addPropertyLike,
   deleteProperty,
-  getFavourites,
-  getProperties,
-  removeFavourite,
+  deletePropertyLike,
+  getProjectLikes,
+  getProjectPropertyData,
 } from "../../common/supabase";
 import { useMediaSize } from "../../common/useMediaSize";
 import { MessageInstance } from "antd/es/message/interface";
@@ -33,13 +39,13 @@ import { PlusOutlined } from "@ant-design/icons";
 
 interface PropertyListProps {
   activeProject: Project;
-  authedUserId: string;
+  authedUserProfile: UserProfile;
   messageApi: MessageInstance;
 }
 
 export function PropertyList({
   activeProject,
-  authedUserId,
+  authedUserProfile,
   messageApi,
 }: PropertyListProps) {
   const deviceSize = useMediaSize();
@@ -50,9 +56,9 @@ export function PropertyList({
   // Core property data
   /// Property Data
   const [loadingProperties, setLoadingProperties] = useState(true);
-  const [properties, setProperties] = useState<Property[]>([]);
-  // Array of property IDs.
-  const [favourites, setFavourites] = useState<number[]>([]);
+  const [projectProperties, setProjectProperties] = useState<Property[]>([]);
+  /// Object indexed by property ID which contains user profiles of users who have liked / disliked the property.
+  const [likesByProperty, setLikesByProperty] = useState<LikesByProperty>({});
 
   // Sort, search and filter
   const [searchText, setSearchText] = useState<string>("");
@@ -72,24 +78,36 @@ export function PropertyList({
   const [propertyToBeDeleted, setPropertyToBeDeleted] =
     useState<Property | null>(null);
 
-  // Get property data whenever active property changes
+  // Get new property data whenever active property changes
   useEffect(() => {
     const getInitialData = async () => {
       setLoadingProperties(true);
       try {
-        const { data: properties, error: propertiesError } =
-          await getProperties(activeProject.id);
-        const { data: favourites, error: favouritesError } =
-          await getFavourites();
+        const { data: projectProperties, error: propertiesError } =
+          await getProjectPropertyData(activeProject.id);
 
-        if (propertiesError || favouritesError) {
-          console.log(propertiesError);
-          console.log(favouritesError);
+        const { data: projectLikes, error: projectLikesError } =
+          await getProjectLikes(activeProject.id);
+
+        if (propertiesError || projectLikesError) {
+          console.error(propertiesError);
+          console.error(projectLikesError);
           throw new Error("Problem initialising data");
         }
 
-        setProperties(properties!);
-        setFavourites(favourites!.map((f) => f.property_id));
+        const likesDislikesByProperty = projectLikes.reduce<LikesByProperty>(
+          (acum, next) => {
+            acum[next.id] =
+              (next.user_likes_properties as UserLikesDislikesInProperties[])!.flatMap(
+                (ulp) => ulp.user_profiles
+              );
+            return acum;
+          },
+          {}
+        );
+
+        setProjectProperties(projectProperties!);
+        setLikesByProperty(likesDislikesByProperty);
       } catch (e: any) {
         messageApi.error("Problem initialising data");
         console.log(e.toString());
@@ -103,7 +121,7 @@ export function PropertyList({
   /// Create New Property
   const handleSaveProperty = (data: Property | undefined) => {
     if (data) {
-      setProperties([data, ...properties]);
+      setProjectProperties((prev) => [data, ...prev]);
     }
     setOpenAddPanel(false);
   };
@@ -118,7 +136,9 @@ export function PropertyList({
     setPropertyToUpdate(null);
     setOpenUpdatePanel(false);
     if (data) {
-      setProperties(mapReplaceArray({ modified: data, previous: properties }));
+      setProjectProperties((prev) =>
+        mapReplaceArray({ modified: data, previous: prev })
+      );
     }
   };
 
@@ -147,8 +167,8 @@ export function PropertyList({
           messageApi: messageApi,
           type: "success",
         });
-        setProperties(
-          properties.filter((p) => p.id !== propertyToBeDeleted.id)
+        setProjectProperties((prev) =>
+          prev.filter((p) => p.id !== propertyToBeDeleted.id)
         );
       }
     }
@@ -161,19 +181,23 @@ export function PropertyList({
     onClose();
   };
 
-  const handleAddFavourite = async (propertyId: number) => {
-    const { error } = await addFavourite(propertyId);
+  /// Likes ///
+  const handleAddPropertyLike = async (propertyId: number) => {
+    const { error } = await addPropertyLike(propertyId);
     if (error) {
       showErrorMessage({
         messageApi: messageApi,
       });
     } else {
-      setFavourites([...favourites, propertyId]);
+      setLikesByProperty((prev) => ({
+        ...prev,
+        [propertyId]: [...prev[propertyId], authedUserProfile],
+      }));
     }
   };
 
-  const handleRemoveFavourite = async (propertyId: number) => {
-    const { error } = await removeFavourite(propertyId);
+  const handleRemovePropertyLike = async (propertyId: number) => {
+    const { error } = await deletePropertyLike(propertyId);
     if (error) {
       showMessage({
         content: "Something went wrong...",
@@ -181,12 +205,17 @@ export function PropertyList({
         type: "error",
       });
     } else {
-      setFavourites(favourites.filter((f) => f !== propertyId));
+      setLikesByProperty((prev) => ({
+        ...prev,
+        [propertyId]: prev[propertyId].filter(
+          (u) => u.id !== authedUserProfile.id
+        ),
+      }));
     }
   };
 
   /// Process data for display
-  const propertyScores = calculateAllPropertyScores(properties);
+  const propertyScores = calculateAllPropertyScores(projectProperties);
 
   const sortProperties = (properties: Property[]) =>
     properties.sort((a, b) => {
@@ -208,7 +237,7 @@ export function PropertyList({
       }
     });
 
-  const searchFiltered = [...properties].filter((p) =>
+  const searchFiltered = [...projectProperties].filter((p) =>
     p.listing_title?.toLowerCase().includes(searchText.toLowerCase())
   );
 
@@ -217,8 +246,10 @@ export function PropertyList({
       ? checkPropertyCompleteInfo(searchFiltered).completed
       : showType === "awaitingInfo"
       ? checkPropertyCompleteInfo(searchFiltered).awaitingInfo
-      : showType === "favourites"
-      ? searchFiltered.filter((p) => favourites.includes(p.id))
+      : showType === "likes"
+      ? searchFiltered.filter((p) =>
+          likesByProperty[p.id].some((u) => u.id === authedUserProfile.id)
+        )
       : searchFiltered;
 
   const sortedProperties = sortProperties(typeFiltered);
@@ -257,10 +288,10 @@ export function PropertyList({
               openUpdateProperty={() => handleOpenUpdateProperty(p)}
               handleRequestDeleteProperty={handleRequestDeleteProperty}
               handleRequestNoteUpdate={() => handleOpenUpdateNotes(p)}
-              isFavourite={favourites.includes(p.id)}
-              handleAddFavourite={handleAddFavourite}
-              handleRemoveFavourite={handleRemoveFavourite}
-              authedUserId={authedUserId}
+              likes={likesByProperty[p.id]}
+              handleAddPropertyLike={handleAddPropertyLike}
+              handleRemovePropertyLike={handleRemovePropertyLike}
+              authedUserId={authedUserProfile.id}
             />
           </div>
         ))
@@ -286,6 +317,7 @@ export function PropertyList({
             onSaveProperty={handleSaveProperty}
             onCancel={() => setOpenAddPanel(false)}
             messageApi={messageApi}
+            activeProjectId={activeProject.id}
           />
         )}
       </ResponsiveDrawer>
@@ -318,7 +350,7 @@ export function PropertyList({
           <UpdateNotes
             property={propertyToUpdate}
             messageApi={messageApi}
-            authedUserId={authedUserId}
+            authedUserId={authedUserProfile.id}
           />
         )}
       </ResponsiveDrawer>

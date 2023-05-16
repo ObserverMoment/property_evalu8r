@@ -16,9 +16,13 @@ export type Property = {
   [s: string]: any;
 } & Database["public"]["Tables"]["properties"]["Row"];
 
-export type Favourite = {
-  [s: string]: any;
-} & Database["public"]["Tables"]["user_favourite_properties"]["Row"];
+export type LikesByProperty = {
+  [id: number]: UserProfile[];
+};
+
+export type UserLikesDislikesInProperties = {
+  user_profiles: UserProfile[];
+};
 
 export type PropertyNoteWithAuthor = {
   [s: string]: any;

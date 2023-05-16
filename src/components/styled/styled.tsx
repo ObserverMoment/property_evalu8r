@@ -55,7 +55,7 @@ export const PrimaryButton = styled.button<ButtonProps>`
   border: 1px solid ${MyTheme.colors.primary};
   color: #212423;
   font-size: ${(p) => getButtonFontSize(p.size)};
-  font-weight: 600;
+  font-weight: bold;
   text-align: center;
   text-decoration: none;
   outline: none;
@@ -75,16 +75,16 @@ export const SecondaryButton = styled.button<ButtonProps>`
   padding: ${(p) => getButtonPadding(p.size)};
   align-items: center;
   border-radius: 62rem;
-  border: 1px solid ${MyTheme.colors.primary};
+  border: 2px solid ${MyTheme.colors.primary};
   color: ${MyTheme.colors.primary};
   font-size: ${(p) => getButtonFontSize(p.size)};
-  font-weight: 600;
+  font-weight: bold;
   text-align: center;
   text-decoration: none;
   transition: all 350ms ease;
   :hover {
     cursor: pointer;
-    border: 1px solid ${MyTheme.colors.linkText};
+    border-color: ${MyTheme.colors.linkText};
     color: ${MyTheme.colors.linkText};
   }
 `;
@@ -99,7 +99,7 @@ export const IconButton = styled.button`
   border-radius: 50%;
   border: 1px solid ${MyTheme.colors.primary};
   color: ${MyTheme.colors.primary};
-  font-weight: 600;
+  font-weight: bold;
   text-align: center;
   text-decoration: none;
   transition: all 350ms ease;

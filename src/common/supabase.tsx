@@ -9,7 +9,8 @@ const PROPERTIES_TABLE_NAME = "properties";
 const PROJECTS_TABLE_NAME = "projects";
 // const PROJECTS_MEMBERS_TABLE_NAME = "project_members";
 const USER_PROFILES_TABLE_NAME = "user_profiles";
-const FAVOURITES_TABLE_NAME = "user_favourite_properties";
+const LIKES_TABLE_NAME = "user_likes_properties";
+const DISLIKES_TABLE_NAME = "user_dislikes_properties";
 const NOTES_TABLE_NAME = "user_property_notes";
 
 // Create a single supabase client for interacting with your database
@@ -101,14 +102,26 @@ export const createProject = async (name: string, password: string) => {
     .single();
 };
 
+// Users can joing an existing project with the username and password.
+export const joinExistingProject = async (name: string, password: string) => {
+  // Finds a project in the DB that matches username and password. If it exists user is added to project_members and the project is returned.
+  return await supabase
+    .rpc("add_user_to_project_members", {
+      project_name: name,
+      project_password: password,
+    })
+    .single();
+};
+
 /// Properties ////
-export const getProperties = async (projectId: number) =>
+// Properties + likes
+export const getProjectPropertyData = async (projectId: number) =>
   await supabase
     .from(PROPERTIES_TABLE_NAME)
     .select()
     .eq("project_id", projectId);
 
-export const createProperty = async (data: Property) => {
+export const createProperty = async (data: Property, projectId: number) => {
   const userId = await getSessionUserId();
 
   return await supabase
@@ -116,6 +129,7 @@ export const createProperty = async (data: Property) => {
     .insert({
       ...data,
       user_id: userId,
+      project_id: projectId,
     })
     .select()
     .single();
@@ -134,19 +148,27 @@ export const deleteProperty = async (data: Property) => {
   return await supabase.from(PROPERTIES_TABLE_NAME).delete().eq("id", data.id);
 };
 
-//// Favourites ////
-export const getFavourites = async () => {
-  const userId = await getSessionUserId();
-  return await supabase
-    .from(FAVOURITES_TABLE_NAME)
-    .select()
-    .eq("user_id", userId);
-};
+//// Likes ////
+export const getProjectLikes = async (projectId: number) =>
+  await supabase
+    .from(PROPERTIES_TABLE_NAME)
+    .select(
+      `
+    id,
+    user_likes_properties (
+      user_profiles (
+        id,
+        username
+      )
+    )
+    `
+    )
+    .eq("project_id", projectId);
 
-export const addFavourite = async (propertyId: number) => {
+export const addPropertyLike = async (propertyId: number) => {
   const userId = await getSessionUserId();
   return await supabase
-    .from(FAVOURITES_TABLE_NAME)
+    .from(LIKES_TABLE_NAME)
     .insert({
       user_id: userId!,
       property_id: propertyId,
@@ -155,11 +177,34 @@ export const addFavourite = async (propertyId: number) => {
     .single();
 };
 
-export const removeFavourite = async (propertyId: number) =>
-  await supabase
-    .from(FAVOURITES_TABLE_NAME)
-    .delete()
-    .eq("property_id", propertyId);
+export const deletePropertyLike = async (propertyId: number) => {
+  const userId = await getSessionUserId();
+  return await supabase.from(LIKES_TABLE_NAME).delete().match({
+    property_id: propertyId,
+    user_id: userId,
+  });
+};
+
+//// Dislikes ////
+export const addPropertyDislike = async (propertyId: number) => {
+  const userId = await getSessionUserId();
+  return await supabase
+    .from(DISLIKES_TABLE_NAME)
+    .insert({
+      user_id: userId!,
+      property_id: propertyId,
+    })
+    .select()
+    .single();
+};
+
+export const deletePropertyDislike = async (propertyId: number) => {
+  const userId = await getSessionUserId();
+  return await supabase.from(DISLIKES_TABLE_NAME).delete().match({
+    property_id: propertyId,
+    user_id: userId,
+  });
+};
 
 //// Property Notes ////
 const NOTE_AND_USERNAME_SELECT = `id, note, created_at, user_id (id, username)`;

@@ -1,4 +1,4 @@
-import { Property } from "../../types/types";
+import { Property, UserProfile } from "../../types/types";
 import { PropertyScore } from "../../common/propertyUtils";
 import { useMediaSize } from "../../common/useMediaSize";
 import { PropertyCardScoreDisplay } from "./PropertyCardScoreDisplay";
@@ -6,7 +6,8 @@ import { PropertyCardInfoFields } from "./PropertyCardInfoFields";
 import { MyCard } from "../styled/styled";
 import { FlexRow } from "../styled/layout";
 import { PropertyCardFieldsDisplay } from "./PropertyCardFieldsDisplay";
-import { PropertyCardEditIcons } from "./PropertyCardEditIcons";
+import { PropertyCardEditButtons } from "./PropertyCardEditButtons";
+import { PropertyCardLikeDislike } from "./PropertyCardLikeDislike";
 
 interface PropertyCardProps {
   property: Property;
@@ -14,9 +15,9 @@ interface PropertyCardProps {
   openUpdateProperty: (p: Property) => void;
   handleRequestDeleteProperty: (p: Property) => void;
   handleRequestNoteUpdate: (p: Property) => void;
-  isFavourite: boolean;
-  handleAddFavourite: (pId: number) => void;
-  handleRemoveFavourite: (pId: number) => void;
+  likes: UserProfile[];
+  handleAddPropertyLike: (pId: number) => void;
+  handleRemovePropertyLike: (pId: number) => void;
   authedUserId: string;
 }
 
@@ -26,9 +27,9 @@ export function PropertyCard({
   openUpdateProperty,
   handleRequestDeleteProperty,
   handleRequestNoteUpdate,
-  isFavourite,
-  handleAddFavourite,
-  handleRemoveFavourite,
+  likes,
+  handleAddPropertyLike,
+  handleRemovePropertyLike,
   authedUserId,
 }: PropertyCardProps) {
   const deviceSize = useMediaSize();
@@ -41,20 +42,28 @@ export function PropertyCard({
     />
   );
 
-  const buildPropertyCardEditIcons = () => (
-    <FlexRow style={{ padding: "10px 16px 0 8px" }} justifyContent="end">
-      <PropertyCardEditIcons
-        property={property}
-        authedUserId={authedUserId}
-        handleRequestUpdate={() => openUpdateProperty(property)}
-        handleRequestDelete={() => handleRequestDeleteProperty(property)}
-        handleRequestNoteUpdate={() => handleRequestNoteUpdate(property)}
-        isFavourite={isFavourite}
-        handleAddFavourite={handleAddFavourite}
-        handleRemoveFavourite={handleRemoveFavourite}
-      />
-    </FlexRow>
-  );
+  const buildPropertyCardFooter = () => {
+    return (
+      <FlexRow
+        style={{ padding: "10px 16px 0 8px" }}
+        justifyContent="space-between"
+      >
+        <PropertyCardLikeDislike
+          authedUserId={authedUserId}
+          propertyLikes={likes}
+          handleAddPropertyLike={() => handleAddPropertyLike(property.id)}
+          handleRemovePropertyLike={() => handleRemovePropertyLike(property.id)}
+        />
+        <PropertyCardEditButtons
+          property={property}
+          authedUserId={authedUserId}
+          handleRequestUpdate={() => openUpdateProperty(property)}
+          handleRequestDelete={() => handleRequestDeleteProperty(property)}
+          handleRequestNoteUpdate={() => handleRequestNoteUpdate(property)}
+        />
+      </FlexRow>
+    );
+  };
 
   const buildPropertyCardScoreDisplay = () => (
     <PropertyCardScoreDisplay
@@ -76,14 +85,14 @@ export function PropertyCard({
         {buildPropertyCardScoreDisplay()}
       </FlexRow>
       {buildPropertyCardFieldsDisplay()}
-      {buildPropertyCardEditIcons()}
+      {buildPropertyCardFooter()}
     </MyCard>
   ) : (
     <MyCard>
       {buildPropertyCardInfoFields()}
       {buildPropertyCardScoreDisplay()}
       {buildPropertyCardFieldsDisplay()}
-      {buildPropertyCardEditIcons()}
+      {buildPropertyCardFooter()}
     </MyCard>
   );
 }

@@ -10,15 +10,19 @@ import PropertyFieldsForm from "./PropertyFieldsForm";
 import { convertToTitleCase } from "../../common/utils";
 import { MessageInstance } from "antd/es/message/interface";
 
+interface AddNewPropertyProps {
+  onSaveProperty: (created?: Property) => void;
+  onCancel: () => void;
+  messageApi: MessageInstance;
+  activeProjectId: number;
+}
+
 function AddNewProperty({
   onSaveProperty,
   onCancel,
   messageApi,
-}: {
-  onSaveProperty: (created?: Property) => void;
-  onCancel: () => void;
-  messageApi: MessageInstance;
-}) {
+  activeProjectId,
+}: AddNewPropertyProps) {
   const { formState, checkErrors, getObjectData } = useFormState<Property>([
     ...propertyFieldDefs.stringFields
       .concat(propertyFieldDefs.numberFields)
@@ -38,7 +42,10 @@ function AddNewProperty({
   ]);
 
   const handleSave = async () => {
-    const { data, error } = await createProperty(getObjectData());
+    const { data, error } = await createProperty(
+      getObjectData(),
+      activeProjectId
+    );
     if (data && !error) {
       messageApi.success("Property added");
       onSaveProperty(data);

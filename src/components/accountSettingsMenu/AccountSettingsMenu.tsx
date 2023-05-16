@@ -4,7 +4,11 @@ import { ReactSVG } from "react-svg";
 import styled from "@emotion/styled";
 import { MyTheme } from "../styled/theme";
 import { Project, UserProfile } from "../../types/types";
-import { PlusOutlined, CheckOutlined } from "@ant-design/icons";
+import {
+  PlusOutlined,
+  CheckOutlined,
+  UsergroupAddOutlined,
+} from "@ant-design/icons";
 import { FlexRow, MySpacer } from "../styled/layout";
 import { useState } from "react";
 
@@ -16,6 +20,7 @@ interface AccountSettingsMenuProps {
   activeProject: Project | null;
   setActiveProject: (project: Project) => void;
   openCreateNewProject: () => void;
+  openJoinExistingproject: () => void;
 }
 
 /// menu top right of the screen for settings and project switching etc.
@@ -27,9 +32,9 @@ export const AccountSettingsMenu = ({
   activeProject,
   setActiveProject,
   openCreateNewProject,
+  openJoinExistingproject,
 }: AccountSettingsMenuProps) => {
   const [enableUpdateUsername, setEnableUpdateUsername] = useState(false);
-  const [dropdownIsOpen, setDropdownIsOpen] = useState(false);
 
   const handleSaveNewUsername = (newUsername: string) => {
     updateUsername(newUsername);
@@ -38,14 +43,12 @@ export const AccountSettingsMenu = ({
 
   const handleOpenCreateNewProject = () => {
     openCreateNewProject();
-    setDropdownIsOpen(false);
   };
 
   return (
     <Dropdown
       menu={{}}
       placement="bottomRight"
-      open={dropdownIsOpen}
       dropdownRender={() => (
         <DropdownMenuContainer>
           {enableUpdateUsername ? (
@@ -71,6 +74,7 @@ export const AccountSettingsMenu = ({
             activeProject={activeProject}
             setActiveProject={setActiveProject}
             openCreateNewProject={handleOpenCreateNewProject}
+            openJoinExistingproject={openJoinExistingproject}
           />
           <Divider />
           <button onClick={signOut}>Sign Out</button>
@@ -78,11 +82,7 @@ export const AccountSettingsMenu = ({
       )}
       trigger={["click"]}
     >
-      <IconButton
-        onClick={() =>
-          dropdownIsOpen ? setDropdownIsOpen(false) : setDropdownIsOpen(true)
-        }
-      >
+      <IconButton>
         <div style={{ width: "24px" }}>
           <ReactSVG
             src="logo.svg"
@@ -132,6 +132,7 @@ interface SwitchProjectsProps {
   activeProject: Project | null;
   setActiveProject: (p: Project) => void;
   openCreateNewProject: () => void;
+  openJoinExistingproject: () => void;
 }
 
 const SwitchProjects = ({
@@ -139,6 +140,7 @@ const SwitchProjects = ({
   activeProject,
   setActiveProject,
   openCreateNewProject,
+  openJoinExistingproject,
 }: SwitchProjectsProps) => (
   <div>
     <span style={{ color: MyTheme.colors.secondary, fontSize: "0.8em" }}>
@@ -168,7 +170,13 @@ const SwitchProjects = ({
     <MySpacer height={8} />
     <CreateProjectButton onClick={openCreateNewProject}>
       <PlusOutlined />
+      <MySpacer width={3} />
       New Project
+    </CreateProjectButton>
+    <CreateProjectButton onClick={openJoinExistingproject}>
+      <UsergroupAddOutlined />
+      <MySpacer width={3} />
+      Join Project
     </CreateProjectButton>
   </div>
 );
