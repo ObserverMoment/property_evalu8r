@@ -4,6 +4,7 @@ import {
   createProject,
   getAuthedUserProfile,
   getProjects,
+  joinExistingProject,
   updateAuthedUserName,
 } from "../common/supabase";
 import { PropertyList } from "../components/propertyList/PropertyList";
@@ -15,7 +16,9 @@ import styled from "@emotion/styled";
 import { MyTheme } from "../components/styled/theme";
 import { showErrorMessage } from "../common/notifications";
 import { ResponsiveDrawer } from "../components/styled/drawer";
-import CreateNewProject from "../forms/CreateNewProject";
+import CreateNewProject from "../forms/project/CreateNewProject";
+import { PlusOutlined, UsergroupAddOutlined } from "@ant-design/icons";
+import JoinExistingProject from "../forms/project/JoinExistingProject";
 
 function Home({
   signOut,
@@ -27,11 +30,12 @@ function Home({
   // Ant Design message hook.
   const [messageApi, contextHolder] = message.useMessage();
 
-  // Simple modal where user can create new project.
+  // Simple drawers where user can create new project or joing existing project.
   const [openCreateNewProject, setOpenCreateNewProject] = useState(false);
+  const [openJoinExistingProject, setOpenJoinExistingProject] = useState(false);
 
   /// Authed user profile
-  const [userProfile, setUserProfile] = useState<UserProfile>();
+  const [authedUserProfile, setAuthedUserProfile] = useState<UserProfile>();
   // All projects in which user is a member.
   const [userProjects, setUserProjects] = useState<Project[]>([]);
   // Active project id
@@ -50,7 +54,7 @@ function Home({
           console.log(projectsError);
           throw new Error("Problem initialising data");
         }
-        setUserProfile(userProfile!);
+        setAuthedUserProfile(userProfile!);
         setUserProjects(projects!);
       } catch (e: any) {
         messageApi.error("Problem initialising data");
@@ -67,7 +71,7 @@ function Home({
         messageApi: messageApi,
       });
     } else {
-      setUserProfile({ ...userProfile, ...data });
+      setAuthedUserProfile({ ...authedUserProfile, ...data });
     }
   };
 
@@ -81,7 +85,22 @@ function Home({
       setUserProjects([data!, ...userProjects]);
       setActiveProject(data!);
       setOpenCreateNewProject(false);
-      messageApi.success(`Created and switched to new project ${data.name}`);
+      messageApi.success(`Created and switched to project ${data.name}`);
+    }
+  };
+
+  const handleJoinExistingProject = async (name: string, password: string) => {
+    const { data, error } = await joinExistingProject(name, password);
+    if (error || !data) {
+      showErrorMessage({
+        messageApi: messageApi,
+        content: error?.message,
+      });
+    } else {
+      setUserProjects([data!, ...userProjects]);
+      setActiveProject(data!);
+      setOpenJoinExistingProject(false);
+      messageApi.success(`Joined and switched to project ${data.name}`);
     }
   };
 
@@ -91,21 +110,28 @@ function Home({
       <PageHeader>
         <Header1>Property Evalu8r</Header1>
 
-        {userProfile && (
+        {authedUserProfile && (
           <AccountSettingsMenu
             signOut={signOut}
-            userProfile={userProfile}
+            userProfile={authedUserProfile}
             updateUsername={updateUsername}
             activeProject={activeProject}
             setActiveProject={setActiveProject}
             projects={userProjects}
             openCreateNewProject={() => setOpenCreateNewProject(true)}
+            openJoinExistingproject={() => setOpenJoinExistingProject(true)}
           />
         )}
       </PageHeader>
 
       {!activeProject ? (
-        <MyCard>
+        <MyCard
+          style={{
+            alignItems: "center",
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
           <div>
             {userProjects.length > 0 && <div>Select a project</div>}
             <div
@@ -126,10 +152,30 @@ function Home({
             </div>
           </div>
           <MySpacer height={12} />
-          <SecondaryButton onClick={() => setOpenCreateNewProject(true)}>
-            {userProjects.length
-              ? "Create a new project"
-              : "Create your first project"}
+          <SecondaryButton
+            size="sm"
+            onClick={() => setOpenCreateNewProject(true)}
+          >
+            <PlusOutlined
+              style={{ fontSize: "16px", color: MyTheme.colors.secondary }}
+            />
+            <MySpacer width={8} />
+            <div>
+              {userProjects.length
+                ? "Create a new project"
+                : "Create your first project"}
+            </div>
+          </SecondaryButton>
+          <MySpacer height={12} />
+          <SecondaryButton
+            size="sm"
+            onClick={() => setOpenJoinExistingProject(true)}
+          >
+            <UsergroupAddOutlined
+              style={{ fontSize: "16px", color: MyTheme.colors.secondary }}
+            />
+            <MySpacer width={8} />
+            <div>Join existing project</div>
           </SecondaryButton>
           <MySpacer height={12} />
         </MyCard>
@@ -137,7 +183,7 @@ function Home({
         <PropertyList
           key={activeProject.id}
           activeProject={activeProject}
-          authedUserId={authedUserId}
+          authedUserProfile={authedUserProfile!}
           messageApi={messageApi}
         />
       )}
@@ -150,6 +196,16 @@ function Home({
         drawerKey="Note"
       >
         <CreateNewProject createNewProject={handleCreateNewProject} />
+      </ResponsiveDrawer>
+
+      <ResponsiveDrawer
+        closable={true}
+        maskClosable={true}
+        onClose={() => setOpenJoinExistingProject(false)}
+        open={openJoinExistingProject}
+        drawerKey="Note"
+      >
+        <JoinExistingProject joinExistingProject={handleJoinExistingProject} />
       </ResponsiveDrawer>
     </HomeContent>
   );
@@ -168,6 +224,8 @@ const ProjectSelectButton = styled.button`
   text-decoration: none;
   transition: all 350ms ease;
   margin: 10px;
+  flex-direction: row;
+  justify-content: space-evenly;
   :hover {
     cursor: pointer;
     border-color: ${MyTheme.colors.linkText};

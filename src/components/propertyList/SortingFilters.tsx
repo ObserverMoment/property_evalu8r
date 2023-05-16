@@ -12,7 +12,7 @@ export type SortByEnum =
   | "highestPoints"
   | "sqrMtrCost";
 
-export type ShowTypeEnum = "all" | "completed" | "awaitingInfo" | "favourites";
+export type ShowTypeEnum = "all" | "completed" | "awaitingInfo" | "likes";
 
 interface SortingFiltersProps {
   searchText: string;
@@ -37,7 +37,7 @@ function SortingFilters({
     ["all", "All"],
     ["completed", "Completed"],
     ["awaitingInfo", "Awaiting Info"],
-    ["favourites", "Favourites"],
+    ["likes", "Your Likes"],
   ];
 
   const buildTextSeactInput = () => (

@@ -1,41 +1,27 @@
 import { Property } from "../../types/types";
 import { FlexRow } from "../styled/layout";
-import { DeleteOutlined, HeartOutlined, HeartFilled } from "@ant-design/icons";
+import { DeleteOutlined } from "@ant-design/icons";
 import { SecondaryButton } from "../styled/styled";
 
-interface PropertyCardEditIconsProps {
+interface PropertyCardEditButtonsProps {
   property: Property;
   authedUserId: string;
   handleRequestUpdate: () => void;
   handleRequestDelete: () => void;
   handleRequestNoteUpdate: () => void;
-  isFavourite: boolean;
-  handleAddFavourite: (pId: number) => void;
-  handleRemoveFavourite: (pId: number) => void;
 }
 
-export const PropertyCardEditIcons = ({
-  property: { id, user_id },
+export const PropertyCardEditButtons = ({
+  property: { user_id },
   authedUserId,
   handleRequestUpdate,
   handleRequestDelete,
   handleRequestNoteUpdate,
-  isFavourite,
-  handleAddFavourite,
-  handleRemoveFavourite,
-}: PropertyCardEditIconsProps) => {
+}: PropertyCardEditButtonsProps) => {
   return (
-    <FlexRow gap="20px">
-      {isFavourite ? (
-        <HeartFilled
-          style={{ color: "#9e0e69", fontSize: "20px" }}
-          onClick={() => handleRemoveFavourite(id)}
-        />
-      ) : (
-        <HeartOutlined
-          style={{ color: "#95517c", fontSize: "20px" }}
-          onClick={() => handleAddFavourite(id)}
-        />
+    <FlexRow gap="20px" style={{ alignItems: "center" }}>
+      {authedUserId === user_id && (
+        <div style={{ fontSize: "0.6em" }}>Added by You</div>
       )}
 
       {authedUserId === user_id && (

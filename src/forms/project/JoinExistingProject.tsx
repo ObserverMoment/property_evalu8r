@@ -1,49 +1,52 @@
 import { Input } from "antd";
-import { FlexRow, MySpacer } from "../components/styled/layout";
-import { PrimaryButton, SecondaryButton } from "../components/styled/styled";
+import { FlexRow, MySpacer } from "../../components/styled/layout";
+import { PrimaryButton } from "../../components/styled/styled";
 import styled from "@emotion/styled";
 import { useState } from "react";
 
-interface CreateNewProjectProps {
-  createNewProject: (pn: string, pw: string) => void;
+interface JoinExistingProjectProps {
+  joinExistingProject: (pn: string, pw: string) => void;
 }
 
-const CreateNewProject = ({ createNewProject }: CreateNewProjectProps) => {
+const JoinExistingProject = ({
+  joinExistingProject,
+}: JoinExistingProjectProps) => {
   const [projectName, setProjectName] = useState("");
   const [projectPassword, setProjectPassword] = useState("");
 
-  const handleCreateNewProject = () => {
-    createNewProject(projectName, projectPassword);
+  const handleJoinExistingProject = () => {
+    joinExistingProject(projectName, projectPassword);
     setProjectName("");
     setProjectPassword("");
   };
 
   return (
     <div>
-      <div style={{ fontWeight: "bold" }}>Create a New Project</div>
+      <div style={{ fontWeight: "bold" }}>Join Existing Project</div>
+      <MySpacer height={20} />
+      <InputRestrictionsText>
+        You can request this information from your project owner.
+      </InputRestrictionsText>
       <MySpacer height={20} />
       <Input
         placeholder="Project name (min 4 chars)"
         value={projectName}
         onChange={(e) => setProjectName(e.target.value)}
       />
-      <InputRestrictionsText>Minumum of 6 characters</InputRestrictionsText>
       <MySpacer height={8} />
       <Input
         placeholder="Project password"
         value={projectPassword}
         onChange={(e) => setProjectPassword(e.target.value)}
       />
-      <InputRestrictionsText>Minumum of 6 characters</InputRestrictionsText>
       <MySpacer height={20} />
       <FlexRow justifyContent="space-evenly">
-        <SecondaryButton size="sm">Cancel</SecondaryButton>
         <PrimaryButton
           size="sm"
           disabled={projectName.length < 6 || projectPassword.length < 6}
-          onClick={() => handleCreateNewProject()}
+          onClick={handleJoinExistingProject}
         >
-          Save
+          Request to Join
         </PrimaryButton>
       </FlexRow>
     </div>
@@ -56,4 +59,4 @@ const InputRestrictionsText = styled.div`
   padding: 4px;
 `;
 
-export default CreateNewProject;
+export default JoinExistingProject;

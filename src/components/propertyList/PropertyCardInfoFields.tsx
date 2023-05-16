@@ -12,14 +12,12 @@ interface PropertyCardInfoFieldsProps {
 
 export const PropertyCardInfoFields = ({
   property: {
-    user_id,
     url_link,
     listing_title,
     agent_email,
     agent_phone,
     agent_website,
   },
-  authedUserId,
   deviceSize,
 }: PropertyCardInfoFieldsProps) => (
   <FlexRow
@@ -57,8 +55,6 @@ export const PropertyCardInfoFields = ({
     >
       <PropertyCardContactInfo>Contact Info</PropertyCardContactInfo>
     </Popover>
-
-    {authedUserId === user_id && <InfoFieldText>Added by You</InfoFieldText>}
   </FlexRow>
 );
 

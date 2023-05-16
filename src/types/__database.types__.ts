@@ -154,22 +154,36 @@ export interface Database {
           walk_to_station?: number | null
         }
       }
-      user_favourite_properties: {
+      user_dislikes_properties: {
+        Row: {
+          created_at: string | null
+          property_id: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          property_id: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          property_id?: number
+          user_id?: string
+        }
+      }
+      user_likes_properties: {
         Row: {
           created_at: string
-          id: string
           property_id: number
           user_id: string
         }
         Insert: {
           created_at?: string
-          id?: string
           property_id: number
           user_id: string
         }
         Update: {
           created_at?: string
-          id?: string
           property_id?: number
           user_id?: string
         }
@@ -219,6 +233,18 @@ export interface Database {
       [_ in never]: never
     }
     Functions: {
+      add_user_to_project_members: {
+        Args: {
+          project_name: string
+          project_password: string
+        }
+        Returns: {
+          created_at: string | null
+          id: number
+          name: string
+          password: string
+        }[]
+      }
       insert_project_and_add_member: {
         Args: {
           project_name: string
