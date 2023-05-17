@@ -278,8 +278,8 @@ export function PropertyList({
 
   return (
     <PropertyListContainer>
-      <div style={{ color: MyTheme.colors.primary }}>
-        Showing {sortedProperties.length} properties.
+      <div style={{ color: MyTheme.colors.primary, fontSize: "0.8em" }}>
+        Showing {sortedProperties.length} properties
       </div>
       {deviceSize !== "large" && (
         <AddPropertyButton setOpenAddPanel={setOpenAddPanel} />
