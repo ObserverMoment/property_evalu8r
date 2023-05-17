@@ -15,8 +15,8 @@ export const MyTheme = {
     primary: "#ffffff",
     text: "#000",
     linkText: "#ae1583",
-    background: "#f5cba4",
-    cardBackground: "#f5cba4",
+    background: "#eab07a",
+    cardBackground: "#eab07a",
     border: "#575e5e",
     footer: "#1f1f20",
     // Notes
