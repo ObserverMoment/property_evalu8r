@@ -4,49 +4,55 @@ import { SupabaseContext } from "../common/supabase";
 import * as EmailValidator from "email-validator";
 import { FlexRow, MySpacer, PageHeader } from "../components/styled/layout";
 import { Header1, PrimaryButton } from "../components/styled/styled";
-import { MyModal } from "../components/styled/modal";
-import { useDisclosure } from "@chakra-ui/react";
 import { Text } from "@chakra-ui/react";
-import { CheckCircleIcon } from "@chakra-ui/icons";
 import { ReactSVG } from "react-svg";
+import { MessageInstance } from "antd/es/message/interface";
+import { AccesscodeInput } from "../components/AccessCodeInput";
 
-function Auth() {
-  // ChakraUI modal hook.
-  const { isOpen, onOpen, onClose } = useDisclosure();
+interface AuthProps {
+  messageApi: MessageInstance;
+}
+
+function Auth({ messageApi }: AuthProps) {
   const supabase = useContext(SupabaseContext);
 
-  const [loading, setLoading] = useState(false);
+  const [loadingRequestCode, setLoadingRequestCode] = useState(false);
+  const [loadingSubmitCode, setLoadingSubmitCode] = useState(false);
   const [email, setEmail] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
 
-  const [modalTitle, setModalTitle] = useState("");
-  const [modalMessage, setModalMessage] = useState("");
-
-  const handleLogin = async () => {
-    setLoading(true);
-
+  const handleRequestAccessCode = async () => {
+    setLoadingRequestCode(true);
     // https://github.com/orgs/supabase/discussions/2760
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: {
-        emailRedirectTo: `${
-          process.env.PUBLIC_URL
-            ? "https://" + process.env.PUBLIC_URL
-            : "http://localhost:3000"
-        }`,
-      },
     });
 
     if (error) {
-      console.log(error);
-      setModalTitle("Oops, it didn't work");
-      setModalMessage(error.message);
-      onOpen();
+      console.error(error);
+      messageApi.error(error.message);
     } else {
-      setModalTitle("Almost there...");
-      setModalMessage("Check your email for the login link!");
-      onOpen();
+      setOtpSent(true);
     }
-    setLoading(false);
+    setLoadingRequestCode(false);
+  };
+
+  const handleSubmitAccessCode = async (accessCode: string) => {
+    console.log(accessCode);
+    setLoadingSubmitCode(true);
+    const { error } = await supabase.auth.verifyOtp({
+      email,
+      token: accessCode,
+      type: "email",
+    });
+
+    if (error) {
+      console.error(error);
+      messageApi.error(error.message);
+    }
+
+    setLoadingSubmitCode(false);
+    setOtpSent(false);
   };
 
   return (
@@ -60,11 +66,14 @@ function Auth() {
           />
         </div>
       </PageHeader>
-      <Text>Enter your email below to sign in via magic link.</Text>
+      <MySpacer height={24} />
+      <Text>
+        Enter your email below and we will send you a one time access code.
+      </Text>
       <MySpacer height={16} />
       <Form
         name="nest-messages"
-        onFinish={handleLogin}
+        onFinish={handleRequestAccessCode}
         style={{ maxWidth: 600 }}
         layout="vertical"
       >
@@ -83,28 +92,30 @@ function Auth() {
 
         <Form.Item>
           <FlexRow justifyContent="center">
-            {loading ? (
+            {loadingRequestCode ? (
               <Spin size="small" />
             ) : (
               <PrimaryButton
                 type="submit"
-                disabled={loading || !EmailValidator.validate(email)}
+                disabled={
+                  otpSent ||
+                  loadingRequestCode ||
+                  !EmailValidator.validate(email)
+                }
               >
-                Send Magic Link
+                Send Access Code
               </PrimaryButton>
             )}
           </FlexRow>
         </Form.Item>
       </Form>
 
-      <MyModal
-        onConfirm={onClose}
-        onClose={onClose}
-        title={modalTitle}
-        message={modalMessage}
-        isOpen={isOpen}
-        icon={<CheckCircleIcon color="" />}
-      />
+      {otpSent && (
+        <AccesscodeInput
+          handleSubmitAccessCode={handleSubmitAccessCode}
+          loadingSubmitCode={loadingSubmitCode}
+        />
+      )}
     </>
   );
 }

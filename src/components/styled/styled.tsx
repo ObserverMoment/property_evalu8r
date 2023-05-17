@@ -108,4 +108,7 @@ export const IconButton = styled.button`
     border: 1px solid ${MyTheme.colors.linkText};
     color: ${MyTheme.colors.linkText};
   }
+  :disabled {
+    opacity: 0.2;
+  }
 `;

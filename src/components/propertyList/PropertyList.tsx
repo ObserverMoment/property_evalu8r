@@ -123,14 +123,12 @@ export function PropertyList({
             {}
           );
 
-        console.log(noteCountByProperty);
-
         setProjectProperties(projectProperties!);
         setLikesByProperty(likesDislikesByProperty);
         setNotesCountByProperty(noteCountByProperty);
       } catch (e: any) {
         messageApi.error("Problem initialising data");
-        console.log(e.toString());
+        console.error(e.toString());
       }
       setLoadingProperties(false);
     };

@@ -11,8 +11,11 @@ import {
 
 import cityArtSvg from "./assets/city_art.svg";
 import { MyTheme } from "./components/styled/theme";
+import { message } from "antd";
 
 function App() {
+  // Ant Design message hook.
+  const [messageApi, contextHolder] = message.useMessage();
   const supabase = useContext(SupabaseContext);
 
   // For auth.
@@ -30,13 +33,14 @@ function App() {
 
   return (
     <PageLayout>
+      {contextHolder}
       <PageContent style={{ backgroundImage: `url(${cityArtSvg})` }}>
         {!session ? (
-          <Auth />
+          <Auth messageApi={messageApi} />
         ) : (
           <Home
             signOut={() => supabase.auth.signOut()}
-            authedUserId={session.user.id}
+            messageApi={messageApi}
           />
         )}
       </PageContent>
