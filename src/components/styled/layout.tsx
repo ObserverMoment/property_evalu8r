@@ -21,21 +21,6 @@ export const PageLayout = styled.div`
     #2c2c2c,
     #2e2e2e
   );
-  /* background: linear-gradient(
-    to right top,
-    #ecbd91,
-    #eab690,
-    #e8af8f,
-    #e5a88f,
-    #e1a28f,
-    #dd9d90,
-    #d99890,
-    #d49391,
-    #ce8e92,
-    #c78992,
-    #bf8492,
-    #b78092
-  ); */
   /* https://stackoverflow.com/questions/206652/how-to-create-div-to-fill-all-space-between-header-and-footer-div */
   display: grid;
   /* let content auto to occupy remaining height and pass value in fit-content with min-height for header and footer */
