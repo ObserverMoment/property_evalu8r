@@ -2,9 +2,11 @@ import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import {
   LikesByProperty,
+  NoteCountByProperty,
   Project,
   Property,
-  UserLikesDislikesInProperties,
+  UserLikesInProperty,
+  UserNotesCountInProperty,
   UserProfile,
 } from "../../types/types";
 import {
@@ -59,6 +61,8 @@ export function PropertyList({
   const [projectProperties, setProjectProperties] = useState<Property[]>([]);
   /// Object indexed by property ID which contains user profiles of users who have liked / disliked the property.
   const [likesByProperty, setLikesByProperty] = useState<LikesByProperty>({});
+  const [notesCountByProperty, setNotesCountByProperty] =
+    useState<NoteCountByProperty>({});
 
   // Sort, search and filter
   const [searchText, setSearchText] = useState<string>("");
@@ -86,28 +90,44 @@ export function PropertyList({
         const { data: projectProperties, error: propertiesError } =
           await getProjectPropertyData(activeProject.id);
 
-        const { data: projectLikes, error: projectLikesError } =
+        const { data: projectLikesNotes, error: projectLikesNotesError } =
           await getProjectLikes(activeProject.id);
 
-        if (propertiesError || projectLikesError) {
+        if (propertiesError || projectLikesNotesError) {
           console.error(propertiesError);
-          console.error(projectLikesError);
+          console.error(projectLikesNotesError);
           throw new Error("Problem initialising data");
         }
 
-        const likesDislikesByProperty = projectLikes.reduce<LikesByProperty>(
-          (acum, next) => {
-            acum[next.id] =
-              (next.user_likes_properties as UserLikesDislikesInProperties[])!.flatMap(
+        const likesDislikesByProperty =
+          projectLikesNotes.reduce<LikesByProperty>((acum, nextProperty) => {
+            acum[nextProperty.id] =
+              (nextProperty.user_likes_properties as UserLikesInProperty[])!.flatMap(
                 (ulp) => ulp.user_profiles
               );
             return acum;
-          },
-          {}
-        );
+          }, {});
+
+        const noteCountByProperty =
+          projectLikesNotes.reduce<NoteCountByProperty>(
+            (acum, nextProperty) => {
+              acum[nextProperty.id] =
+                // Count object will be the first and only object returned under user_property_notes.
+                (
+                  (nextProperty.user_property_notes as any[]).at(
+                    0
+                  ) as UserNotesCountInProperty
+                ).count;
+              return acum;
+            },
+            {}
+          );
+
+        console.log(noteCountByProperty);
 
         setProjectProperties(projectProperties!);
         setLikesByProperty(likesDislikesByProperty);
+        setNotesCountByProperty(noteCountByProperty);
       } catch (e: any) {
         messageApi.error("Problem initialising data");
         console.log(e.toString());
@@ -291,6 +311,7 @@ export function PropertyList({
               likes={likesByProperty[p.id]}
               handleAddPropertyLike={handleAddPropertyLike}
               handleRemovePropertyLike={handleRemovePropertyLike}
+              noteCount={notesCountByProperty[p.id]}
               authedUserId={authedUserProfile.id}
             />
           </div>

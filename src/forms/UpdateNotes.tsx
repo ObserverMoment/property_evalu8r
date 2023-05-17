@@ -45,8 +45,8 @@ function UpdateNotes({
         data,
         error,
         messageApi,
-        onSuccess(data) {
-          setNotes(data);
+        onSuccess() {
+          setNotes(data as PropertyNoteWithAuthor[]);
           setNewNoteText("");
         },
       });
@@ -65,8 +65,8 @@ function UpdateNotes({
         data,
         error,
         messageApi,
-        onSuccess(data) {
-          setNotes([data.at(0), ...notes]);
+        onSuccess() {
+          setNotes([data as PropertyNoteWithAuthor, ...notes]);
           setNewNoteText("");
         },
       });
