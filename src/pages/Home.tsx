@@ -10,7 +10,6 @@ import {
 import { PropertyList } from "../components/propertyList/PropertyList";
 import { HomeContent, MySpacer, PageHeader } from "../components/styled/layout";
 import { Header1, MyCard, SecondaryButton } from "../components/styled/styled";
-import { message } from "antd";
 import { AccountSettingsMenu } from "../components/accountSettingsMenu/AccountSettingsMenu";
 import styled from "@emotion/styled";
 import { MyTheme } from "../components/styled/theme";
@@ -19,17 +18,14 @@ import { ResponsiveDrawer } from "../components/styled/drawer";
 import CreateNewProject from "../forms/project/CreateNewProject";
 import { PlusOutlined, UsergroupAddOutlined } from "@ant-design/icons";
 import JoinExistingProject from "../forms/project/JoinExistingProject";
+import { MessageInstance } from "antd/es/message/interface";
 
-function Home({
-  signOut,
-  authedUserId,
-}: {
+interface HomeProps {
   signOut: () => void;
-  authedUserId: string;
-}) {
-  // Ant Design message hook.
-  const [messageApi, contextHolder] = message.useMessage();
+  messageApi: MessageInstance;
+}
 
+function Home({ signOut, messageApi }: HomeProps) {
   // Simple drawers where user can create new project or joing existing project.
   const [openCreateNewProject, setOpenCreateNewProject] = useState(false);
   const [openJoinExistingProject, setOpenJoinExistingProject] = useState(false);
@@ -50,15 +46,15 @@ function Home({
         const { data: projects, error: projectsError } = await getProjects();
 
         if (userProfileError || projectsError) {
-          console.log(userProfileError);
-          console.log(projectsError);
+          console.error(userProfileError);
+          console.error(projectsError);
           throw new Error("Problem initialising data");
         }
         setAuthedUserProfile(userProfile!);
         setUserProjects(projects!);
       } catch (e: any) {
         messageApi.error("Problem initialising data");
-        console.log(e.toString());
+        console.error(e.toString());
       }
     };
     getInitialData();
@@ -106,7 +102,6 @@ function Home({
 
   return (
     <HomeContent>
-      {contextHolder}
       <PageHeader>
         <Header1>Property Evalu8r</Header1>
 

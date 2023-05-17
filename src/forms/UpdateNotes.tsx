@@ -66,7 +66,7 @@ function UpdateNotes({
         error,
         messageApi,
         onSuccess() {
-          setNotes([data as PropertyNoteWithAuthor, ...notes]);
+          setNotes((prev) => [data as PropertyNoteWithAuthor, ...prev]);
           setNewNoteText("");
         },
       });
@@ -91,7 +91,7 @@ function UpdateNotes({
           messageApi: messageApi,
           type: "success",
         });
-        setNotes(notes.filter((n) => n.id !== note.id));
+        setNotes((prev) => prev.filter((n) => n.id !== note.id));
       }
     }
   };

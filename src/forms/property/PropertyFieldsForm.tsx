@@ -128,7 +128,6 @@ interface MyFormItemProps {
 const MyFormItem = ({
   fieldKey,
   formState,
-  hasError = false,
   children,
 }: PropsWithChildren<MyFormItemProps>) => (
   <MyFormItemContainer key={fieldKey}>

@@ -51,7 +51,7 @@ function UpdateProperty({
       closeDrawer(data);
     } else {
       messageApi.error("Something went wrong...");
-      console.log(error);
+      console.error(error);
     }
   };
 
