@@ -20,15 +20,25 @@ export type LikesByProperty = {
   [id: number]: UserProfile[];
 };
 
-export type UserLikesDislikesInProperties = {
+export type NoteCountByProperty = {
+  [id: number]: number;
+};
+
+/// Shape of [user_likes_properties] field of property when data successfully returned from [getProjectLikes]
+export type UserLikesInProperty = {
   user_profiles: UserProfile[];
+};
+
+/// Shape of [user_property_notes] field of property when data successfully returned from [getProjectLikes]
+export type UserNotesCountInProperty = {
+  count: number;
 };
 
 export type PropertyNoteWithAuthor = {
   [s: string]: any;
   id: string;
   note: string;
-  created_at: Date;
+  created_at: string;
   user_id: {
     id: string | null;
     username: string | null;

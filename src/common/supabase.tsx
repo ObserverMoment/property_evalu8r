@@ -36,7 +36,7 @@ interface CheckSupabaseApiResponseProps {
   data: any | any[] | null;
   error: PostgrestError | null;
   messageApi: MessageInstance;
-  onSuccess: (data: any[]) => void;
+  onSuccess: () => void;
 }
 
 export const checkSupabaseApiResponse = ({
@@ -47,12 +47,12 @@ export const checkSupabaseApiResponse = ({
 }: CheckSupabaseApiResponseProps): void => {
   if (error) {
     messageApi.error("Something went wrong...");
-    console.log(error.message);
+    console.error(error.message);
   } else if (!data) {
     messageApi.error("Something went wrong...");
-    console.log("There was not data returned.");
+    console.error("There was not data returned.");
   } else {
-    onSuccess(data);
+    onSuccess();
   }
 };
 
@@ -160,7 +160,8 @@ export const getProjectLikes = async (projectId: number) =>
         id,
         username
       )
-    )
+    ),
+    user_property_notes(count)
     `
     )
     .eq("project_id", projectId);

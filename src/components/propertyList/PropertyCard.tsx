@@ -18,6 +18,7 @@ interface PropertyCardProps {
   likes: UserProfile[];
   handleAddPropertyLike: (pId: number) => void;
   handleRemovePropertyLike: (pId: number) => void;
+  noteCount: number;
   authedUserId: string;
 }
 
@@ -30,6 +31,7 @@ export function PropertyCard({
   likes,
   handleAddPropertyLike,
   handleRemovePropertyLike,
+  noteCount,
   authedUserId,
 }: PropertyCardProps) {
   const deviceSize = useMediaSize();
@@ -60,6 +62,7 @@ export function PropertyCard({
           handleRequestUpdate={() => openUpdateProperty(property)}
           handleRequestDelete={() => handleRequestDeleteProperty(property)}
           handleRequestNoteUpdate={() => handleRequestNoteUpdate(property)}
+          noteCount={noteCount}
         />
       </FlexRow>
     );
@@ -75,6 +78,7 @@ export function PropertyCard({
     <PropertyCardFieldsDisplay property={property} />
   );
 
+  /// Begin JSX Render ///
   return deviceSize === "large" ? (
     <MyCard>
       <FlexRow
