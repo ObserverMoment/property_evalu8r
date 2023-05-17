@@ -9,6 +9,7 @@ import {
   PageLayout,
 } from "./components/styled/layout";
 
+import cityArtSvg from "./assets/city_art.svg";
 import { MyTheme } from "./components/styled/theme";
 import { message } from "antd";
 
@@ -33,7 +34,7 @@ function App() {
   return (
     <PageLayout>
       {contextHolder}
-      <PageContent>
+      <PageContent style={{ backgroundImage: `url(${cityArtSvg})` }}>
         {!session ? (
           <Auth messageApi={messageApi} />
         ) : (
