@@ -7,17 +7,17 @@
     "@chakra-ui/react": "^2.6.1",
     "@emotion/react": "^11.11.0",
     "@emotion/styled": "^11.11.0",
-    "@supabase/supabase-js": "^2.21.0",
+    "@supabase/supabase-js": "^2.22.0",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^14.0.0",
     "@testing-library/user-event": "^14.4.3",
     "@types/jest": "^29.5.1",
-    "@types/node": "^18.16.3",
-    "@types/react": "^18.2.2",
-    "@types/react-dom": "^18.2.3",
-    "antd": "^5.4.6",
+    "@types/node": "^20.1.7",
+    "@types/react": "^18.2.6",
+    "@types/react-dom": "^18.2.4",
+    "antd": "^5.5.0",
     "email-validator": "^2.0.4",
-    "framer-motion": "^10.12.8",
+    "framer-motion": "^10.12.12",
     "moment": "^2.29.4",
     "moment-timezone": "^0.5.43",
     "npm": "^9.6.6",
@@ -25,7 +25,7 @@
     "react-dom": "^18.2.0",
     "react-moment": "^1.1.3",
     "react-scripts": "^5.0.1",
-    "react-svg": "^16.1.10",
+    "react-svg": "^16.1.12",
     "typescript": "^5.0.4",
     "web-vitals": "^3.3.1"
   },
@@ -60,6 +60,6 @@
     ]
   },
   "devDependencies": {
-    "supabase": "^1.54.0"
+    "supabase": "^1.61.2"
   }
 }
