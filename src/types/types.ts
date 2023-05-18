@@ -2,6 +2,11 @@ import { Database } from "./__database.types__";
 
 export type DeviceSize = "small" | "medium" | "large";
 
+export interface SelectInputOption {
+  label: string;
+  value: string;
+}
+
 export type UserProfile = {
   [s: string]: any;
 } & Database["public"]["Tables"]["user_profiles"]["Row"];

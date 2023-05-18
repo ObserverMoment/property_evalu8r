@@ -5,6 +5,7 @@ import {
   NoteCountByProperty,
   Project,
   Property,
+  SelectInputOption,
   UserLikesInProperty,
   UserNotesCountInProperty,
   UserProfile,
@@ -15,7 +16,7 @@ import {
 } from "../../common/propertyUtils";
 import moment from "moment";
 import { PropertyCard } from "./PropertyCard";
-import SortingFilters, { ShowTypeEnum, SortByEnum } from "./SortingFilters";
+import SortingFilters, { SortByEnum } from "./SortingFilters";
 import { Empty, Spin } from "antd";
 import {
   addPropertyLike,
@@ -45,6 +46,14 @@ interface PropertyListProps {
   messageApi: MessageInstance;
 }
 
+/// Constants
+const STANDARD_SHOW_TYPES = [
+  { value: "all", label: "All" },
+  { value: "completed", label: "Completed" },
+  { value: "awaitingInfo", label: "Awaiting Info" },
+];
+const SHOW_USER_LIKES_PREFIX_STRING = "Liked by ";
+
 export function PropertyList({
   activeProject,
   authedUserProfile,
@@ -66,7 +75,11 @@ export function PropertyList({
 
   // Sort, search and filter
   const [searchText, setSearchText] = useState<string>("");
-  const [showType, setShowType] = useState<ShowTypeEnum>("all");
+  // User can filter by property data status or by other project member likes. The likes are formed programatically and added to this list.
+
+  const [showTypeOptions, setShowTypeOptions] =
+    useState<SelectInputOption[]>(STANDARD_SHOW_TYPES);
+  const [showTypeValue, setShowTypeValue] = useState<string>("all");
   const [sortBy, setSortBy] = useState<SortByEnum>("recentlyAdded");
 
   // Panel control state
@@ -99,15 +112,18 @@ export function PropertyList({
           throw new Error("Problem initialising data");
         }
 
-        const likesDislikesByProperty =
-          projectLikesNotes.reduce<LikesByProperty>((acum, nextProperty) => {
+        const likesByProperty = projectLikesNotes.reduce<LikesByProperty>(
+          (acum, nextProperty) => {
             acum[nextProperty.id] =
               (nextProperty.user_likes_properties as UserLikesInProperty[])!.flatMap(
                 (ulp) => ulp.user_profiles
               );
             return acum;
-          }, {});
+          },
+          {}
+        );
 
+        /// Used for displaying a badge style number count on the "notes" button for each property.
         const noteCountByProperty =
           projectLikesNotes.reduce<NoteCountByProperty>(
             (acum, nextProperty) => {
@@ -124,7 +140,7 @@ export function PropertyList({
           );
 
         setProjectProperties(projectProperties!);
-        setLikesByProperty(likesDislikesByProperty);
+        setLikesByProperty(likesByProperty);
         setNotesCountByProperty(noteCountByProperty);
       } catch (e: any) {
         messageApi.error("Problem initialising data");
@@ -134,6 +150,27 @@ export function PropertyList({
     };
     getInitialData();
   }, [messageApi, activeProject.id]);
+
+  /// Whenever [likesByProperty] is updated re-run and update the show type filters (with the correct options for seeing project member likes)
+  useEffect(() => {
+    const projectMembersWithLikes = Object.values(likesByProperty).reduce<
+      UserProfile[]
+    >((acum, next) => {
+      const uniqueUserProfiles = next.filter((up) =>
+        acum.every((u) => up.id !== u.id)
+      );
+      return [...acum, ...uniqueUserProfiles];
+    }, []);
+
+    setShowTypeOptions(
+      STANDARD_SHOW_TYPES.concat(
+        projectMembersWithLikes.map((m) => ({
+          label: `${SHOW_USER_LIKES_PREFIX_STRING}${m.username}`,
+          value: m.id,
+        }))
+      )
+    );
+  }, [likesByProperty]);
 
   /// Data CRUD
   /// Create New Property
@@ -235,6 +272,23 @@ export function PropertyList({
   /// Process data for display
   const propertyScores = calculateAllPropertyScores(projectProperties);
 
+  /// Search and sorting methods. Run text search first as this is likely to exclude the most.
+  const textSearchFilterProperties = (properties: Property[]) =>
+    properties.filter((p) =>
+      p.listing_title?.toLowerCase().includes(searchText.toLowerCase())
+    );
+
+  const filterPropertiesByCategoryOrLikes = (properties: Property[]) =>
+    showTypeValue === "completed"
+      ? checkPropertyCompleteInfo(properties).completed
+      : showTypeValue === "awaitingInfo"
+      ? checkPropertyCompleteInfo(properties).awaitingInfo
+      : showTypeValue.length === 36 // Users UID length in characters
+      ? properties.filter((p) =>
+          likesByProperty[p.id].some((u) => u.id === showTypeValue)
+        )
+      : properties;
+
   const sortProperties = (properties: Property[]) =>
     properties.sort((a, b) => {
       if (sortBy === "highestScore") {
@@ -255,22 +309,11 @@ export function PropertyList({
       }
     });
 
-  const searchFiltered = [...projectProperties].filter((p) =>
-    p.listing_title?.toLowerCase().includes(searchText.toLowerCase())
+  const filteredSortedProperties = sortProperties(
+    filterPropertiesByCategoryOrLikes(
+      textSearchFilterProperties(projectProperties)
+    )
   );
-
-  const typeFiltered =
-    showType === "completed"
-      ? checkPropertyCompleteInfo(searchFiltered).completed
-      : showType === "awaitingInfo"
-      ? checkPropertyCompleteInfo(searchFiltered).awaitingInfo
-      : showType === "likes"
-      ? searchFiltered.filter((p) =>
-          likesByProperty[p.id].some((u) => u.id === authedUserProfile.id)
-        )
-      : searchFiltered;
-
-  const sortedProperties = sortProperties(typeFiltered);
 
   if (loadingProperties) {
     return <Spin size="small" />;
@@ -285,7 +328,7 @@ export function PropertyList({
           paddingBottom: "8px",
         }}
       >
-        Showing {sortedProperties.length} properties
+        Showing {filteredSortedProperties.length} properties
       </div>
       {deviceSize !== "large" && (
         <AddPropertyButton setOpenAddPanel={setOpenAddPanel} />
@@ -295,18 +338,19 @@ export function PropertyList({
         <SortingFilters
           searchText={searchText}
           setSearchText={setSearchText}
-          showType={showType}
-          setShowType={setShowType}
+          showType={showTypeValue}
+          setShowType={setShowTypeValue}
           sortBy={sortBy}
           setSortBy={setSortBy}
+          showTypeOptions={showTypeOptions}
         />
         {deviceSize === "large" && (
           <AddPropertyButton setOpenAddPanel={setOpenAddPanel} />
         )}
       </FlexRow>
 
-      {sortedProperties.length > 0 ? (
-        sortedProperties.map((p) => (
+      {filteredSortedProperties.length > 0 ? (
+        filteredSortedProperties.map((p) => (
           <div key={p.id} style={{ marginBottom: "8px" }}>
             <PropertyCard
               key={p.id}
