@@ -1,6 +1,6 @@
 {
   "name": "property_evalu8r",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "dependencies": {
     "@chakra-ui/icons": "^2.0.19",
