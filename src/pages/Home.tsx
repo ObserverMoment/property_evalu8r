@@ -14,7 +14,7 @@ import { AccountSettingsMenu } from "../components/accountSettingsMenu/AccountSe
 import styled from "@emotion/styled";
 import { MyTheme } from "../components/styled/theme";
 import { showErrorMessage } from "../common/notifications";
-import { ResponsiveDrawer } from "../components/styled/temp/Drawer";
+import { ResponsiveDrawer } from "../components/styled/Drawer";
 import CreateNewProject from "../forms/project/CreateNewProject";
 import { PlusOutlined, UsergroupAddOutlined } from "@ant-design/icons";
 import JoinExistingProject from "../forms/project/JoinExistingProject";
