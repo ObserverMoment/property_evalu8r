@@ -101,7 +101,9 @@ export const AccesscodeInput = ({
 
   return (
     <AccessCodeInputContainer>
-      <div style={{ color: MyTheme.colors.primary }}>Enter access code</div>
+      <div style={{ color: MyTheme.colors.primary }}>
+        Enter the code we sent to your email
+      </div>
       <div style={{ color: MyTheme.colors.primary, fontSize: "0.9em" }}>
         (You can copy and paste!)
       </div>

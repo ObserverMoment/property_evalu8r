@@ -27,8 +27,8 @@ import {
 import { useMediaSize } from "../../common/useMediaSize";
 import { MessageInstance } from "antd/es/message/interface";
 import { mapReplaceArray } from "../../common/utils";
-import { MyModal } from "../styled/modal";
-import { ResponsiveDrawer } from "../styled/drawer";
+import { MyModal } from "../styled/Modal";
+import { ResponsiveDrawer } from "../styled/Drawer";
 import UpdateNotes from "../../forms/UpdateNotes";
 import UpdateProperty from "../../forms/property/UpdateProperty";
 import AddNewProperty from "../../forms/property/AddNewProperty";
@@ -278,7 +278,13 @@ export function PropertyList({
 
   return (
     <PropertyListContainer>
-      <div style={{ color: MyTheme.colors.primary, fontSize: "0.8em" }}>
+      <div
+        style={{
+          color: MyTheme.colors.primary,
+          fontSize: "0.8em",
+          paddingBottom: "8px",
+        }}
+      >
         Showing {sortedProperties.length} properties
       </div>
       {deviceSize !== "large" && (
