@@ -27,7 +27,8 @@
     "react-scripts": "^5.0.1",
     "react-svg": "^16.1.12",
     "typescript": "^5.0.4",
-    "web-vitals": "^3.3.1"
+    "web-vitals": "^3.3.1",
+    "webpack": "^5.83.1"
   },
   "overrides": {
     "react-scripts": {
