@@ -1,5 +1,5 @@
 import { PropsWithChildren } from "react";
-import { useMediaSize } from "../../common/useMediaSize";
+import { useMediaSize } from "../../../common/useMediaSize";
 import { Drawer } from "antd";
 
 interface ResponsiveDrawerProps {

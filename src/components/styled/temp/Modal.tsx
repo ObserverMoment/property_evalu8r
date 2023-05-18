@@ -8,10 +8,10 @@ import {
   ModalCloseButton,
   Flex,
 } from "@chakra-ui/react";
-import { PrimaryButton, SecondaryButton } from "./styled";
+import { PrimaryButton, SecondaryButton } from "../styled";
 import { ReactNode } from "react";
-import { MySpacer } from "./layout";
-import { MyTheme } from "./theme";
+import { MySpacer } from "../layout";
+import { MyTheme } from "../theme";
 
 interface MyModalProps {
   onConfirm: () => void;
