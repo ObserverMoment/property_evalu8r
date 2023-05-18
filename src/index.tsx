@@ -25,12 +25,26 @@ root.render(
         <ConfigProvider
           theme={{
             token: {
-              borderRadius: 30,
+              borderRadius: 8,
               colorBgBase: MyTheme.colors.background,
               colorPrimary: MyTheme.colors.primary,
               colorText: MyTheme.colors.text,
-              colorBorder: MyTheme.colors.border,
               colorTextPlaceholder: MyTheme.colors.border,
+              colorBorder: "none",
+            },
+            components: {
+              Input: {
+                colorBgContainer: MyTheme.colors.primary,
+              },
+              InputNumber: {
+                colorBgContainer: MyTheme.colors.primary,
+              },
+              Select: {
+                colorBgContainer: MyTheme.colors.primary,
+              },
+              Radio: {
+                colorBgContainer: MyTheme.colors.background,
+              },
             },
           }}
         >

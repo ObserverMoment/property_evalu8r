@@ -97,7 +97,6 @@ function SortingFilters({
 }
 
 const SortingFiltersContainer = styled.div<{ deviceSize: DeviceSize }>`
-  padding: 0 8px 8px 8px;
   margin: 12px;
   border-radius: 8px;
   display: flex;

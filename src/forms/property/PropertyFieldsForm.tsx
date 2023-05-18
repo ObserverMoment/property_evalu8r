@@ -1,4 +1,4 @@
-import { Form, Input, InputNumber, Radio, Space, Typography } from "antd";
+import { Form, Input, InputNumber, Space, Typography } from "antd";
 import {
   propertyFieldDefs,
   propertyNumberInputConfig,
@@ -9,6 +9,7 @@ import { PropsWithChildren } from "react";
 import { FlexRow, MySpacer } from "../../components/styled/layout";
 import { PrimaryButton, SecondaryButton } from "../../components/styled/styled";
 import styled from "@emotion/styled";
+import { RadioSelectGroup } from "../../components/styled/RadioSelectGroup";
 
 const { Title } = Typography;
 
@@ -35,9 +36,10 @@ function PropertyFieldsForm({
     { label: "Great", value: "Great" },
   ];
 
+  /// Can only receive strings from radio checkbox.
   const boolOptions = [
-    { label: "Yes", value: true },
-    { label: "No", value: false },
+    { label: "Yes", value: "true" },
+    { label: "No", value: "false" },
   ];
 
   return (
@@ -94,24 +96,24 @@ function PropertyFieldsForm({
 
       {propertyFieldDefs.qualityEnumFields.map((k) => (
         <MyFormItem key={k} formState={formState} fieldKey={k}>
-          <Radio.Group
+          <RadioSelectGroup
             options={enumOptions}
-            onChange={(e) => formState[k].setValue(e.target.value)}
-            value={formState[k].value}
-            optionType="button"
-            size="small"
+            groupName={k}
+            selectedValue={formState[k].value}
+            onChange={(v) => formState[k].setValue(v)}
           />
         </MyFormItem>
       ))}
 
       {propertyFieldDefs.boolFields.map((k) => (
         <MyFormItem key={k} formState={formState} fieldKey={k}>
-          <Radio.Group
+          <RadioSelectGroup
             options={boolOptions}
-            onChange={(e) => formState[k].setValue(e.target.value)}
-            value={formState[k].value}
-            optionType="button"
-            size="small"
+            groupName={k}
+            selectedValue={formState[k].value === true ? "true" : "false"}
+            onChange={(v) => {
+              formState[k].setValue(v === "true" ? true : false);
+            }}
           />
         </MyFormItem>
       ))}
