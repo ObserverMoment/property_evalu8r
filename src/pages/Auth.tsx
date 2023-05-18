@@ -7,7 +7,7 @@ import { Header1, PrimaryButton } from "../components/styled/styled";
 import { Text } from "@chakra-ui/react";
 import { ReactSVG } from "react-svg";
 import { MessageInstance } from "antd/es/message/interface";
-import { AccesscodeInput } from "../components/AccessCodeInput";
+// import { AccesscodeInput } from "../components/AccessCodeInput";
 
 interface AuthProps {
   messageApi: MessageInstance;
@@ -110,12 +110,12 @@ function Auth({ messageApi }: AuthProps) {
         </Form.Item>
       </Form>
 
-      {otpSent && (
+      {/* {otpSent && (
         <AccesscodeInput
           handleSubmitAccessCode={handleSubmitAccessCode}
           loadingSubmitCode={loadingSubmitCode}
         />
-      )}
+      )} */}
     </>
   );
 }
