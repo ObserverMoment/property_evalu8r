@@ -27,8 +27,8 @@ import {
 import { useMediaSize } from "../../common/useMediaSize";
 import { MessageInstance } from "antd/es/message/interface";
 import { mapReplaceArray } from "../../common/utils";
-import { MyModal } from "../styled/Modal";
-import { ResponsiveDrawer } from "../styled/Drawer";
+import { MyModal } from "../styled/temp/Modal";
+import { ResponsiveDrawer } from "../styled/temp/Drawer";
 import UpdateNotes from "../../forms/UpdateNotes";
 import UpdateProperty from "../../forms/property/UpdateProperty";
 import AddNewProperty from "../../forms/property/AddNewProperty";
