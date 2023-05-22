@@ -36,6 +36,8 @@ const STANDARD_SHOW_TYPES = [
   { value: "all", label: "All" },
   { value: "completed", label: "Completed" },
   { value: "awaitingInfo", label: "Awaiting Info" },
+  { value: "viewingBooked", label: "Viewing Booked" },
+  { value: "offerMade", label: "Offer Made" },
 ];
 const SHOW_USER_LIKES_PREFIX_STRING = "Liked by ";
 
@@ -158,6 +160,10 @@ export function PropertyList({
       ? checkPropertyCompleteInfo(properties).completed
       : showTypeValue === "awaitingInfo"
       ? checkPropertyCompleteInfo(properties).awaitingInfo
+      : showTypeValue === "viewingBooked"
+      ? properties.filter((p) => p.view_date)
+      : showTypeValue === "offerMade"
+      ? properties.filter((p) => p.offered)
       : showTypeValue.length === 36 // Users UID length in characters
       ? properties.filter((p) =>
           likesByProperty[p.id].some((u) => u.id === showTypeValue)

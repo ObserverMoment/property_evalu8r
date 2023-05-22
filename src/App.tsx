@@ -8,7 +8,6 @@ import {
   PageFooter,
   PageLayout,
 } from "./components/styled/layout";
-
 import cityArtSvg from "./assets/city_art.svg";
 import { MyTheme } from "./components/styled/theme";
 import { message } from "antd";
