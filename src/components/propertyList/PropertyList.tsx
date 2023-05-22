@@ -1,33 +1,18 @@
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import {
-  LikesByProperty,
-  NoteCountByProperty,
   Project,
   Property,
   SelectInputOption,
-  UserLikesInProperty,
-  UserNotesCountInProperty,
   UserProfile,
 } from "../../types/types";
-import {
-  calculateAllPropertyScores,
-  checkPropertyCompleteInfo,
-} from "../../common/propertyUtils";
+import { checkPropertyCompleteInfo } from "../../common/propertyUtils";
 import moment from "moment";
 import { PropertyCard } from "./PropertyCard";
 import SortingFilters, { SortByEnum } from "./SortingFilters";
 import { Empty, Spin } from "antd";
-import {
-  addPropertyLike,
-  deleteProperty,
-  deletePropertyLike,
-  getProjectLikes,
-  getProjectPropertyData,
-} from "../../common/supabase";
 import { useMediaSize } from "../../common/useMediaSize";
 import { MessageInstance } from "antd/es/message/interface";
-import { mapReplaceArray } from "../../common/utils";
 import { MyModal } from "../styled/Modal";
 import { ResponsiveDrawer } from "../styled/Drawer";
 import UpdateNotes from "../../forms/UpdateNotes";
@@ -35,10 +20,10 @@ import UpdateProperty from "../../forms/property/UpdateProperty";
 import AddNewProperty from "../../forms/property/AddNewProperty";
 import { WarningTwoIcon } from "@chakra-ui/icons";
 import { useDisclosure } from "@chakra-ui/react";
-import { showErrorMessage, showMessage } from "../../common/notifications";
 import { FlexRow, MySpacer } from "../styled/layout";
 import { MyTheme } from "../styled/theme";
 import { PlusOutlined } from "@ant-design/icons";
+import { usePropertiesStore } from "../../common/stores/propertiesStore";
 
 interface PropertyListProps {
   activeProject: Project;
@@ -59,19 +44,18 @@ export function PropertyList({
   authedUserProfile,
   messageApi,
 }: PropertyListProps) {
+  const {
+    api,
+    properties,
+    propertyScores,
+    likesByProperty,
+    noteCountByProperty,
+    isLoading,
+  } = usePropertiesStore();
   const deviceSize = useMediaSize();
 
   // ChakraUI modal hook.
   const { isOpen, onOpen, onClose } = useDisclosure();
-
-  // Core property data
-  /// Property Data
-  const [loadingProperties, setLoadingProperties] = useState(true);
-  const [projectProperties, setProjectProperties] = useState<Property[]>([]);
-  /// Object indexed by property ID which contains user profiles of users who have liked / disliked the property.
-  const [likesByProperty, setLikesByProperty] = useState<LikesByProperty>({});
-  const [notesCountByProperty, setNotesCountByProperty] =
-    useState<NoteCountByProperty>({});
 
   // Sort, search and filter
   const [searchText, setSearchText] = useState<string>("");
@@ -96,60 +80,11 @@ export function PropertyList({
     useState<Property | null>(null);
 
   // Get new property data whenever active property changes
+  const { getInitialProjectData } = api;
   useEffect(() => {
-    const getInitialData = async () => {
-      setLoadingProperties(true);
-      try {
-        const { data: projectProperties, error: propertiesError } =
-          await getProjectPropertyData(activeProject.id);
-
-        const { data: projectLikesNotes, error: projectLikesNotesError } =
-          await getProjectLikes(activeProject.id);
-
-        if (propertiesError || projectLikesNotesError) {
-          console.error(propertiesError);
-          console.error(projectLikesNotesError);
-          throw new Error("Problem initialising data");
-        }
-
-        const likesByProperty = projectLikesNotes.reduce<LikesByProperty>(
-          (acum, nextProperty) => {
-            acum[nextProperty.id] =
-              (nextProperty.user_likes_properties as UserLikesInProperty[])!.flatMap(
-                (ulp) => ulp.user_profiles
-              );
-            return acum;
-          },
-          {}
-        );
-
-        /// Used for displaying a badge style number count on the "notes" button for each property.
-        const noteCountByProperty =
-          projectLikesNotes.reduce<NoteCountByProperty>(
-            (acum, nextProperty) => {
-              acum[nextProperty.id] =
-                // Count object will be the first and only object returned under user_property_notes.
-                (
-                  (nextProperty.user_property_notes as any[]).at(
-                    0
-                  ) as UserNotesCountInProperty
-                ).count;
-              return acum;
-            },
-            {}
-          );
-
-        setProjectProperties(projectProperties!);
-        setLikesByProperty(likesByProperty);
-        setNotesCountByProperty(noteCountByProperty);
-      } catch (e: any) {
-        messageApi.error("Problem initialising data");
-        console.error(e.toString());
-      }
-      setLoadingProperties(false);
-    };
-    getInitialData();
-  }, [messageApi, activeProject.id]);
+    getInitialProjectData(activeProject.id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeProject.id]);
 
   /// Whenever [likesByProperty] is updated re-run and update the show type filters (with the correct options for seeing project member likes)
   useEffect(() => {
@@ -172,29 +107,10 @@ export function PropertyList({
     );
   }, [likesByProperty]);
 
-  /// Data CRUD
-  /// Create New Property
-  const handleSaveProperty = (data: Property | undefined) => {
-    if (data) {
-      setProjectProperties((prev) => [data, ...prev]);
-    }
-    setOpenAddPanel(false);
-  };
-
   /// Update Property
   const handleOpenUpdateProperty = (p: Property) => {
     setPropertyToUpdate(p);
     setOpenUpdatePanel(true);
-  };
-
-  const handleCloseUpdateProperty = (data: Property | undefined) => {
-    setPropertyToUpdate(null);
-    setOpenUpdatePanel(false);
-    if (data) {
-      setProjectProperties((prev) =>
-        mapReplaceArray({ modified: data, previous: prev })
-      );
-    }
   };
 
   /// Update Notes
@@ -203,74 +119,33 @@ export function PropertyList({
     setOpenNotesPanel(true);
   };
 
+  /// Like / Unlike
+  const handleAddPropertyLike = async (propertyId: number) => {
+    await api.addPropertyLike(propertyId);
+  };
+
+  const handleRemovePropertyLike = async (propertyId: number) => {
+    await api.removePropertyLike(propertyId);
+  };
+
   /// Delete Property
   const handleRequestDeleteProperty = (data: Property) => {
     setPropertyToBeDeleted(data);
     onOpen();
   };
 
-  const handleDeleteProperty = async () => {
+  const handleConfirmDeleteProperty = async () => {
     if (propertyToBeDeleted) {
-      const { error } = await deleteProperty(propertyToBeDeleted);
-      if (error) {
-        showErrorMessage({
-          messageApi: messageApi,
-        });
-      } else {
-        showMessage({
-          content: "Property deleted.",
-          messageApi: messageApi,
-          type: "success",
-        });
-        setProjectProperties((prev) =>
-          prev.filter((p) => p.id !== propertyToBeDeleted.id)
-        );
-      }
+      await api.deleteProperty(propertyToBeDeleted.id);
+      setPropertyToBeDeleted(null);
+      onClose();
     }
-    setPropertyToBeDeleted(null);
-    onClose();
   };
 
   const handleCancelDeleteProperty = () => {
     setPropertyToBeDeleted(null);
     onClose();
   };
-
-  /// Likes ///
-  const handleAddPropertyLike = async (propertyId: number) => {
-    const { error } = await addPropertyLike(propertyId);
-    if (error) {
-      showErrorMessage({
-        messageApi: messageApi,
-      });
-    } else {
-      setLikesByProperty((prev) => ({
-        ...prev,
-        [propertyId]: [...prev[propertyId], authedUserProfile],
-      }));
-    }
-  };
-
-  const handleRemovePropertyLike = async (propertyId: number) => {
-    const { error } = await deletePropertyLike(propertyId);
-    if (error) {
-      showMessage({
-        content: "Something went wrong...",
-        messageApi: messageApi,
-        type: "error",
-      });
-    } else {
-      setLikesByProperty((prev) => ({
-        ...prev,
-        [propertyId]: prev[propertyId].filter(
-          (u) => u.id !== authedUserProfile.id
-        ),
-      }));
-    }
-  };
-
-  /// Process data for display
-  const propertyScores = calculateAllPropertyScores(projectProperties);
 
   /// Search and sorting methods. Run text search first as this is likely to exclude the most.
   const textSearchFilterProperties = (properties: Property[]) =>
@@ -310,12 +185,10 @@ export function PropertyList({
     });
 
   const filteredSortedProperties = sortProperties(
-    filterPropertiesByCategoryOrLikes(
-      textSearchFilterProperties(projectProperties)
-    )
+    filterPropertiesByCategoryOrLikes(textSearchFilterProperties(properties))
   );
 
-  if (loadingProperties) {
+  if (isLoading) {
     return <Spin size="small" />;
   }
 
@@ -360,10 +233,10 @@ export function PropertyList({
               handleRequestDeleteProperty={handleRequestDeleteProperty}
               handleRequestNoteUpdate={() => handleOpenUpdateNotes(p)}
               likes={likesByProperty[p.id]}
+              noteCount={noteCountByProperty[p.id]}
+              authedUserId={authedUserProfile.id}
               handleAddPropertyLike={handleAddPropertyLike}
               handleRemovePropertyLike={handleRemovePropertyLike}
-              noteCount={notesCountByProperty[p.id]}
-              authedUserId={authedUserProfile.id}
             />
           </div>
         ))
@@ -386,8 +259,7 @@ export function PropertyList({
       >
         {openAddPanel && (
           <AddNewProperty
-            onSaveProperty={handleSaveProperty}
-            onCancel={() => setOpenAddPanel(false)}
+            onComplete={() => setOpenAddPanel(false)}
             messageApi={messageApi}
             activeProjectId={activeProject.id}
           />
@@ -403,10 +275,9 @@ export function PropertyList({
       >
         {propertyToUpdate && (
           <UpdateProperty
-            key={propertyToUpdate.id}
+            key={Date.now()}
             property={propertyToUpdate}
-            closeDrawer={handleCloseUpdateProperty}
-            messageApi={messageApi}
+            closeDrawer={() => setOpenUpdatePanel(false)}
           />
         )}
       </ResponsiveDrawer>
@@ -428,7 +299,7 @@ export function PropertyList({
       </ResponsiveDrawer>
 
       <MyModal
-        onConfirm={handleDeleteProperty}
+        onConfirm={handleConfirmDeleteProperty}
         onCancel={handleCancelDeleteProperty}
         onClose={onClose}
         title="Delete this property?"

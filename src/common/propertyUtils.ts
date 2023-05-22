@@ -1,5 +1,5 @@
 import { Database } from "../types/__database.types__";
-import { Property } from "../types/types";
+import { PropertyScores, Property, PropertyScore } from "../types/types";
 import { currencyFormat } from "./utils";
 
 export const propertyFieldDefs = {
@@ -201,18 +201,6 @@ export const scoreAlgorithmCalculationWeights: ScoreAlgorithmCalculationWeights 
     off_street_parking: 10000,
   };
 
-export interface PropertyScore {
-  propertyId: number;
-  cost: number;
-  points: number;
-  score: number; // points - cost
-  sqMtrCost: number | null;
-}
-
-export interface PropertScoresResult {
-  [key: number]: PropertyScore;
-}
-
 export const calculatePropertyScore = (property: Property): PropertyScore => {
   const inputKeys = Object.keys(scoreAlgorithmCalculationConfig);
   const costKeys = ["house_price", "sc_gr_annual"];
@@ -246,8 +234,8 @@ export const calculatePropertyScore = (property: Property): PropertyScore => {
 
 export const calculateAllPropertyScores = (
   properties: Property[]
-): PropertScoresResult =>
-  properties.reduce<PropertScoresResult>((acum, next) => {
+): PropertyScores =>
+  properties.reduce<PropertyScores>((acum, next) => {
     acum[next.id] = calculatePropertyScore(next);
     return acum;
   }, {});

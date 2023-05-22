@@ -21,6 +21,18 @@ export type Property = {
   [s: string]: any;
 } & Database["public"]["Tables"]["properties"]["Row"];
 
+export interface PropertyScores {
+  [key: number]: PropertyScore;
+}
+
+export interface PropertyScore {
+  propertyId: number;
+  cost: number;
+  points: number;
+  score: number; // points - cost
+  sqMtrCost: number | null;
+}
+
 export type LikesByProperty = {
   [id: number]: UserProfile[];
 };

@@ -27,7 +27,7 @@ root.render(
             token: {
               borderRadius: 8,
               colorBgBase: MyTheme.colors.background,
-              colorPrimary: MyTheme.colors.primary,
+              colorPrimary: MyTheme.colors.linkText,
               colorText: MyTheme.colors.text,
               colorTextPlaceholder: MyTheme.colors.border,
               colorBorder: "none",

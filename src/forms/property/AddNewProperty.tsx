@@ -1,7 +1,6 @@
 import React from "react";
 import { Property } from "../../types/types";
 import { useFormState } from "../useFormState";
-import { createProperty } from "../../common/supabase";
 import {
   propertyFieldDefs,
   propertyNumberInputConfig,
@@ -9,20 +8,17 @@ import {
 import PropertyFieldsForm from "./PropertyFieldsForm";
 import { convertToTitleCase } from "../../common/utils";
 import { MessageInstance } from "antd/es/message/interface";
+import { usePropertiesStore } from "../../common/stores/propertiesStore";
 
 interface AddNewPropertyProps {
-  onSaveProperty: (created?: Property) => void;
-  onCancel: () => void;
+  onComplete: () => void;
   messageApi: MessageInstance;
   activeProjectId: number;
 }
 
-function AddNewProperty({
-  onSaveProperty,
-  onCancel,
-  messageApi,
-  activeProjectId,
-}: AddNewPropertyProps) {
+function AddNewProperty({ onComplete, activeProjectId }: AddNewPropertyProps) {
+  const { api } = usePropertiesStore();
+
   const { formState, checkErrors, getObjectData } = useFormState<Property>([
     ...propertyFieldDefs.stringFields
       .concat(propertyFieldDefs.numberFields)
@@ -42,16 +38,9 @@ function AddNewProperty({
   ]);
 
   const handleSave = async () => {
-    const { data, error } = await createProperty(
-      getObjectData(),
-      activeProjectId
-    );
-    if (data && !error) {
-      messageApi.success("Property added");
-      onSaveProperty(data);
-    } else {
-      messageApi.error("Something went wrong...");
-      console.error(error);
+    const error = await api.createProperty(getObjectData(), activeProjectId);
+    if (!error) {
+      onComplete();
     }
   };
 
@@ -59,7 +48,7 @@ function AddNewProperty({
     <PropertyFieldsForm
       title="Add Property"
       formState={formState}
-      handleCancel={onCancel}
+      handleCancel={onComplete}
       handleSave={handleSave}
       saveBtnDisabled={!Object.values(checkErrors()).every((e) => e === true)}
     />

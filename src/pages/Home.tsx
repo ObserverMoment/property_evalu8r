@@ -19,6 +19,7 @@ import CreateNewProject from "../forms/project/CreateNewProject";
 import { PlusOutlined, UsergroupAddOutlined } from "@ant-design/icons";
 import JoinExistingProject from "../forms/project/JoinExistingProject";
 import { MessageInstance } from "antd/es/message/interface";
+import { PropertiesStoreProvider } from "../common/stores/propertiesStore";
 
 interface HomeProps {
   signOut: () => void;
@@ -119,89 +120,98 @@ function Home({ signOut, messageApi }: HomeProps) {
         )}
       </PageHeader>
 
-      {!activeProject ? (
-        <MyCard
-          style={{
-            alignItems: "center",
-            display: "flex",
-            flexDirection: "column",
-          }}
+      {authedUserProfile && (
+        <PropertiesStoreProvider
+          messageApi={messageApi}
+          authedUserProfile={authedUserProfile}
         >
-          <div>
-            {userProjects.length > 0 && <div>Select a project</div>}
-            <div
+          {!activeProject ? (
+            <MyCard
               style={{
+                alignItems: "center",
                 display: "flex",
-                justifyContent: "center",
                 flexDirection: "column",
               }}
             >
-              {userProjects.map((p) => (
-                <ProjectSelectButton
-                  key={p.id}
-                  onClick={() => setActiveProject(p)}
+              <div>
+                {userProjects.length > 0 && <div>Select a project</div>}
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    flexDirection: "column",
+                  }}
                 >
-                  {p.name}
-                </ProjectSelectButton>
-              ))}
-            </div>
-          </div>
-          <MySpacer height={12} />
-          <SecondaryButton
-            size="sm"
-            onClick={() => setOpenCreateNewProject(true)}
-          >
-            <PlusOutlined
-              style={{ fontSize: "16px", color: MyTheme.colors.secondary }}
+                  {userProjects.map((p) => (
+                    <ProjectSelectButton
+                      key={p.id}
+                      onClick={() => setActiveProject(p)}
+                    >
+                      {p.name}
+                    </ProjectSelectButton>
+                  ))}
+                </div>
+              </div>
+              <MySpacer height={12} />
+              <SecondaryButton
+                size="sm"
+                onClick={() => setOpenCreateNewProject(true)}
+              >
+                <PlusOutlined
+                  style={{ fontSize: "16px", color: MyTheme.colors.secondary }}
+                />
+                <MySpacer width={8} />
+                <div>
+                  {userProjects.length
+                    ? "Create a new project"
+                    : "Create your first project"}
+                </div>
+              </SecondaryButton>
+              <MySpacer height={12} />
+              <SecondaryButton
+                size="sm"
+                onClick={() => setOpenJoinExistingProject(true)}
+              >
+                <UsergroupAddOutlined
+                  style={{ fontSize: "16px", color: MyTheme.colors.secondary }}
+                />
+                <MySpacer width={8} />
+                <div>Join existing project</div>
+              </SecondaryButton>
+              <MySpacer height={12} />
+            </MyCard>
+          ) : (
+            <PropertyList
+              key={activeProject.id}
+              activeProject={activeProject}
+              authedUserProfile={authedUserProfile!}
+              messageApi={messageApi}
             />
-            <MySpacer width={8} />
-            <div>
-              {userProjects.length
-                ? "Create a new project"
-                : "Create your first project"}
-            </div>
-          </SecondaryButton>
-          <MySpacer height={12} />
-          <SecondaryButton
-            size="sm"
-            onClick={() => setOpenJoinExistingProject(true)}
+          )}
+
+          <ResponsiveDrawer
+            closable={true}
+            maskClosable={true}
+            onClose={() => setOpenCreateNewProject(false)}
+            open={openCreateNewProject}
+            drawerKey="Note"
           >
-            <UsergroupAddOutlined
-              style={{ fontSize: "16px", color: MyTheme.colors.secondary }}
+            <CreateNewProject createNewProject={handleCreateNewProject} />
+          </ResponsiveDrawer>
+
+          <ResponsiveDrawer
+            closable={true}
+            maskClosable={true}
+            onClose={() => setOpenJoinExistingProject(false)}
+            open={openJoinExistingProject}
+            drawerKey="Note"
+          >
+            <JoinExistingProject
+              joinExistingProject={handleJoinExistingProject}
             />
-            <MySpacer width={8} />
-            <div>Join existing project</div>
-          </SecondaryButton>
-          <MySpacer height={12} />
-        </MyCard>
-      ) : (
-        <PropertyList
-          key={activeProject.id}
-          activeProject={activeProject}
-          authedUserProfile={authedUserProfile!}
-          messageApi={messageApi}
-        />
+          </ResponsiveDrawer>
+        </PropertiesStoreProvider>
       )}
-
-      <ResponsiveDrawer
-        closable={true}
-        maskClosable={true}
-        onClose={() => setOpenCreateNewProject(false)}
-        open={openCreateNewProject}
-        drawerKey="Note"
-      >
-        <CreateNewProject createNewProject={handleCreateNewProject} />
-      </ResponsiveDrawer>
-
-      <ResponsiveDrawer
-        closable={true}
-        maskClosable={true}
-        onClose={() => setOpenJoinExistingProject(false)}
-        open={openJoinExistingProject}
-        drawerKey="Note"
-      >
-        <JoinExistingProject joinExistingProject={handleJoinExistingProject} />
-      </ResponsiveDrawer>
     </HomeContent>
   );
 }

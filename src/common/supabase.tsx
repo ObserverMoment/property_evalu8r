@@ -114,8 +114,7 @@ export const joinExistingProject = async (name: string, password: string) => {
 };
 
 /// Properties ////
-// Properties + likes
-export const getProjectPropertyData = async (projectId: number) =>
+export const getProjectProperties = async (projectId: number) =>
   await supabase
     .from(PROPERTIES_TABLE_NAME)
     .select()
@@ -144,8 +143,11 @@ export const updateProperty = async (data: Property) => {
     .single();
 };
 
-export const deleteProperty = async (data: Property) => {
-  return await supabase.from(PROPERTIES_TABLE_NAME).delete().eq("id", data.id);
+export const deleteProperty = async (propertyId: number) => {
+  return await supabase
+    .from(PROPERTIES_TABLE_NAME)
+    .delete()
+    .eq("id", propertyId);
 };
 
 //// Likes ////

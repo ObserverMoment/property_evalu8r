@@ -110,9 +110,17 @@ function PropertyFieldsForm({
           <RadioSelectGroup
             options={boolOptions}
             groupName={k}
-            selectedValue={formState[k].value === true ? "true" : "false"}
+            selectedValue={
+              formState[k].value === true
+                ? "true"
+                : formState[k].value === false
+                ? "false"
+                : null
+            }
             onChange={(v) => {
-              formState[k].setValue(v === "true" ? true : false);
+              formState[k].setValue(
+                v === "true" ? true : v === "false" ? false : null
+              );
             }}
           />
         </MyFormItem>

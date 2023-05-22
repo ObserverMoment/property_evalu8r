@@ -1,13 +1,17 @@
-import { Property, UserProfile } from "../../types/types";
-import { PropertyScore } from "../../common/propertyUtils";
+import { Property, PropertyScore, UserProfile } from "../../types/types";
 import { useMediaSize } from "../../common/useMediaSize";
 import { PropertyCardScoreDisplay } from "./PropertyCardScoreDisplay";
 import { PropertyCardInfoFields } from "./PropertyCardInfoFields";
 import { MyCard } from "../styled/styled";
-import { FlexRow } from "../styled/layout";
+import { FlexRow, MySpacer } from "../styled/layout";
 import { PropertyCardFieldsDisplay } from "./PropertyCardFieldsDisplay";
 import { PropertyCardEditButtons } from "./PropertyCardEditButtons";
-import { PropertyCardLikeDislike } from "./PropertyCardLikeDislike";
+import { PropertyCardLikes } from "./PropertyCardLikes";
+import { CalendarOutlined, AimOutlined } from "@ant-design/icons";
+import { currencyFormat } from "../../common/utils";
+import dayjs from "dayjs";
+import { MyTheme } from "../styled/theme";
+import styled from "@emotion/styled";
 
 interface PropertyCardProps {
   property: Property;
@@ -36,13 +40,35 @@ export function PropertyCard({
 }: PropertyCardProps) {
   const deviceSize = useMediaSize();
 
-  const buildPropertyCardInfoFields = () => (
-    <PropertyCardInfoFields
-      property={property}
-      authedUserId={authedUserId}
-      deviceSize={deviceSize}
-    />
-  );
+  const buildPropertyCardHeader = () => {
+    return (
+      <FlexRow style={{ padding: "4px" }}>
+        {property.view_date && (
+          <OfferViewingContainer
+            style={{
+              background: MyTheme.colors.background,
+            }}
+          >
+            <CalendarOutlined style={{ paddingRight: "4px" }} />
+            <div style={{ fontWeight: "bold" }}>
+              {dayjs(property.view_date).format("h:mm A DD/MM/YY")}
+            </div>
+          </OfferViewingContainer>
+        )}
+        {property.view_date && <MySpacer width={10} />}
+        {property.offered && (
+          <OfferViewingContainer
+            style={{ background: MyTheme.colors.background }}
+          >
+            <AimOutlined style={{ paddingRight: "4px" }} />
+            <div style={{ fontWeight: "bold" }}>
+              {currencyFormat(property.offered)}
+            </div>
+          </OfferViewingContainer>
+        )}
+      </FlexRow>
+    );
+  };
 
   const buildPropertyCardFooter = () => {
     return (
@@ -50,7 +76,7 @@ export function PropertyCard({
         style={{ padding: "10px 16px 0 8px" }}
         justifyContent="space-between"
       >
-        <PropertyCardLikeDislike
+        <PropertyCardLikes
           authedUserId={authedUserId}
           propertyLikes={likes}
           handleAddPropertyLike={() => handleAddPropertyLike(property.id)}
@@ -68,35 +94,52 @@ export function PropertyCard({
     );
   };
 
-  const buildPropertyCardScoreDisplay = () => (
-    <PropertyCardScoreDisplay
-      propertyScore={propertyScore}
-      deviceSize={deviceSize}
-    />
-  );
-  const buildPropertyCardFieldsDisplay = () => (
-    <PropertyCardFieldsDisplay property={property} />
-  );
-
   /// Begin JSX Render ///
   return deviceSize === "large" ? (
     <MyCard>
+      {buildPropertyCardHeader()}
       <FlexRow
         justifyContent="space-between"
         style={{ padding: "0 2px 6px 2px" }}
       >
-        {buildPropertyCardInfoFields()}
-        {buildPropertyCardScoreDisplay()}
+        <PropertyCardInfoFields
+          property={property}
+          authedUserId={authedUserId}
+          deviceSize={deviceSize}
+        />
+        <PropertyCardScoreDisplay
+          propertyScore={propertyScore}
+          deviceSize={deviceSize}
+        />
       </FlexRow>
-      {buildPropertyCardFieldsDisplay()}
+      <PropertyCardFieldsDisplay property={property} />
       {buildPropertyCardFooter()}
     </MyCard>
   ) : (
     <MyCard>
-      {buildPropertyCardInfoFields()}
-      {buildPropertyCardScoreDisplay()}
-      {buildPropertyCardFieldsDisplay()}
+      {buildPropertyCardHeader()}
+      <PropertyCardInfoFields
+        property={property}
+        authedUserId={authedUserId}
+        deviceSize={deviceSize}
+      />
+      <PropertyCardScoreDisplay
+        propertyScore={propertyScore}
+        deviceSize={deviceSize}
+      />
+      <PropertyCardFieldsDisplay property={property} />
       {buildPropertyCardFooter()}
     </MyCard>
   );
 }
+
+const OfferViewingContainer = styled.div`
+  display: flex;
+  background: ${MyTheme.colors.background};
+  border-radius: 8px;
+  font-weight: bold;
+  padding: 3px 8px;
+  * {
+    font-size: 0.9em;
+  }
+`;
