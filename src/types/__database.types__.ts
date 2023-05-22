@@ -92,12 +92,14 @@ export interface Database {
           local_supermarket: boolean | null
           notes: string | null
           off_street_parking: boolean | null
+          offered: number | null
           project_id: number
           sc_gr_annual: number | null
           sq_metres: number | null
           url_link: string | null
           user_id: string | null
           view: Database["public"]["Enums"]["quality_assessment_enum"]
+          view_date: string | null
           walk_to_park: number | null
           walk_to_station: number | null
         }
@@ -118,12 +120,14 @@ export interface Database {
           local_supermarket?: boolean | null
           notes?: string | null
           off_street_parking?: boolean | null
+          offered?: number | null
           project_id: number
           sc_gr_annual?: number | null
           sq_metres?: number | null
           url_link?: string | null
           user_id?: string | null
           view?: Database["public"]["Enums"]["quality_assessment_enum"]
+          view_date?: string | null
           walk_to_park?: number | null
           walk_to_station?: number | null
         }
@@ -144,31 +148,16 @@ export interface Database {
           local_supermarket?: boolean | null
           notes?: string | null
           off_street_parking?: boolean | null
+          offered?: number | null
           project_id?: number
           sc_gr_annual?: number | null
           sq_metres?: number | null
           url_link?: string | null
           user_id?: string | null
           view?: Database["public"]["Enums"]["quality_assessment_enum"]
+          view_date?: string | null
           walk_to_park?: number | null
           walk_to_station?: number | null
-        }
-      }
-      user_dislikes_properties: {
-        Row: {
-          created_at: string | null
-          property_id: number
-          user_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          property_id: number
-          user_id: string
-        }
-        Update: {
-          created_at?: string | null
-          property_id?: number
-          user_id?: string
         }
       }
       user_likes_properties: {

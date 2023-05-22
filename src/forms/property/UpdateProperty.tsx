@@ -1,21 +1,20 @@
 import React from "react";
 import { Property } from "../../types/types";
 import { useFormState } from "../useFormState";
-import { updateProperty } from "../../common/supabase";
 import { propertyFieldDefs } from "../../common/propertyUtils";
 import PropertyFieldsForm from "./PropertyFieldsForm";
 import { convertToTitleCase } from "../../common/utils";
-import { MessageInstance } from "antd/es/message/interface";
+import { usePropertiesStore } from "../../common/stores/propertiesStore";
 
 function UpdateProperty({
   property,
   closeDrawer,
-  messageApi,
 }: {
   property: Property;
   closeDrawer: (updated?: Property) => void;
-  messageApi: MessageInstance;
 }) {
+  const { api } = usePropertiesStore();
+
   const { formState, checkErrors, getObjectData, resetFormState } =
     useFormState<Property>([
       ...propertyFieldDefs.stringFields.map((k) => ({
@@ -41,17 +40,13 @@ function UpdateProperty({
     ]);
 
   const handleSave = async () => {
-    const { data, error } = await updateProperty({
+    const error = await api.updateProperty({
       ...property,
       ...getObjectData(),
     });
-    if (data && !error) {
-      messageApi.success("Property updated");
+    if (!error) {
       resetFormState();
-      closeDrawer(data);
-    } else {
-      messageApi.error("Something went wrong...");
-      console.error(error);
+      closeDrawer();
     }
   };
 

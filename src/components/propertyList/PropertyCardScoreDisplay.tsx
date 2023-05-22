@@ -1,9 +1,8 @@
-import { PropertyScore } from "../../common/propertyUtils";
 import { currencyFormat, numberFormat } from "../../common/utils";
 import { MyTheme } from "../styled/theme";
 import { Badge } from "@chakra-ui/react";
 import { FlexRow } from "../styled/layout";
-import { DeviceSize } from "../../types/types";
+import { DeviceSize, PropertyScore } from "../../types/types";
 
 export const PropertyCardScoreDisplay = ({
   propertyScore: { cost, points, score, sqMtrCost },

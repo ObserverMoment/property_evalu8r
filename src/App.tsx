@@ -33,8 +33,8 @@ function App() {
 
   return (
     <PageLayout>
-      {contextHolder}
       <PageContent style={{ backgroundImage: `url(${cityArtSvg})` }}>
+        {contextHolder}
         {!session ? (
           <Auth messageApi={messageApi} />
         ) : (

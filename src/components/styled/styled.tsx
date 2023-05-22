@@ -87,6 +87,9 @@ export const SecondaryButton = styled.button<ButtonProps>`
     border-color: ${MyTheme.colors.linkText};
     color: ${MyTheme.colors.linkText};
   }
+  :disabled {
+    opacity: 0.3;
+  }
 `;
 
 export const IconButton = styled.button`

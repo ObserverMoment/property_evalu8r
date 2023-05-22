@@ -10,7 +10,7 @@ interface PropertyCardLikeDislikeProps {
   handleRemovePropertyLike: () => void;
 }
 
-export const PropertyCardLikeDislike = ({
+export const PropertyCardLikes = ({
   authedUserId,
   propertyLikes,
   handleAddPropertyLike,
