@@ -1,4 +1,4 @@
-import { Calendar, Divider } from "antd";
+import { Calendar } from "antd";
 import { Property } from "../../types/types";
 import dayjs, { Dayjs } from "dayjs";
 import { useState } from "react";

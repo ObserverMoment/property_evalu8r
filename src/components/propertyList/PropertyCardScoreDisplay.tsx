@@ -26,19 +26,23 @@ export const PropertyCardScoreDisplay = ({
 }: PropertyCardScoreDisplayProps) => {
   const { projectCommuteSetting } = useProjectDataStore();
 
-  const numDestinations = projectCommuteSetting
-    ? commuteAnalysisDestinationKeys.filter((k) => projectCommuteSetting[k])
-        .length
-    : 0;
+  const renderCommuteScoreBadges = () => {
+    if (propertyCommuteScore && projectCommuteSetting) {
+      const numDestinations = projectCommuteSetting
+        ? commuteAnalysisDestinationKeys.filter((k) => projectCommuteSetting[k])
+            .length
+        : 0;
 
-  return (
-    <FlexRow
-      gap={deviceSize === "small" ? "4px" : "8px"}
-      style={{
-        padding: deviceSize === "large" ? 0 : "4px 2px",
-      }}
-    >
-      {propertyCommuteScore && projectCommuteSetting && (
+      const totalCommuteTime = totalCommuteTimeToAllDestinations(
+        propertyCommuteScore,
+        projectCommuteSetting
+      );
+
+      return [
+        <ScoreContainer>
+          <BadgeBuilder label={`Avg / Destination`} />
+          <span>{Math.round(totalCommuteTime / numDestinations)} mins</span>
+        </ScoreContainer>,
         <ScoreContainer>
           <BadgeBuilder label={`To ${numDestinations} Destinations`} />
           <span>
@@ -48,8 +52,19 @@ export const PropertyCardScoreDisplay = ({
             )}{" "}
             mins
           </span>
-        </ScoreContainer>
-      )}
+        </ScoreContainer>,
+      ];
+    }
+  };
+
+  return (
+    <FlexRow
+      gap={deviceSize === "small" ? "4px" : "8px"}
+      style={{
+        padding: deviceSize === "large" ? 0 : "4px 2px",
+      }}
+    >
+      {renderCommuteScoreBadges()}
 
       {sqMtrCost && (
         <ScoreContainer>
