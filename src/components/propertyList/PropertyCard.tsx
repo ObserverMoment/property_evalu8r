@@ -108,11 +108,7 @@ export function PropertyCard({
   return deviceSize === "small" ? (
     <MyCard>
       {buildPropertyCardHeader()}
-      <PropertyCardInfoFields
-        property={property}
-        authedUserId={authedUserId}
-        deviceSize={deviceSize}
-      />
+      <PropertyCardInfoFields property={property} deviceSize={deviceSize} />
       <PropertyCardScoreDisplay
         propertyScore={propertyScore}
         deviceSize={deviceSize}
@@ -128,11 +124,7 @@ export function PropertyCard({
         justifyContent="space-between"
         style={{ padding: "0 2px 6px 2px" }}
       >
-        <PropertyCardInfoFields
-          property={property}
-          authedUserId={authedUserId}
-          deviceSize={deviceSize}
-        />
+        <PropertyCardInfoFields property={property} deviceSize={deviceSize} />
         <PropertyCardScoreDisplay
           propertyScore={propertyScore}
           deviceSize={deviceSize}

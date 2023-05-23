@@ -6,7 +6,6 @@ import { Popover } from "antd";
 
 interface PropertyCardInfoFieldsProps {
   property: Property;
-  authedUserId: string;
   deviceSize: DeviceSize;
 }
 
@@ -51,6 +50,8 @@ export const PropertyCardInfoFields = ({
           agent_website={agent_website}
         />
       }
+      // Must sit above the drawer component, not sure of zIndex, hence this huge number...
+      zIndex={999999999999}
       trigger="click"
     >
       <PropertyCardContactInfo>Contact Info</PropertyCardContactInfo>
