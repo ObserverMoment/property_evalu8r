@@ -6,7 +6,7 @@ import styled from "@emotion/styled";
 import { MyTheme } from "../styled/theme";
 import { DatePicker, Dropdown, InputNumber } from "antd";
 import { useEffect, useState } from "react";
-import { usePropertiesStore } from "../../common/stores/propertiesStore";
+import { useProjectDataStore } from "../../common/stores/projectDataStore";
 import dayjs, { Dayjs } from "dayjs";
 
 interface PropertyCardEditButtonsProps {
@@ -15,6 +15,7 @@ interface PropertyCardEditButtonsProps {
   handleRequestUpdate: () => void;
   handleRequestDelete: () => void;
   handleRequestNoteUpdate: () => void;
+  handleOpenCommuteAnalysis: () => void;
   noteCount: number;
 }
 
@@ -24,9 +25,10 @@ export const PropertyCardEditButtons = ({
   handleRequestUpdate,
   handleRequestDelete,
   handleRequestNoteUpdate,
+  handleOpenCommuteAnalysis,
   noteCount,
 }: PropertyCardEditButtonsProps) => {
-  const { api } = usePropertiesStore();
+  const { api } = useProjectDataStore();
   const [dropdownOpen, setDropdownOpen] = useState<boolean>();
   const [activeOfferAmount, setActiveOfferAmount] = useState<number | null>(
     null
@@ -56,6 +58,14 @@ export const PropertyCardEditButtons = ({
       {authedUserId === user_id && (
         <div style={{ fontSize: "0.6em" }}>Added by You</div>
       )}
+
+      <SecondaryButton
+        style={{ position: "relative" }}
+        size="micro"
+        onClick={handleOpenCommuteAnalysis}
+      >
+        Commute Analysis
+      </SecondaryButton>
 
       <SecondaryButton
         style={{ position: "relative" }}

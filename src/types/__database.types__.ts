@@ -34,6 +34,47 @@ export interface Database {
   }
   public: {
     Tables: {
+      project_commute_settings: {
+        Row: {
+          created_at: string | null
+          destination_1: string | null
+          destination_2: string | null
+          destination_3: string | null
+          destination_4: string | null
+          destination_5: string | null
+          destination_6: string | null
+          destination_7: string | null
+          destination_8: string | null
+          id: number
+          project_id: number
+        }
+        Insert: {
+          created_at?: string | null
+          destination_1?: string | null
+          destination_2?: string | null
+          destination_3?: string | null
+          destination_4?: string | null
+          destination_5?: string | null
+          destination_6?: string | null
+          destination_7?: string | null
+          destination_8?: string | null
+          id?: number
+          project_id: number
+        }
+        Update: {
+          created_at?: string | null
+          destination_1?: string | null
+          destination_2?: string | null
+          destination_3?: string | null
+          destination_4?: string | null
+          destination_5?: string | null
+          destination_6?: string | null
+          destination_7?: string | null
+          destination_8?: string | null
+          id?: number
+          project_id?: number
+        }
+      }
       project_members: {
         Row: {
           created_at: string | null
@@ -160,6 +201,47 @@ export interface Database {
           walk_to_station?: number | null
         }
       }
+      property_commute_scores: {
+        Row: {
+          created_at: string | null
+          destination_1: number | null
+          destination_2: number | null
+          destination_3: number | null
+          destination_4: number | null
+          destination_5: number | null
+          destination_6: number | null
+          destination_7: number | null
+          destination_8: number | null
+          id: number
+          property_id: number
+        }
+        Insert: {
+          created_at?: string | null
+          destination_1?: number | null
+          destination_2?: number | null
+          destination_3?: number | null
+          destination_4?: number | null
+          destination_5?: number | null
+          destination_6?: number | null
+          destination_7?: number | null
+          destination_8?: number | null
+          id?: number
+          property_id: number
+        }
+        Update: {
+          created_at?: string | null
+          destination_1?: number | null
+          destination_2?: number | null
+          destination_3?: number | null
+          destination_4?: number | null
+          destination_5?: number | null
+          destination_6?: number | null
+          destination_7?: number | null
+          destination_8?: number | null
+          id?: number
+          property_id?: number
+        }
+      }
       user_likes_properties: {
         Row: {
           created_at: string
@@ -234,7 +316,7 @@ export interface Database {
           password: string
         }[]
       }
-      insert_project_and_add_member: {
+      insert_project_create_defaults_and_add_member: {
         Args: {
           project_name: string
           project_password: string

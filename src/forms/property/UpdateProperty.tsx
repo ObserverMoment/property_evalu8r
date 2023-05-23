@@ -4,7 +4,7 @@ import { useFormState } from "../useFormState";
 import { propertyFieldDefs } from "../../common/propertyUtils";
 import PropertyFieldsForm from "./PropertyFieldsForm";
 import { convertToTitleCase } from "../../common/utils";
-import { usePropertiesStore } from "../../common/stores/propertiesStore";
+import { useProjectDataStore } from "../../common/stores/projectDataStore";
 
 function UpdateProperty({
   property,
@@ -13,7 +13,7 @@ function UpdateProperty({
   property: Property;
   closeDrawer: (updated?: Property) => void;
 }) {
-  const { api } = usePropertiesStore();
+  const { api } = useProjectDataStore();
 
   const { formState, checkErrors, getObjectData, resetFormState } =
     useFormState<Property>([

@@ -17,7 +17,7 @@ export const MyCard = styled.div`
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03),
     0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02);
   background: ${MyTheme.colors.cardBackground};
-  padding: 10px;
+  padding: 4px 8px;
 `;
 
 //// Buttons

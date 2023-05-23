@@ -2,13 +2,15 @@ import { PostgrestError, createClient } from "@supabase/supabase-js";
 import { ReactNode, createContext } from "react";
 import { Database } from "../types/__database.types__";
 import React from "react";
-import { Property } from "../types/types";
+import { Property, PropertyCommuteScore } from "../types/types";
 import { MessageInstance } from "antd/es/message/interface";
 
-const PROPERTIES_TABLE_NAME = "properties";
-const PROJECTS_TABLE_NAME = "projects";
-// const PROJECTS_MEMBERS_TABLE_NAME = "project_members";
 const USER_PROFILES_TABLE_NAME = "user_profiles";
+const PROJECTS_TABLE_NAME = "projects";
+const PROJECT_COMMUTE_SETTINGS_TABLE_NAME = "project_commute_settings";
+// const PROJECTS_MEMBERS_TABLE_NAME = "project_members";
+const PROPERTIES_TABLE_NAME = "properties";
+const PROPERTY_COMMUTE_SCORES_TABLE_NAME = "property_commute_scores";
 const LIKES_TABLE_NAME = "user_likes_properties";
 const DISLIKES_TABLE_NAME = "user_dislikes_properties";
 const NOTES_TABLE_NAME = "user_property_notes";
@@ -90,12 +92,22 @@ export const updateAuthedUserName = async (newUsername: string) => {
 
 /// Authed User Projects ///
 export const getProjects = async () =>
-  await supabase.from(PROJECTS_TABLE_NAME).select();
+  await supabase
+    .from(PROJECTS_TABLE_NAME)
+    .select(`*, project_commute_settings (*)`);
+
+export const getProjectCommuteSettings = async (projectId: number) =>
+  await supabase
+    .from(PROJECT_COMMUTE_SETTINGS_TABLE_NAME)
+    .select()
+    .eq("project_id", projectId)
+    .single();
 
 // Creates a project and adds the creator to the project_members table, then returns the new project in a single transaction.
 export const createProject = async (name: string, password: string) => {
+  /// Using RPC function with 'security definer' to avoid RLS blocking select before user is added to project_members (after creating project)
   return await supabase
-    .rpc("insert_project_and_add_member", {
+    .rpc("insert_project_create_defaults_and_add_member", {
       project_name: name,
       project_password: password,
     })
@@ -150,8 +162,10 @@ export const deleteProperty = async (propertyId: number) => {
     .eq("id", propertyId);
 };
 
-//// Likes ////
-export const getProjectLikes = async (projectId: number) =>
+//// Likes, Notes and Commute Score Related ////
+export const getProjectLikesNotesAndCommuteSettings = async (
+  projectId: number
+) =>
   await supabase
     .from(PROPERTIES_TABLE_NAME)
     .select(
@@ -163,10 +177,36 @@ export const getProjectLikes = async (projectId: number) =>
         username
       )
     ),
+    property_commute_scores ( * ),
     user_property_notes(count)
     `
     )
     .eq("project_id", projectId);
+
+export const createPropertyCommuteScore = async (
+  propertyId: number,
+  commuteScore: PropertyCommuteScore
+) => {
+  return await supabase
+    .from(PROPERTY_COMMUTE_SCORES_TABLE_NAME)
+    .insert({
+      ...commuteScore,
+      property_id: propertyId,
+    })
+    .select()
+    .single();
+};
+
+export const updatePropertyCommuteScore = async (
+  commuteScore: PropertyCommuteScore
+) => {
+  return await supabase
+    .from(PROPERTY_COMMUTE_SCORES_TABLE_NAME)
+    .update(commuteScore)
+    .eq("id", commuteScore.id)
+    .select()
+    .single();
+};
 
 export const addPropertyLike = async (propertyId: number) => {
   const userId = await getSessionUserId();

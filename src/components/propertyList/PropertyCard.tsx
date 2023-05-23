@@ -1,4 +1,9 @@
-import { Property, PropertyScore, UserProfile } from "../../types/types";
+import {
+  Property,
+  PropertyCommuteScore,
+  PropertyScore,
+  UserProfile,
+} from "../../types/types";
 import { useMediaSize } from "../../common/useMediaSize";
 import { PropertyCardScoreDisplay } from "./PropertyCardScoreDisplay";
 import { PropertyCardInfoFields } from "./PropertyCardInfoFields";
@@ -16,12 +21,14 @@ import styled from "@emotion/styled";
 interface PropertyCardProps {
   property: Property;
   propertyScore: PropertyScore;
+  propertyCommuteScore?: PropertyCommuteScore;
   openUpdateProperty: (p: Property) => void;
   handleRequestDeleteProperty: (p: Property) => void;
   handleRequestNoteUpdate: (p: Property) => void;
   likes: UserProfile[];
   handleAddPropertyLike: (pId: number) => void;
   handleRemovePropertyLike: (pId: number) => void;
+  handleOpenCommuteAnalysis: (p: Property) => void;
   noteCount: number;
   authedUserId: string;
 }
@@ -29,12 +36,14 @@ interface PropertyCardProps {
 export function PropertyCard({
   property,
   propertyScore,
+  propertyCommuteScore,
   openUpdateProperty,
   handleRequestDeleteProperty,
   handleRequestNoteUpdate,
   likes,
   handleAddPropertyLike,
   handleRemovePropertyLike,
+  handleOpenCommuteAnalysis,
   noteCount,
   authedUserId,
 }: PropertyCardProps) {
@@ -42,7 +51,7 @@ export function PropertyCard({
 
   const buildPropertyCardHeader = () => {
     return (
-      <FlexRow style={{ padding: "4px" }}>
+      <FlexRow style={{ padding: "2px" }}>
         {property.view_date && (
           <OfferViewingContainer
             style={{
@@ -88,6 +97,7 @@ export function PropertyCard({
           handleRequestUpdate={() => openUpdateProperty(property)}
           handleRequestDelete={() => handleRequestDeleteProperty(property)}
           handleRequestNoteUpdate={() => handleRequestNoteUpdate(property)}
+          handleOpenCommuteAnalysis={() => handleOpenCommuteAnalysis(property)}
           noteCount={noteCount}
         />
       </FlexRow>
@@ -95,7 +105,23 @@ export function PropertyCard({
   };
 
   /// Begin JSX Render ///
-  return deviceSize === "large" ? (
+  return deviceSize === "small" ? (
+    <MyCard>
+      {buildPropertyCardHeader()}
+      <PropertyCardInfoFields
+        property={property}
+        authedUserId={authedUserId}
+        deviceSize={deviceSize}
+      />
+      <PropertyCardScoreDisplay
+        propertyScore={propertyScore}
+        deviceSize={deviceSize}
+        propertyCommuteScore={propertyCommuteScore}
+      />
+      <PropertyCardFieldsDisplay property={property} />
+      {buildPropertyCardFooter()}
+    </MyCard>
+  ) : (
     <MyCard>
       {buildPropertyCardHeader()}
       <FlexRow
@@ -110,23 +136,9 @@ export function PropertyCard({
         <PropertyCardScoreDisplay
           propertyScore={propertyScore}
           deviceSize={deviceSize}
+          propertyCommuteScore={propertyCommuteScore}
         />
       </FlexRow>
-      <PropertyCardFieldsDisplay property={property} />
-      {buildPropertyCardFooter()}
-    </MyCard>
-  ) : (
-    <MyCard>
-      {buildPropertyCardHeader()}
-      <PropertyCardInfoFields
-        property={property}
-        authedUserId={authedUserId}
-        deviceSize={deviceSize}
-      />
-      <PropertyCardScoreDisplay
-        propertyScore={propertyScore}
-        deviceSize={deviceSize}
-      />
       <PropertyCardFieldsDisplay property={property} />
       {buildPropertyCardFooter()}
     </MyCard>
@@ -140,6 +152,6 @@ const OfferViewingContainer = styled.div`
   font-weight: bold;
   padding: 3px 8px;
   * {
-    font-size: 0.9em;
+    font-size: 0.8em;
   }
 `;

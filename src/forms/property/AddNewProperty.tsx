@@ -8,7 +8,7 @@ import {
 import PropertyFieldsForm from "./PropertyFieldsForm";
 import { convertToTitleCase } from "../../common/utils";
 import { MessageInstance } from "antd/es/message/interface";
-import { usePropertiesStore } from "../../common/stores/propertiesStore";
+import { useProjectDataStore } from "../../common/stores/projectDataStore";
 
 interface AddNewPropertyProps {
   onComplete: () => void;
@@ -17,7 +17,7 @@ interface AddNewPropertyProps {
 }
 
 function AddNewProperty({ onComplete, activeProjectId }: AddNewPropertyProps) {
-  const { api } = usePropertiesStore();
+  const { api } = useProjectDataStore();
 
   const { formState, checkErrors, getObjectData } = useFormState<Property>([
     ...propertyFieldDefs.stringFields
