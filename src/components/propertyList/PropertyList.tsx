@@ -20,12 +20,14 @@ import UpdateProperty from "../../forms/property/UpdateProperty";
 import AddNewProperty from "../../forms/property/AddNewProperty";
 import { WarningTwoIcon } from "@chakra-ui/icons";
 import { useDisclosure } from "@chakra-ui/react";
-import { FlexRow, MySpacer } from "../styled/layout";
+import { FlexRow } from "../styled/layout";
 import { MyTheme } from "../styled/theme";
-import { PlusOutlined } from "@ant-design/icons";
+
 import { useProjectDataStore } from "../../common/stores/projectDataStore";
 import { PropertyCommuteAnalysis } from "../commuteAnalysis/PropertyCommuteAnalysis";
 import { totalCommuteTimeToAllDestinations } from "../commuteAnalysis/utils";
+import { PropertyListHeaderButtons } from "./PropertyListHeaderButtons";
+import { ViewingsCalendar } from "./ViewingsCalendar";
 
 interface PropertyListProps {
   activeProject: Project;
@@ -74,13 +76,12 @@ export function PropertyList({
 
   // Side panel control state
   const [openAddPanel, setOpenAddPanel] = useState(false);
-
   const [openUpdatePanel, setOpenUpdatePanel] = useState(false);
   const [openNotesPanel, setOpenNotesPanel] = useState(false);
+  const [openCalendarPanel, setOpenCalendarPanel] = useState(false);
   const [propertyToUpdate, setPropertyToUpdate] = useState<Property | null>(
     null
   );
-
   const [openCommuteAnalysisPanel, setOpenCommuteAnalysisPanel] =
     useState(false);
 
@@ -237,7 +238,10 @@ export function PropertyList({
         Showing {filteredSortedProperties.length} properties
       </div>
       {deviceSize !== "large" && (
-        <AddPropertyButton setOpenAddPanel={setOpenAddPanel} />
+        <PropertyListHeaderButtons
+          setOpenAddPanel={setOpenAddPanel}
+          setOpenCalendarPanel={setOpenCalendarPanel}
+        />
       )}
 
       <FlexRow alignItems="center">
@@ -251,7 +255,10 @@ export function PropertyList({
           showTypeOptions={showTypeOptions}
         />
         {deviceSize === "large" && (
-          <AddPropertyButton setOpenAddPanel={setOpenAddPanel} />
+          <PropertyListHeaderButtons
+            setOpenAddPanel={setOpenAddPanel}
+            setOpenCalendarPanel={setOpenCalendarPanel}
+          />
         )}
       </FlexRow>
 
@@ -354,6 +361,18 @@ export function PropertyList({
         )}
       </ResponsiveDrawer>
 
+      {/* Calendar drawer */}
+      <ResponsiveDrawer
+        closable={true}
+        maskClosable={true}
+        onClose={() => setOpenCalendarPanel(false)}
+        open={openCalendarPanel}
+        drawerKey="Calendar"
+      >
+        <ViewingsCalendar properties={properties} />
+      </ResponsiveDrawer>
+
+      {/* Confirm delete modal */}
       <MyModal
         onConfirm={handleConfirmDeleteProperty}
         onCancel={handleCancelDeleteProperty}
@@ -373,40 +392,3 @@ const PropertyListContainer = styled.div`
   display: flex;
   align-items: center;
 `;
-
-const AddPropertyButtonContainer = styled.button`
-  display: flex;
-  align-items: center;
-  height: 35px;
-  padding: 6px 12px;
-  border-radius: 20px;
-  background-color: ${MyTheme.colors.primary};
-  color: ${MyTheme.colors.secondary};
-  font-weight: bold;
-  text-align: center;
-  font-size: 0.9em;
-  text-decoration: none;
-  outline: none;
-  border: none;
-  transition: all 350ms ease;
-  :hover {
-    cursor: pointer;
-    background-color: ${MyTheme.colors.linkText};
-    color: ${MyTheme.colors.primary};
-  }
-  :disabled {
-    opacity: 0.1;
-  }
-`;
-
-const AddPropertyButton = ({
-  setOpenAddPanel,
-}: {
-  setOpenAddPanel: (v: boolean) => void;
-}) => (
-  <AddPropertyButtonContainer onClick={() => setOpenAddPanel(true)}>
-    <PlusOutlined />
-    <MySpacer width={4} />
-    Add Property
-  </AddPropertyButtonContainer>
-);
