@@ -2,48 +2,60 @@ import { PropsWithChildren, createContext, useContext, useState } from "react";
 import {
   addPropertyLike,
   createProperty,
+  createPropertyCommuteScore,
   deleteProperty,
   deletePropertyLike,
-  getProjectLikes,
+  getProjectCommuteSettings,
+  getProjectLikesNotesAndCommuteSettings,
   getProjectProperties,
   updateProperty,
+  updatePropertyCommuteScore,
 } from "../supabase";
 import { MessageInstance } from "antd/es/message/interface";
 import { PostgrestError } from "@supabase/supabase-js";
 import {
+  CommuteScoresByProperty,
   LikesByProperty,
   NoteCountByProperty,
+  ProjectCommuteSetting,
   Property,
+  PropertyCommuteScore,
   PropertyScores,
   UserLikesInProperty,
   UserNotesCountInProperty,
   UserProfile,
 } from "../../types/types";
-import { mapReplaceArray } from "../../common/utils";
+import { mapReplaceArray } from "../utils";
 import { calculateAllPropertyScores } from "../propertyUtils";
 
-const PropertiesStoreContext = createContext<PropertiesStore | null>(null);
+/// Data for a single (the active) project.
+const ProjectDataStoreContext = createContext<ProjectDataStore | null>(null);
 
-interface PropertiesStoreProviderProps {
+interface ProjectDataStoreProviderProps {
   messageApi: MessageInstance;
   authedUserProfile: UserProfile;
 }
 
 //// State properties are READ ONLY ////
-interface PropertiesStore {
+interface ProjectDataStore {
+  projectCommuteSetting: ProjectCommuteSetting | null;
   properties: Property[];
   // Objects indexed by property ID which contains user profiles of users who have liked / disliked properties + note count.
   likesByProperty: LikesByProperty;
   noteCountByProperty: NoteCountByProperty;
   propertyScores: PropertyScores;
-  api: PropertiesStoreApi;
+  commuteScoresByProperty: CommuteScoresByProperty;
+  api: ProjectDataStoreApi;
   isLoading: boolean;
 }
 
-interface PropertiesStoreApi {
+interface ProjectDataStoreApi {
   getInitialProjectData: (projectId: number) => Promise<PostgrestError | void>;
   getPropertiesByProject: (projectId: number) => Promise<PostgrestError | void>;
-  getProjectLikesAndNotes: (
+  getProjectCommuteSettings: (
+    projectId: number
+  ) => Promise<PostgrestError | void>;
+  getProjectLikesNotesAndCommuteScores: (
     projectId: number
   ) => Promise<PostgrestError | void>;
   createProperty: (
@@ -52,20 +64,43 @@ interface PropertiesStoreApi {
   ) => Promise<PostgrestError | void>;
   updateProperty: (property: Property) => Promise<PostgrestError | void>;
   deleteProperty: (propertyId: number) => Promise<PostgrestError | void>;
+  createPropertyCommuteScore: (
+    propertyId: number,
+    commuteScore: PropertyCommuteScore
+  ) => Promise<PostgrestError | void>;
+  updatePropertyCommuteScore: (
+    propertyId: number,
+    commuteScore: PropertyCommuteScore
+  ) => Promise<PostgrestError | void>;
   addPropertyLike: (propertyId: number) => Promise<PostgrestError | void>;
   removePropertyLike: (propertyId: number) => Promise<PostgrestError | void>;
 }
 
-export const PropertiesStoreProvider = ({
+interface LikesNotesCommuteScoresByProperty {
+  likesByProperty: LikesByProperty;
+  commuteScoresByProperty: CommuteScoresByProperty;
+  noteCountByProperty: NoteCountByProperty;
+}
+
+export const ProjectDataStoreProvider = ({
   children,
   messageApi,
   authedUserProfile,
-}: PropsWithChildren<PropertiesStoreProviderProps>) => {
+}: PropsWithChildren<ProjectDataStoreProviderProps>) => {
   const [properties, setProperties] = useState<Property[]>([]);
+
+  const [projectCommuteSetting, setProjectCommuteSetting] =
+    useState<ProjectCommuteSetting | null>(null);
+
+  const [commuteScoresByProperty, setCommuteScoresByProperty] =
+    useState<CommuteScoresByProperty>({});
+
   const [likesByProperty, setLikesByProperty] = useState<LikesByProperty>({});
   const [noteCountByProperty, setNoteCountByProperty] =
     useState<NoteCountByProperty>({});
+
   const [propertyScores, setPropertyScores] = useState<PropertyScores>({});
+
   const [isLoading, setIsLoading] = useState<boolean>(true); // First call should be to [getInitialProjectData]
 
   const handleError = (error: PostgrestError) => {
@@ -84,18 +119,40 @@ export const PropertiesStoreProvider = ({
     setPropertyScores(calculateAllPropertyScores(properties));
   };
 
-  const api: PropertiesStoreApi = {
+  const api: ProjectDataStoreApi = {
     getInitialProjectData: async (projectId) => {
       setIsLoading(true);
+      const projectCommuteSettingError = await api.getProjectCommuteSettings(
+        projectId
+      );
+
+      if (projectCommuteSettingError) {
+        handleError(projectCommuteSettingError);
+      }
+
       const propertiesError = await api.getPropertiesByProject(projectId);
-      const likesNotesError = await api.getProjectLikesAndNotes(projectId);
+
       if (propertiesError) {
         handleError(propertiesError);
       }
-      if (likesNotesError) {
-        handleError(likesNotesError);
+
+      const likesNotesScoresError =
+        await api.getProjectLikesNotesAndCommuteScores(projectId);
+
+      if (likesNotesScoresError) {
+        handleError(likesNotesScoresError);
       }
+
       setIsLoading(false);
+    },
+    getProjectCommuteSettings: async (projectId) => {
+      const { data, error } = await getProjectCommuteSettings(projectId);
+      if (error) {
+        handleError(error);
+        return error;
+      } else {
+        setProjectCommuteSetting(data);
+      }
     },
     getPropertiesByProject: async (projectId) => {
       const { data, error } = await getProjectProperties(projectId);
@@ -106,37 +163,52 @@ export const PropertiesStoreProvider = ({
         handleSetProperties(data);
       }
     },
-    getProjectLikesAndNotes: async (projectId) => {
-      const { data, error } = await getProjectLikes(projectId);
+    getProjectLikesNotesAndCommuteScores: async (projectId) => {
+      const { data, error } = await getProjectLikesNotesAndCommuteSettings(
+        projectId
+      );
       if (error) {
         handleError(error);
         return error;
       } else {
-        const likesByProperty = data.reduce<LikesByProperty>(
-          (acum, nextProperty) => {
-            acum[nextProperty.id] =
-              (nextProperty.user_likes_properties as UserLikesInProperty[])!.flatMap(
-                (ulp) => ulp.user_profiles
-              );
-            return acum;
-          },
-          {}
-        );
-        const noteCountByProperty = data.reduce<NoteCountByProperty>(
-          (acum, nextProperty) => {
-            acum[nextProperty.id] =
+        /// Format the data for the property indexed likes, note count and scores objects.
+
+        const likesNotesCommuteScoresByProperty =
+          data.reduce<LikesNotesCommuteScoresByProperty>(
+            (acum, nextProperty) => {
+              acum.likesByProperty[nextProperty.id] =
+                (nextProperty.user_likes_properties as UserLikesInProperty[])!.flatMap(
+                  (ulp) => ulp.user_profiles
+                );
+
+              if (nextProperty.property_commute_scores) {
+                acum.commuteScoresByProperty[nextProperty.id] =
+                  nextProperty.property_commute_scores! as PropertyCommuteScore;
+              }
+
               // Count object will be the first and only object returned under user_property_notes.
-              (
+              acum.noteCountByProperty[nextProperty.id] = (
                 (nextProperty.user_property_notes as any[]).at(
                   0
                 ) as UserNotesCountInProperty
               ).count;
-            return acum;
-          },
-          {}
+
+              return acum;
+            },
+            {
+              likesByProperty: {},
+              commuteScoresByProperty: {},
+              noteCountByProperty: {},
+            }
+          );
+
+        setLikesByProperty(likesNotesCommuteScoresByProperty.likesByProperty);
+        setCommuteScoresByProperty(
+          likesNotesCommuteScoresByProperty.commuteScoresByProperty
         );
-        setLikesByProperty(likesByProperty);
-        setNoteCountByProperty(noteCountByProperty);
+        setNoteCountByProperty(
+          likesNotesCommuteScoresByProperty.noteCountByProperty
+        );
       }
     },
     createProperty: async (property, projectId) => {
@@ -178,6 +250,34 @@ export const PropertiesStoreProvider = ({
         setPropertyScores(calculateAllPropertyScores(properties));
       }
     },
+    createPropertyCommuteScore: async (propertyId, commuteScore) => {
+      const { data, error } = await createPropertyCommuteScore(
+        propertyId,
+        commuteScore
+      );
+      if (error) {
+        handleError(error);
+      } else {
+        setCommuteScoresByProperty((prev) => ({
+          ...prev,
+          [propertyId]: data,
+        }));
+        handleSuccess("Commute Score Saved");
+      }
+    },
+    updatePropertyCommuteScore: async (propertyId, commuteScore) => {
+      const { data, error } = await updatePropertyCommuteScore(commuteScore);
+      if (error) {
+        handleError(error);
+      } else {
+        setCommuteScoresByProperty((prev) => ({
+          ...prev,
+          [propertyId]: data,
+        }));
+        handleSuccess("Commute Score Updated");
+      }
+    },
+
     addPropertyLike: async (propertyId) => {
       const { error } = await addPropertyLike(propertyId);
       if (error) {
@@ -205,27 +305,29 @@ export const PropertiesStoreProvider = ({
   };
 
   return (
-    <PropertiesStoreContext.Provider
+    <ProjectDataStoreContext.Provider
       value={{
+        projectCommuteSetting,
         properties,
+        propertyScores,
         likesByProperty,
         noteCountByProperty,
-        propertyScores,
+        commuteScoresByProperty,
         isLoading,
         api,
       }}
     >
       {children}
-    </PropertiesStoreContext.Provider>
+    </ProjectDataStoreContext.Provider>
   );
 };
 
 // https://stackoverflow.com/questions/49949099/react-createcontext-point-of-defaultvalue
-export const usePropertiesStore = (): PropertiesStore => {
-  const propertiesContext = useContext(PropertiesStoreContext);
+export const useProjectDataStore = (): ProjectDataStore => {
+  const propertiesContext = useContext(ProjectDataStoreContext);
   if (!propertiesContext)
     throw new Error(
-      "No PropertiesStoreContext.Provider found when calling usePropertiesStore. Ensure you have set it up correctly."
+      "No ProjectDataStoreContext.Provider found when calling useProjectDataStore. Ensure you have set it up correctly."
     );
   return propertiesContext;
 };

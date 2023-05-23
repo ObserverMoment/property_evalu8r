@@ -19,7 +19,7 @@ import CreateNewProject from "../forms/project/CreateNewProject";
 import { PlusOutlined, UsergroupAddOutlined } from "@ant-design/icons";
 import JoinExistingProject from "../forms/project/JoinExistingProject";
 import { MessageInstance } from "antd/es/message/interface";
-import { PropertiesStoreProvider } from "../common/stores/propertiesStore";
+import { ProjectDataStoreProvider } from "../common/stores/projectDataStore";
 
 interface HomeProps {
   signOut: () => void;
@@ -44,12 +44,16 @@ function Home({ signOut, messageApi }: HomeProps) {
         const { data: userProfile, error: userProfileError } =
           await getAuthedUserProfile();
 
+        if (userProfileError) {
+          console.error(userProfileError);
+          throw new Error("Problem initialising user data");
+        }
+
         const { data: projects, error: projectsError } = await getProjects();
 
-        if (userProfileError || projectsError) {
-          console.error(userProfileError);
+        if (projectsError) {
           console.error(projectsError);
-          throw new Error("Problem initialising data");
+          throw new Error("Problem initialising project data");
         }
         setAuthedUserProfile(userProfile!);
         setUserProjects(projects!);
@@ -121,7 +125,7 @@ function Home({ signOut, messageApi }: HomeProps) {
       </PageHeader>
 
       {authedUserProfile && (
-        <PropertiesStoreProvider
+        <ProjectDataStoreProvider
           messageApi={messageApi}
           authedUserProfile={authedUserProfile}
         >
@@ -210,7 +214,7 @@ function Home({ signOut, messageApi }: HomeProps) {
               joinExistingProject={handleJoinExistingProject}
             />
           </ResponsiveDrawer>
-        </PropertiesStoreProvider>
+        </ProjectDataStoreProvider>
       )}
     </HomeContent>
   );

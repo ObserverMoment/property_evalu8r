@@ -1,55 +1,97 @@
 import { currencyFormat, numberFormat } from "../../common/utils";
 import { MyTheme } from "../styled/theme";
-import { Badge } from "@chakra-ui/react";
 import { FlexRow } from "../styled/layout";
-import { DeviceSize, PropertyScore } from "../../types/types";
+import {
+  DeviceSize,
+  PropertyCommuteScore,
+  PropertyScore,
+} from "../../types/types";
+import styled from "@emotion/styled";
+import { useProjectDataStore } from "../../common/stores/projectDataStore";
+import {
+  commuteAnalysisDestinationKeys,
+  totalCommuteTimeToAllDestinations,
+} from "../commuteAnalysis/utils";
+
+interface PropertyCardScoreDisplayProps {
+  propertyScore: PropertyScore;
+  deviceSize: DeviceSize;
+  propertyCommuteScore?: PropertyCommuteScore;
+}
 
 export const PropertyCardScoreDisplay = ({
   propertyScore: { cost, points, score, sqMtrCost },
+  propertyCommuteScore,
   deviceSize,
-}: {
-  propertyScore: PropertyScore;
-  deviceSize: DeviceSize;
-}) => (
-  <FlexRow
-    gap={deviceSize === "small" ? "6px" : "12px"}
-    style={{
-      padding: deviceSize === "large" ? 0 : "4px 2px",
-    }}
-    justifyContent={deviceSize === "small" ? "space-between" : "start"}
-  >
-    {sqMtrCost && (
-      <div>
-        <BadgeBuilder label="£/sqmtr" />
-        {currencyFormat(sqMtrCost)}
-      </div>
-    )}
+}: PropertyCardScoreDisplayProps) => {
+  const { projectCommuteSetting } = useProjectDataStore();
 
-    <div>
-      <BadgeBuilder label="30 Yr Cost" />
-      {currencyFormat(cost)}
-    </div>
+  const numDestinations = projectCommuteSetting
+    ? commuteAnalysisDestinationKeys.filter((k) => projectCommuteSetting[k])
+        .length
+    : 0;
 
-    <div>
-      <BadgeBuilder label="Points" />
-      {numberFormat(points)}
-    </div>
-    <div
+  return (
+    <FlexRow
+      gap={deviceSize === "small" ? "4px" : "8px"}
       style={{
-        color: MyTheme.colors.primary,
-        background: MyTheme.colors.secondary,
-        borderRadius: "2px",
-        padding: "0px 3px 0px 8px",
+        padding: deviceSize === "large" ? 0 : "4px 2px",
       }}
     >
-      <BadgeBuilder label=" Points / cost" />
-      {numberFormat(score, 3)}
-    </div>
-  </FlexRow>
-);
+      {propertyCommuteScore && projectCommuteSetting && (
+        <ScoreContainer>
+          <BadgeBuilder label={`To ${numDestinations} Destinations`} />
+          <span>
+            {totalCommuteTimeToAllDestinations(
+              propertyCommuteScore,
+              projectCommuteSetting
+            )}{" "}
+            mins
+          </span>
+        </ScoreContainer>
+      )}
+
+      {sqMtrCost && (
+        <ScoreContainer>
+          <BadgeBuilder label="£/sqmtr" />
+          {currencyFormat(sqMtrCost)}
+        </ScoreContainer>
+      )}
+
+      <ScoreContainer>
+        <BadgeBuilder label="30 Yr Cost" />
+        {currencyFormat(cost)}
+      </ScoreContainer>
+
+      <ScoreContainer>
+        <BadgeBuilder label="Points" />
+        {numberFormat(points)}
+      </ScoreContainer>
+      <ScoreContainer>
+        <BadgeBuilder label="Points / cost" />
+        {numberFormat(score, 3)}
+      </ScoreContainer>
+    </FlexRow>
+  );
+};
+
+const ScoreContainer = styled.div`
+  background: ${MyTheme.colors.background};
+  border-radius: 4px;
+  padding: 2px 4px;
+  font-size: 0.9em;
+  span {
+    font-size: 1em;
+  }
+`;
+
+const ScoreBadge = styled.div`
+  background: ${MyTheme.colors.cardBackground};
+  font-size: 0.5em;
+  border-radius: 4px;
+  padding: 1px 2px;
+`;
 
 const BadgeBuilder = ({ label }: { label: string }) => (
-  <Badge position="relative" bottom={0.7} left={-1} fontSize="0.5em">
-    {label}
-  </Badge>
+  <ScoreBadge>{label}</ScoreBadge>
 );

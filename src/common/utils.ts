@@ -28,3 +28,6 @@ export const currencyFormat = (num: number, decimalPlaces: number = 0) =>
 
 export const numberFormat = (num: number, decimalPlaces: number = 0) =>
   num.toFixed(decimalPlaces).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+
+export const secondsToMinutes = (seconds: number): number =>
+  Math.round(seconds / 60);

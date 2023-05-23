@@ -9,7 +9,8 @@ export type SortByEnum =
   | "highestScore"
   | "lowestCost"
   | "highestPoints"
-  | "sqrMtrCost";
+  | "sqrMtrCost"
+  | "commuteAnalysis";
 
 interface SortingFiltersProps {
   searchText: string;
@@ -52,6 +53,7 @@ function SortingFilters({
           { value: "highestPoints", label: "Highest Points" },
           { value: "lowestCost", label: "Lowest Cost" },
           { value: "sqrMtrCost", label: "£ / Square Mtr" },
+          { value: "commuteAnalysis", label: "Best for Commuting" },
         ]}
       />
       <Input

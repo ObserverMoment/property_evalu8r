@@ -17,9 +17,21 @@ export type Project = {
   name: string;
 };
 
+export type ProjectCommuteSetting = {
+  [s: string]: any;
+} & Database["public"]["Tables"]["project_commute_settings"]["Row"];
+
 export type Property = {
   [s: string]: any;
 } & Database["public"]["Tables"]["properties"]["Row"];
+
+export type PropertyCommuteScore = {
+  [s: string]: any;
+} & Database["public"]["Tables"]["property_commute_scores"]["Row"];
+
+export type CommuteScoresByProperty = {
+  [id: number]: PropertyCommuteScore | undefined;
+};
 
 export interface PropertyScores {
   [key: number]: PropertyScore;

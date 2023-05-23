@@ -23,7 +23,9 @@ import { useDisclosure } from "@chakra-ui/react";
 import { FlexRow, MySpacer } from "../styled/layout";
 import { MyTheme } from "../styled/theme";
 import { PlusOutlined } from "@ant-design/icons";
-import { usePropertiesStore } from "../../common/stores/propertiesStore";
+import { useProjectDataStore } from "../../common/stores/projectDataStore";
+import { PropertyCommuteAnalysis } from "../commuteAnalysis/PropertyCommuteAnalysis";
+import { totalCommuteTimeToAllDestinations } from "../commuteAnalysis/utils";
 
 interface PropertyListProps {
   activeProject: Project;
@@ -48,12 +50,14 @@ export function PropertyList({
 }: PropertyListProps) {
   const {
     api,
+    projectCommuteSetting,
     properties,
     propertyScores,
     likesByProperty,
+    commuteScoresByProperty,
     noteCountByProperty,
     isLoading,
-  } = usePropertiesStore();
+  } = useProjectDataStore();
   const deviceSize = useMediaSize();
 
   // ChakraUI modal hook.
@@ -68,16 +72,18 @@ export function PropertyList({
   const [showTypeValue, setShowTypeValue] = useState<string>("all");
   const [sortBy, setSortBy] = useState<SortByEnum>("recentlyAdded");
 
-  // Panel control state
-  /// Panel state.
+  // Side panel control state
   const [openAddPanel, setOpenAddPanel] = useState(false);
+
   const [openUpdatePanel, setOpenUpdatePanel] = useState(false);
   const [openNotesPanel, setOpenNotesPanel] = useState(false);
   const [propertyToUpdate, setPropertyToUpdate] = useState<Property | null>(
     null
   );
 
-  /// Delete
+  const [openCommuteAnalysisPanel, setOpenCommuteAnalysisPanel] =
+    useState(false);
+
   const [propertyToBeDeleted, setPropertyToBeDeleted] =
     useState<Property | null>(null);
 
@@ -119,6 +125,12 @@ export function PropertyList({
   const handleOpenUpdateNotes = (p: Property) => {
     setPropertyToUpdate(p);
     setOpenNotesPanel(true);
+  };
+
+  /// Update commute analysis
+  const handleOpenCommuteAnalysis = (p: Property) => {
+    setPropertyToUpdate(p);
+    setOpenCommuteAnalysisPanel(true);
   };
 
   /// Like / Unlike
@@ -179,10 +191,25 @@ export function PropertyList({
       } else if (sortBy === "highestPoints") {
         return propertyScores[b.id].points - propertyScores[a.id].points;
       } else if (sortBy === "sqrMtrCost") {
-        // Abitrarily high number to ensure incomplete entries go to the bottom.
         const ac = propertyScores[a.id].sqMtrCost;
         const bc = propertyScores[b.id].sqMtrCost;
         return !bc ? -1 : !ac ? 1 : ac - bc;
+      } else if (sortBy === "commuteAnalysis") {
+        const aScore = commuteScoresByProperty[a.id]
+          ? totalCommuteTimeToAllDestinations(
+              commuteScoresByProperty[a.id]!,
+              // TODO: Build protection against null
+              projectCommuteSetting!
+            )
+          : null;
+        const bScore = commuteScoresByProperty[b.id]
+          ? totalCommuteTimeToAllDestinations(
+              commuteScoresByProperty[b.id]!,
+              // TODO: Build protection against null
+              projectCommuteSetting!
+            )
+          : null;
+        return !bScore ? -1 : !aScore ? 1 : aScore - bScore;
       } else {
         const da = moment(a.created_at.toString());
         const db = moment(b.created_at.toString());
@@ -235,6 +262,7 @@ export function PropertyList({
               key={p.id}
               property={p}
               propertyScore={propertyScores[p.id]}
+              propertyCommuteScore={commuteScoresByProperty[p.id]}
               openUpdateProperty={() => handleOpenUpdateProperty(p)}
               handleRequestDeleteProperty={handleRequestDeleteProperty}
               handleRequestNoteUpdate={() => handleOpenUpdateNotes(p)}
@@ -243,6 +271,7 @@ export function PropertyList({
               authedUserId={authedUserProfile.id}
               handleAddPropertyLike={handleAddPropertyLike}
               handleRemovePropertyLike={handleRemovePropertyLike}
+              handleOpenCommuteAnalysis={handleOpenCommuteAnalysis}
             />
           </div>
         ))
@@ -255,7 +284,7 @@ export function PropertyList({
           }
         />
       )}
-
+      {/* Add new property panel  */}
       <ResponsiveDrawer
         closable={false}
         maskClosable={false}
@@ -272,6 +301,7 @@ export function PropertyList({
         )}
       </ResponsiveDrawer>
 
+      {/* Update property panel  */}
       <ResponsiveDrawer
         closable={false}
         maskClosable={false}
@@ -288,6 +318,25 @@ export function PropertyList({
         )}
       </ResponsiveDrawer>
 
+      {/* Update property commute analysis panel  */}
+      <ResponsiveDrawer
+        closable
+        maskClosable={false}
+        onClose={() => setOpenCommuteAnalysisPanel(false)}
+        open={openCommuteAnalysisPanel}
+        drawerKey="Commute analysis"
+      >
+        {propertyToUpdate && (
+          <PropertyCommuteAnalysis
+            key={propertyToUpdate.id}
+            propertyCommuteScore={commuteScoresByProperty[propertyToUpdate.id]}
+            projectCommuteSetting={projectCommuteSetting}
+            property={propertyToUpdate}
+          />
+        )}
+      </ResponsiveDrawer>
+
+      {/* Property Notes panel  */}
       <ResponsiveDrawer
         closable={true}
         maskClosable={true}
@@ -297,6 +346,7 @@ export function PropertyList({
       >
         {propertyToUpdate && (
           <UpdateNotes
+            key={propertyToUpdate.id}
             property={propertyToUpdate}
             messageApi={messageApi}
             authedUserId={authedUserProfile.id}
