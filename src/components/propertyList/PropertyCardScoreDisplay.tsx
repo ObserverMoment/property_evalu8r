@@ -39,11 +39,11 @@ export const PropertyCardScoreDisplay = ({
       );
 
       return [
-        <ScoreContainer>
-          <BadgeBuilder label={`Avg / Destination`} />
+        <ScoreContainer key="Avg / Destination">
+          <BadgeBuilder label="Avg / Destination" />
           <span>{Math.round(totalCommuteTime / numDestinations)} mins</span>
         </ScoreContainer>,
-        <ScoreContainer>
+        <ScoreContainer key={`To ${numDestinations} Destinations`}>
           <BadgeBuilder label={`To ${numDestinations} Destinations`} />
           <span>
             {totalCommuteTimeToAllDestinations(

@@ -171,11 +171,9 @@ export const getProjectLikesNotesAndCommuteSettings = async (
     .select(
       `
     id,
-    user_likes_properties (
-      user_profiles (
-        id,
-        username
-      )
+    user_profiles!user_likes_properties (
+      id,
+      username
     ),
     property_commute_scores ( * ),
     user_property_notes(count)

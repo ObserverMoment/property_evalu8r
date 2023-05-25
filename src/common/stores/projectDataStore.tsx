@@ -21,7 +21,6 @@ import {
   Property,
   PropertyCommuteScore,
   PropertyScores,
-  UserLikesInProperty,
   UserNotesCountInProperty,
   UserProfile,
 } from "../../types/types";
@@ -177,9 +176,7 @@ export const ProjectDataStoreProvider = ({
           data.reduce<LikesNotesCommuteScoresByProperty>(
             (acum, nextProperty) => {
               acum.likesByProperty[nextProperty.id] =
-                (nextProperty.user_likes_properties as UserLikesInProperty[])!.flatMap(
-                  (ulp) => ulp.user_profiles
-                );
+                (nextProperty.user_profiles || []) as UserProfile[];
 
               if (nextProperty.property_commute_scores) {
                 acum.commuteScoresByProperty[nextProperty.id] =

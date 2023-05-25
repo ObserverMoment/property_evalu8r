@@ -53,11 +53,6 @@ export type NoteCountByProperty = {
   [id: number]: number;
 };
 
-/// Shape of [user_likes_properties] field of property when data successfully returned from [getProjectLikes]
-export type UserLikesInProperty = {
-  user_profiles: UserProfile[];
-};
-
 /// Shape of [user_property_notes] field of property when data successfully returned from [getProjectLikes]
 export type UserNotesCountInProperty = {
   count: number;
