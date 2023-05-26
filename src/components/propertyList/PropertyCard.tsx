@@ -82,7 +82,7 @@ export function PropertyCard({
   const buildPropertyCardFooter = () => {
     return (
       <FlexRow
-        style={{ padding: "10px 16px 0 8px" }}
+        style={{ padding: "10px 8px 0 8px" }}
         justifyContent="space-between"
       >
         <PropertyCardLikes

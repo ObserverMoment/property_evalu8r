@@ -1,6 +1,5 @@
 import { Property } from "../../types/types";
 import { FlexRow } from "../styled/layout";
-import { EllipsisOutlined } from "@ant-design/icons";
 import { SecondaryButton } from "../styled/styled";
 import styled from "@emotion/styled";
 import { MyTheme } from "../styled/theme";
@@ -88,8 +87,10 @@ export const PropertyCardEditButtons = ({
                 label: (
                   <InputNumber
                     min={0}
-                    max={999999999}
+                    max={99999999}
                     addonBefore={"£"}
+                    size="small"
+                    style={{ width: "100px" }}
                     addonAfter={
                       <SecondaryButton
                         size="micro"
@@ -99,7 +100,7 @@ export const PropertyCardEditButtons = ({
                         Save
                       </SecondaryButton>
                     }
-                    placeholder="Enter offer amount"
+                    placeholder="Offered..."
                     onChange={(a) => setActiveOfferAmount(a)}
                     value={activeOfferAmount}
                   />
@@ -111,11 +112,12 @@ export const PropertyCardEditButtons = ({
                   <FlexRow justifyContent="center" alignItems="center">
                     <div
                       style={{
-                        paddingRight: "10px",
+                        paddingRight: "6px",
                         color: MyTheme.colors.secondary,
+                        fontSize: "0.7em",
                       }}
                     >
-                      Viewing on:{" "}
+                      Viewing on:
                     </div>
                     <DatePicker
                       value={
@@ -134,7 +136,7 @@ export const PropertyCardEditButtons = ({
                 key: "3",
                 label: (
                   <SecondaryButton size="micro" onClick={handleRequestUpdate}>
-                    Edit Property Details
+                    Edit Details
                   </SecondaryButton>
                 ),
               },
@@ -142,7 +144,7 @@ export const PropertyCardEditButtons = ({
                 key: "4",
                 label: (
                   <SecondaryButton size="micro" onClick={handleRequestDelete}>
-                    Delete
+                    Delete Property
                   </SecondaryButton>
                 ),
               },
@@ -150,7 +152,7 @@ export const PropertyCardEditButtons = ({
           }}
           placement="topRight"
         >
-          <EllipsisOutlined />
+          <SecondaryButton size="micro">Edit</SecondaryButton>
         </Dropdown>
       )}
     </FlexRow>
