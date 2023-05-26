@@ -1,7 +1,7 @@
 import { Calendar } from "antd";
 import { Property } from "../../types/types";
 import dayjs, { Dayjs } from "dayjs";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { PropertyCardInfoFields } from "./PropertyCardInfoFields";
 import { MyCard } from "../styled/styled";
 import Title from "antd/es/typography/Title";
@@ -23,6 +23,10 @@ export const ViewingsCalendar = ({ properties }: ViewingsCalendarProps) => {
       )
     );
   };
+
+  const cachedHandleDateSelect = useCallback(handleDateSelect, [properties]);
+
+  useEffect(() => cachedHandleDateSelect(dayjs()), [cachedHandleDateSelect]);
 
   return (
     <div>
@@ -47,7 +51,7 @@ export const ViewingsCalendar = ({ properties }: ViewingsCalendarProps) => {
         viewingsOnSelectedDay
           .sort((a, b) => (dayjs(a.view_date).isBefore(b.view_date) ? -1 : 1))
           .map((p) => (
-            <div style={{ padding: "4px" }}>
+            <div key={p.id} style={{ padding: "4px" }}>
               <MyCard>
                 <DateTextDisplay>
                   {dayjs(p.view_date).format("h:mm A D MMM")}
