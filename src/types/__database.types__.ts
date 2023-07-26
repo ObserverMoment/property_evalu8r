@@ -3,7 +3,7 @@ export type Json =
   | number
   | boolean
   | null
-  | { [key: string]: Json }
+  | { [key: string]: Json | undefined }
   | Json[]
 
 export interface Database {
@@ -74,6 +74,14 @@ export interface Database {
           id?: number
           project_id?: number
         }
+        Relationships: [
+          {
+            foreignKeyName: "project_commute_settings_project_id_fkey"
+            columns: ["project_id"]
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       project_members: {
         Row: {
@@ -94,6 +102,20 @@ export interface Database {
           project_id?: number
           user_id?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "project_members_project_id_fkey"
+            columns: ["project_id"]
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_members_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       projects: {
         Row: {
@@ -114,6 +136,7 @@ export interface Database {
           name?: string
           password?: string
         }
+        Relationships: []
       }
       properties: {
         Row: {
@@ -122,6 +145,7 @@ export interface Database {
           agent_website: string | null
           created_at: string
           energy_effeciency: number | null
+          est_monthly_rent: number | null
           floor_level: number | null
           garden_balcony: boolean | null
           house_price: number | null
@@ -150,6 +174,7 @@ export interface Database {
           agent_website?: string | null
           created_at?: string
           energy_effeciency?: number | null
+          est_monthly_rent?: number | null
           floor_level?: number | null
           garden_balcony?: boolean | null
           house_price?: number | null
@@ -178,6 +203,7 @@ export interface Database {
           agent_website?: string | null
           created_at?: string
           energy_effeciency?: number | null
+          est_monthly_rent?: number | null
           floor_level?: number | null
           garden_balcony?: boolean | null
           house_price?: number | null
@@ -200,6 +226,20 @@ export interface Database {
           walk_to_park?: number | null
           walk_to_station?: number | null
         }
+        Relationships: [
+          {
+            foreignKeyName: "properties_project_id_fkey"
+            columns: ["project_id"]
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "properties_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       property_commute_scores: {
         Row: {
@@ -241,6 +281,14 @@ export interface Database {
           id?: number
           property_id?: number
         }
+        Relationships: [
+          {
+            foreignKeyName: "property_commute_scores_property_id_fkey"
+            columns: ["property_id"]
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       user_likes_properties: {
         Row: {
@@ -258,6 +306,20 @@ export interface Database {
           property_id?: number
           user_id?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "user_likes_properties_property_id_fkey"
+            columns: ["property_id"]
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_likes_properties_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       user_profiles: {
         Row: {
@@ -275,6 +337,14 @@ export interface Database {
           updated_at?: string | null
           username?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "user_profiles_id_fkey"
+            columns: ["id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       user_property_notes: {
         Row: {
@@ -298,6 +368,20 @@ export interface Database {
           property_id?: number
           user_id?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "user_property_notes_property_id_fkey"
+            columns: ["property_id"]
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_property_notes_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          }
+        ]
       }
     }
     Views: {
@@ -372,6 +456,14 @@ export interface Database {
           public?: boolean | null
           updated_at?: string | null
         }
+        Relationships: [
+          {
+            foreignKeyName: "buckets_owner_fkey"
+            columns: ["owner"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       migrations: {
         Row: {
@@ -392,6 +484,7 @@ export interface Database {
           id?: number
           name?: string
         }
+        Relationships: []
       }
       objects: {
         Row: {
@@ -430,6 +523,20 @@ export interface Database {
           updated_at?: string | null
           version?: string | null
         }
+        Relationships: [
+          {
+            foreignKeyName: "objects_bucketId_fkey"
+            columns: ["bucket_id"]
+            referencedRelation: "buckets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "objects_owner_fkey"
+            columns: ["owner"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
       }
     }
     Views: {

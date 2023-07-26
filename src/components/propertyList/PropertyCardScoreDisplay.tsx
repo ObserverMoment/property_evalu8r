@@ -20,7 +20,7 @@ interface PropertyCardScoreDisplayProps {
 }
 
 export const PropertyCardScoreDisplay = ({
-  propertyScore: { cost, points, score, sqMtrCost },
+  propertyScore: { cost, points, score, sqMtrCost, rentalYield },
   propertyCommuteScore,
   deviceSize,
 }: PropertyCardScoreDisplayProps) => {
@@ -64,6 +64,13 @@ export const PropertyCardScoreDisplay = ({
         padding: deviceSize === "large" ? 0 : "4px 2px",
       }}
     >
+      {rentalYield != null && (
+        <ScoreContainer>
+          <BadgeBuilder label="Rent Yield (After SC)" />
+          {`${(rentalYield * 100).toFixed(2)} %`}
+        </ScoreContainer>
+      )}
+
       {renderCommuteScoreBadges()}
 
       {sqMtrCost && (

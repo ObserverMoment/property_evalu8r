@@ -211,6 +211,10 @@ export function PropertyList({
             )
           : null;
         return !bScore ? -1 : !aScore ? 1 : aScore - bScore;
+      } else if (sortBy === "rentalYield") {
+        const ay = propertyScores[a.id].rentalYield;
+        const by = propertyScores[b.id].rentalYield;
+        return !by ? -1 : !ay ? 1 : by - ay;
       } else {
         const da = moment(a.created_at.toString());
         const db = moment(b.created_at.toString());

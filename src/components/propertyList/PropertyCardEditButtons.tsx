@@ -90,7 +90,7 @@ export const PropertyCardEditButtons = ({
                     max={99999999}
                     addonBefore={"£"}
                     size="small"
-                    style={{ width: "100px" }}
+                    style={{ width: "220px" }}
                     addonAfter={
                       <SecondaryButton
                         size="micro"

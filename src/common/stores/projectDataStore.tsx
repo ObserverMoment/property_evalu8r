@@ -234,7 +234,6 @@ export const ProjectDataStoreProvider = ({
           mapReplaceArray({ modified: data, previous: properties })
         );
 
-        setPropertyScores(calculateAllPropertyScores(properties));
         handleSuccess("Property updated");
       }
     },
@@ -244,7 +243,6 @@ export const ProjectDataStoreProvider = ({
         handleError(error);
       } else {
         handleSetProperties(properties.filter((p) => p.id !== propertyId));
-        setPropertyScores(calculateAllPropertyScores(properties));
       }
     },
     createPropertyCommuteScore: async (propertyId, commuteScore) => {

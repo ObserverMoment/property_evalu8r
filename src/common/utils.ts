@@ -29,5 +29,12 @@ export const currencyFormat = (num: number, decimalPlaces: number = 0) =>
 export const numberFormat = (num: number, decimalPlaces: number = 0) =>
   num.toFixed(decimalPlaces).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
 
+// https://stackoverflow.com/questions/11832914/how-to-round-to-at-most-2-decimal-places-if-necessary
+export const roundToFixedDecimal = (num: number, decimalPlaces: number = 2) => {
+  var multiplicator = Math.pow(10, decimalPlaces);
+  var n = num * multiplicator;
+  return Math.round(n) / multiplicator;
+};
+
 export const secondsToMinutes = (seconds: number): number =>
   Math.round(seconds / 60);
