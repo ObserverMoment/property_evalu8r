@@ -43,6 +43,7 @@ export interface PropertyScore {
   points: number;
   score: number; // points - cost
   sqMtrCost: number | null;
+  rentalYield: number | null;
 }
 
 export type LikesByProperty = {

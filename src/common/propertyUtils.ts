@@ -1,6 +1,6 @@
 import { Database } from "../types/__database.types__";
 import { PropertyScores, Property, PropertyScore } from "../types/types";
-import { currencyFormat } from "./utils";
+import { currencyFormat, roundToFixedDecimal } from "./utils";
 
 export const propertyFieldDefs = {
   stringFields: [
@@ -20,6 +20,7 @@ export const propertyFieldDefs = {
     "lease_length",
     "sc_gr_annual",
     "energy_effeciency",
+    "est_monthly_rent",
   ],
   qualityEnumFields: ["interior", "view"],
   boolFields: [
@@ -84,6 +85,11 @@ export const propertyNumberInputConfig: PropertyNumberInputConfigObject = {
     min: 0,
     suffix: "sq mtr",
     displayFormat: (x: number) => x.toString(),
+  },
+  est_monthly_rent: {
+    min: 0,
+    prefix: "£",
+    displayFormat: (x: number) => currencyFormat(x),
   },
 };
 
@@ -220,11 +226,14 @@ export const calculatePropertyScore = (property: Property): PropertyScore => {
     return acum + config.formula(numericScore, weight);
   }, 0);
 
+  const rentalYield = calculateNetYield(property);
+
   return {
     propertyId: property.id,
     cost: Math.floor(cost),
     points: Math.floor(points),
     score: points / cost,
+    rentalYield,
     sqMtrCost:
       property.house_price && property.sq_metres
         ? Math.floor(property.house_price / property.sq_metres)
@@ -264,3 +273,17 @@ export const checkPropertyCompleteInfo = (properties: Property[]) =>
     },
     { completed: [], awaitingInfo: [] }
   );
+
+//// Yield Calculations ////
+/// (12 x monthly rent - yearly service charge and ground rent) / house price
+export const calculateNetYield = (property: Property) => {
+  const { est_monthly_rent, house_price, sc_gr_annual } = property;
+  if (!est_monthly_rent || !house_price || !sc_gr_annual) {
+    return null;
+  } else {
+    return roundToFixedDecimal(
+      (12 * est_monthly_rent - sc_gr_annual) / house_price,
+      4
+    );
+  }
+};
