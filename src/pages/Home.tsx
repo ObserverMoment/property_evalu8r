@@ -108,7 +108,7 @@ function Home({ signOut, messageApi }: HomeProps) {
   return (
     <HomeContent>
       <PageHeader>
-        <Header1>Property Evalu8r</Header1>
+        <Header1>Property Evaluator</Header1>
 
         {authedUserProfile && (
           <AccountSettingsMenu

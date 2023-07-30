@@ -3,6 +3,7 @@ import dayjs from "dayjs";
 import weekday from "dayjs/plugin/weekday";
 dayjs.extend(weekday);
 
+/// Deprecated - now in DB.
 export const destinations = {
   london_victoria_station: "Victoria Station, Victoria Street, London",
   london_waterloo_station: "Waterloo Station, Waterloo Road, London",

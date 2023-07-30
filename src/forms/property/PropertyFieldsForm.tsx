@@ -89,6 +89,8 @@ function PropertyFieldsForm({
               placeholder={fieldConfig.validatorMessage || "999"}
               onChange={(e) => formState[k].setValue(e)}
               value={formState[k].value}
+              precision={fieldConfig.decimalPrecision}
+              step={1}
             />
           </MyFormItem>
         );

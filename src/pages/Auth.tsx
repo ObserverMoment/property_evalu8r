@@ -58,7 +58,7 @@ function Auth({ messageApi }: AuthProps) {
   return (
     <>
       <PageHeader>
-        <Header1>Property Evalu8r</Header1>
+        <Header1>Property Evaluator</Header1>
         <div style={{ width: "28px" }}>
           <ReactSVG
             src="logo.svg"
