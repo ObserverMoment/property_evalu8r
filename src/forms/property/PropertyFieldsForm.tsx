@@ -86,7 +86,7 @@ function PropertyFieldsForm({
               max={fieldConfig.max}
               addonBefore={fieldConfig.prefix}
               addonAfter={fieldConfig.suffix}
-              placeholder={fieldConfig.validatorMessage || "999"}
+              placeholder={fieldConfig.validatorMessage || "99"}
               onChange={(e) => formState[k].setValue(e)}
               value={formState[k].value}
               precision={fieldConfig.decimalPrecision}
