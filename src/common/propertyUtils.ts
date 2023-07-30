@@ -15,7 +15,6 @@ export const propertyFieldDefs = {
     "house_price",
     "sq_metres",
     "floor_level",
-    "walk_to_station",
     "walk_to_park",
     "lease_length",
     "sc_gr_annual",
@@ -40,6 +39,7 @@ interface PropertyNumberInputConfigObject {
     validator?: (v: any) => boolean;
     validatorMessage?: string;
     displayFormat: (x: number) => string;
+    decimalPrecision: number; // Should match the DB column type. 0 for int, 1+ for float.
   };
 }
 
@@ -48,25 +48,24 @@ export const propertyNumberInputConfig: PropertyNumberInputConfigObject = {
     min: 0,
     prefix: "£",
     displayFormat: (x: number) => currencyFormat(x),
+    decimalPrecision: 0,
   },
   floor_level: {
     min: 0,
     displayFormat: (x: number) => x.toString(),
-  },
-  walk_to_station: {
-    min: 0,
-    suffix: "mins",
-    displayFormat: (x: number) => x.toString(),
+    decimalPrecision: 0,
   },
   walk_to_park: {
     min: 0,
     suffix: "mins",
     displayFormat: (x: number) => x.toString(),
+    decimalPrecision: 1,
   },
   lease_length: {
     min: 0,
     suffix: "years",
     displayFormat: (x: number) => x.toString(),
+    decimalPrecision: 0,
   },
   energy_effeciency: {
     min: 0,
@@ -75,21 +74,25 @@ export const propertyNumberInputConfig: PropertyNumberInputConfigObject = {
     validator: (v: number) => v >= 0 && v <= 100,
     validatorMessage: "Range is 0 to 100",
     displayFormat: (x: number) => x.toString(),
+    decimalPrecision: 0,
   },
   sc_gr_annual: {
     min: 0,
     prefix: "£",
     displayFormat: (x: number) => currencyFormat(x),
+    decimalPrecision: 0,
   },
   sq_metres: {
     min: 0,
     suffix: "sq mtr",
     displayFormat: (x: number) => x.toString(),
+    decimalPrecision: 1,
   },
   est_monthly_rent: {
     min: 0,
     prefix: "£",
     displayFormat: (x: number) => currencyFormat(x),
+    decimalPrecision: 0,
   },
 };
 
@@ -113,11 +116,6 @@ export const scoreAlgorithmCalculationConfig: ScoreAlgorithmCalculationConfig =
     floor_level: {
       inputToNumberConverter: (x: number) => x,
       formula: (x, w) => Math.min(x, 6) * w,
-    },
-    // Each minute over 10 minutes affects score by [-weight], under 10 minutes [+weight]
-    walk_to_station: {
-      inputToNumberConverter: (x: number) => x,
-      formula: (x, w) => (x - 10) * w,
     },
     // Each minute over 15 minutes affects score by [-weight],  under 15 minutes [+weight]
     walk_to_park: {
@@ -192,7 +190,6 @@ export const scoreAlgorithmCalculationWeights: ScoreAlgorithmCalculationWeights 
     house_price: 1, // 'Initial Cost'
     sc_gr_annual: 30, // '30 years of ongoing Cost'
     floor_level: 5000,
-    walk_to_station: -1000,
     walk_to_park: -500,
     lease_length: 1000,
     energy_effeciency: 1000,

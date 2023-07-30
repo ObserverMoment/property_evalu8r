@@ -166,7 +166,6 @@ export interface Database {
           view: Database["public"]["Enums"]["quality_assessment_enum"]
           view_date: string | null
           walk_to_park: number | null
-          walk_to_station: number | null
         }
         Insert: {
           agent_email?: string | null
@@ -195,7 +194,6 @@ export interface Database {
           view?: Database["public"]["Enums"]["quality_assessment_enum"]
           view_date?: string | null
           walk_to_park?: number | null
-          walk_to_station?: number | null
         }
         Update: {
           agent_email?: string | null
@@ -224,7 +222,6 @@ export interface Database {
           view?: Database["public"]["Enums"]["quality_assessment_enum"]
           view_date?: string | null
           walk_to_park?: number | null
-          walk_to_station?: number | null
         }
         Relationships: [
           {
