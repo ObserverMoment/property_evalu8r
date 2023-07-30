@@ -38,6 +38,11 @@ export const PropertyCommuteAnalysis = ({
     useState<PropertyCommuteScore | null>(null);
   const [savedToDB, setSavedToDB] = useState<boolean>(false);
   const [savingToDB, setSavingToDB] = useState<boolean>(false);
+  /// The API will try and geolocate via the property title...sometimes it gets it wrong (especially if the full address is not present).
+  /// We display the returned name from the API reponse so the user can see if there is any weirdness going on.
+  const [resultsOriginName, setResultsOriginName] = useState<string | null>(
+    null
+  );
 
   const { api } = useProjectDataStore();
 
@@ -45,6 +50,7 @@ export const PropertyCommuteAnalysis = ({
     apiResponse: google.maps.DistanceMatrixResponse | null
   ) => {
     if (apiResponse) {
+      setResultsOriginName(apiResponse.originAddresses[0]);
       const formattedResponse =
         apiResponse.destinationAddresses.reduce<PropertyCommuteScore>(
           (acum, _, i) => {
@@ -117,6 +123,12 @@ export const PropertyCommuteAnalysis = ({
       <div>
         For <span style={{ fontWeight: "bold" }}>{property.listing_title}</span>
       </div>
+      <div>
+        <span style={{ fontSize: "0.8em" }}>
+          Note: These transit times may not be accurate if the full address is
+          not included in the listing title.
+        </span>
+      </div>
 
       <div
         style={{
@@ -184,6 +196,12 @@ export const PropertyCommuteAnalysis = ({
       {totalTimeToAllDestinations && (
         <div style={{ padding: "8px 0", fontWeight: "bold" }}>
           Total: {totalTimeToAllDestinations} mins
+        </div>
+      )}
+      {resultsOriginName && (
+        <div>
+          <div>Results based on a starting address of:</div>
+          <div style={{ fontWeight: "bold" }}>{resultsOriginName}</div>
         </div>
       )}
     </div>
