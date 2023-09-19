@@ -310,3 +310,4 @@ The remaining amount (the portion above £1.5 million)	12%
 export const stampDutyRate = (housePrice: number) => {};
 
 export const calculateStampDuty = (housePrice: number, isFtb: boolean) => {};
+
