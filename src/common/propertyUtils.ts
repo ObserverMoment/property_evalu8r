@@ -297,3 +297,16 @@ export const calculateNetYield = (property: Property) => {
     );
   }
 };
+
+/// TODO!?
+/// https://www.gov.uk/stamp-duty-land-tax/residential-property-rates
+/*
+Property or lease premium or transfer value	SDLT rate
+Up to £250,000	Zero
+The next £675,000 (the portion from £250,001 to £925,000)	5%
+The next £575,000 (the portion from £925,001 to £1.5 million)	10%
+The remaining amount (the portion above £1.5 million)	12%
+*/
+export const stampDutyRate = (housePrice: number) => {};
+
+export const calculateStampDuty = (housePrice: number, isFtb: boolean) => {};
