@@ -1,6 +1,6 @@
 import { Input } from "antd";
-import { FlexRow, MySpacer } from "../../components/styled/layout";
-import { PrimaryButton, SecondaryButton } from "../../components/styled/styled";
+import { MySpacer } from "../../components/styled/layout";
+import { PrimaryButton } from "../../components/styled/styled";
 import styled from "@emotion/styled";
 import { useState } from "react";
 
@@ -36,16 +36,13 @@ const CreateNewProject = ({ createNewProject }: CreateNewProjectProps) => {
       />
       <InputRestrictionsText>Minumum of 6 characters</InputRestrictionsText>
       <MySpacer height={20} />
-      <FlexRow justifyContent="space-evenly">
-        <SecondaryButton size="sm">Cancel</SecondaryButton>
-        <PrimaryButton
-          size="sm"
-          disabled={projectName.length < 6 || projectPassword.length < 6}
-          onClick={handleCreateNewProject}
-        >
-          Save
-        </PrimaryButton>
-      </FlexRow>
+      <PrimaryButton
+        size="sm"
+        disabled={projectName.length < 6 || projectPassword.length < 6}
+        onClick={handleCreateNewProject}
+      >
+        Save
+      </PrimaryButton>
     </div>
   );
 };
